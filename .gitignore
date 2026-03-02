@@ -2,7 +2,8 @@
 tmp/
 
 # データ（容量が大きいためGit管理外）
-data/
+# 20260302 一旦許容する
+# data/
 
 # Python
 __pycache__/
