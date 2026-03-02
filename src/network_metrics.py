@@ -121,7 +121,7 @@ class NetworkMetricsCalculator:
             deg_cent = pd.Series(nx.degree_centrality(G_undir))
 
             nodes = list(G_undir.nodes())
-            max_samples = 500
+            max_samples = 100
             if len(nodes) > max_samples:
                 rng = np.random.default_rng(42)
                 sampled_nodes = rng.choice(
@@ -181,7 +181,7 @@ class NetworkMetricsCalculator:
         coords = {n: (d['x'], d['y']) for n, d in G_undir.nodes(data=True)}
 
         nodes = list(G_undir.nodes())
-        max_samples = 500
+        max_samples = 100
         if len(nodes) > max_samples:
             rng = np.random.default_rng(42)
             sampled_nodes = rng.choice(nodes, size=max_samples, replace=False)
