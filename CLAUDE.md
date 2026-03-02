@@ -11,6 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/plans/` - 実験計画ドキュメント
 - `docs/results/` - 実験結果
 - `docs/reports/` - 学術論文形式のレポート
+- `docs/presentations/` - プレゼンテーション用発表資料（pptx形式）
+- `docs/experiments/` - ノートブックと一対一で対応する実験内容ドキュメント
 - `notebooks/` - Jupyter Notebook
 - `src/` - ユーティリティクラス・各種モジュール
 - `data/` - 実験データ
@@ -42,6 +44,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 洋単行本: `Author(s) (Year) *Book Title*. Place: Publisher.`
 - 著者間は和文「・」、洋文「and」を使用（`&` は使わない）
 - プロジェクト内参照: 計画書・ノートブック・データ等への相対パス
+
+### 実験ドキュメント (`docs/experiments/`)
+
+`notebooks/` 配下の各ノートブックと一対一で対応するドキュメントを作成する。ノートブックの処理内容・設定定数・主要クラス・処理フロー・出力ファイル等を記載し、ノートブックを実行せずとも内容を把握できるようにする。
+
+ファイル名はノートブックと対応させる（例: `exp001_shizuoka_road_network.ipynb` → `exp001_shizuoka_road_network.md`）。
+
+構成:
+- **見出し**: ノートブックファイル名 + 日本語の説明
+- **概要**: ノートブックの目的と処理の全体像
+- **重要な設定定数**: 分析パラメータをコードブロックで記載
+- **主要クラス・関数**: 使用するクラス・関数のメソッド一覧と説明（テーブル形式）
+- **処理フロー**: 処理の流れをテキストフローチャートで記載
+- **出力ファイル**: 生成されるファイルの一覧（テーブル形式）
+- **結果例**: 主要な結果の概要（実験実施後に記載）
+- **次のステップ**: 後続の分析・作業への参照
+
+### 発表資料 (`docs/presentations/`)
+
+`docs/reports/` 配下のレポートをもとにプレゼンテーション用の発表資料をpptx形式で作成し、`docs/presentations/` に格納する。ファイル名はレポートと対応させる（例: `exp001_shizuoka_road_network_report.md` → `exp001_shizuoka_road_network_presentation.pptx`）。
 
 ### 先行研究の管理 (`refs/`)
 

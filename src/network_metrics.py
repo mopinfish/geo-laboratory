@@ -110,17 +110,44 @@ class NetworkMetricsCalculator:
         return hull.area
 
     def _calculate_centrality(self, G):
-        """degree_centrality_mean, closeness_centrality_meanを算出する"""
+        """degree_centrality_mean, closeness_centrality_meanを算出する
+
+        closeness_centralityは大規模グラフでの計算コストが高いため、
+        ノード数がmax_closeness_samplesを超える場合はサンプリングで近似する。
+        """
         G_undir = G.to_undirected(reciprocal=False)
 
         try:
             deg_cent = pd.Series(nx.degree_centrality(G_undir))
-            clo_cent = pd.Series(
-                nx.closeness_centrality(G_undir, distance="length")
-            )
+
+            nodes = list(G_undir.nodes())
+            max_samples = 500
+            if len(nodes) > max_samples:
+                rng = np.random.default_rng(42)
+                sampled_nodes = rng.choice(
+                    nodes, size=max_samples, replace=False
+                ).tolist()
+                clo_values = []
+                for node in sampled_nodes:
+                    sp = nx.single_source_dijkstra_path_length(
+                        G_undir, node, weight="length"
+                    )
+                    reachable = {k: v for k, v in sp.items() if v > 0}
+                    if reachable:
+                        avg_dist = sum(reachable.values()) / len(reachable)
+                        clo_values.append(1.0 / avg_dist)
+                    else:
+                        clo_values.append(0.0)
+                clo_mean = sum(clo_values) / len(clo_values) if clo_values else 0.0
+            else:
+                clo_cent = pd.Series(
+                    nx.closeness_centrality(G_undir, distance="length")
+                )
+                clo_mean = clo_cent.mean()
+
             return {
                 "degree_centrality_mean": deg_cent.mean(),
-                "closeness_centrality_mean": clo_cent.mean(),
+                "closeness_centrality_mean": clo_mean,
             }
         except Exception:
             return {
