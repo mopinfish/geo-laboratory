@@ -1,0 +1,1 @@
+# geo-laboratory ユーティリティモジュール
