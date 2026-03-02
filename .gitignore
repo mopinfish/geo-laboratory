@@ -24,6 +24,9 @@ build/
 .vscode/
 .idea/
 
+# Playwright MCP
+.playwright-mcp/
+
 # 環境
 .env
 *.env.local
