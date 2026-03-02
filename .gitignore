@@ -1,0 +1,28 @@
+# 一時ファイル
+tmp/
+
+# データ（容量が大きいためGit管理外）
+data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# 環境
+.env
+*.env.local
