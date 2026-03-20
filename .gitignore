@@ -30,3 +30,4 @@ build/
 # 環境
 .env
 *.env.local
+~$*
