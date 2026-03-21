@@ -9,6 +9,7 @@ import os
 SLIDE_W = Emu(12192000)
 SLIDE_H = Emu(6858000)
 TOTAL_SLIDES = 12
+PHOTO_DIR = os.path.join("docs", "results", "exp002", "photos")
 
 # 色定義
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
@@ -133,7 +134,41 @@ def build_presentation():
     ], font_size=16, color=BLACK)
 
     # ============================================================
-    # Slide 3: やりたいこと
+    # Slide 3: 現地の様子（写真スライド）
+    # ============================================================
+    slide = prs.slides.add_slide(blank_layout)
+    add_textbox(slide, 500000, 300000, 11000000, 700000,
+                "現地の様子 — 丁場跡と瀬戸内の風景", font_size=30, bold=True, color=DARK_BLUE)
+    add_page_number(slide, 3)
+
+    # 4枚の写真を2x2で配置
+    photos = [
+        (os.path.join(PHOTO_DIR, "choba_lake_1.jpg"), "丁場湖 — 切り立った花崗岩の\n岩壁に囲まれた水域"),
+        (os.path.join(PHOTO_DIR, "stage_2.jpg"), "湖上ステージ — 採石跡を\n活用したイベント会場"),
+        (os.path.join(PHOTO_DIR, "venice_1.jpg"), "瀬戸内のベニス — 廃石で\n築かれた護岸と透明な水"),
+        (os.path.join(PHOTO_DIR, "sea_1.jpg"), "穏やかな瀬戸内の海 —\n北木島の港の風景"),
+    ]
+    positions = [
+        (300000, 1100000),
+        (6100000, 1100000),
+        (300000, 3800000),
+        (6100000, 3800000),
+    ]
+    img_w = Emu(5600000)
+    img_h = Emu(2500000)
+
+    for (photo_path, caption), (px, py) in zip(photos, positions):
+        if os.path.exists(photo_path):
+            slide.shapes.add_picture(photo_path, Emu(px), Emu(py), img_w, img_h)
+        add_textbox(slide, px, py + 2500000, 5600000, 500000,
+                    caption, font_size=12, color=GRAY, alignment=PP_ALIGN.CENTER)
+
+    add_textbox(slide, 500000, 6400000, 11000000, 300000,
+                "2026年3月 現地訪問時に撮影",
+                font_size=11, color=LIGHT_GRAY, alignment=PP_ALIGN.RIGHT)
+
+    # ============================================================
+    # Slide 4: やりたいこと
     # ============================================================
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
@@ -141,9 +176,9 @@ def build_presentation():
     add_textbox(slide, 500000, 1000000, 11000000, 600000,
                 "水は光の特定の波長を吸収する性質があります。この性質を利用して、衛星画像から水域だけを浮かび上がらせます。",
                 font_size=20, color=BLACK)
-    add_page_number(slide, 3)
+    add_page_number(slide, 4)
 
-    # 3カラムで手法を説明
+    # 3カラムで手法を説明 (slide 4)
     col_w = 3400000
     col_gap = 300000
     col_left = 500000
@@ -171,12 +206,12 @@ def build_presentation():
                     body, font_size=16, color=BLACK, alignment=PP_ALIGN.CENTER)
 
     # ============================================================
-    # Slide 4: 使ったデータ
+    # Slide 5: 使ったデータ
     # ============================================================
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
                 "使ったデータ", font_size=30, bold=True, color=DARK_BLUE)
-    add_page_number(slide, 4)
+    add_page_number(slide, 5)
 
     add_multiline_textbox(slide, 500000, 1200000, 5500000, 5000000, [
         ("Sentinel-2 衛星", True),
@@ -212,7 +247,7 @@ def build_presentation():
     add_textbox(slide, 500000, 900000, 11000000, 400000,
                 "青い部分が水域、赤い部分が陸地。右下が最終的な判定結果（青=水域、緑=植生、灰=その他）",
                 font_size=16, color=GRAY)
-    add_page_number(slide, 5)
+    add_page_number(slide, 6)
 
     img_path = os.path.join(IMG_DIR, "exp002_ndwi_static.png")
     if os.path.exists(img_path):
@@ -226,7 +261,7 @@ def build_presentation():
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
                 "指数の分布 — 水と陸を分けるライン", font_size=30, bold=True, color=DARK_BLUE)
-    add_page_number(slide, 6)
+    add_page_number(slide, 7)
 
     add_textbox(slide, 500000, 900000, 11000000, 400000,
                 "破線が判定の「しきい値」。左側が陸、右側が水域。しきい値を低めに設定して、小さな水域も拾えるようにしています。",
@@ -244,7 +279,7 @@ def build_presentation():
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
                 "衛星写真で見る北木島 — 水域を青く強調", font_size=30, bold=True, color=DARK_BLUE)
-    add_page_number(slide, 7)
+    add_page_number(slide, 8)
 
     add_textbox(slide, 500000, 900000, 5000000, 400000,
                 "左: 衛星写真そのまま　　右: 水域を青色で強調",
@@ -266,7 +301,7 @@ def build_presentation():
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
                 "見つかった水域 — 145か所", font_size=30, bold=True, color=DARK_BLUE)
-    add_page_number(slide, 8)
+    add_page_number(slide, 9)
 
     # 大きな数字
     add_textbox(slide, 500000, 1200000, 5000000, 1200000,
@@ -309,7 +344,7 @@ def build_presentation():
     add_textbox(slide, 500000, 900000, 11000000, 400000,
                 "同じ島を撮った2つの季節の衛星画像を比較しました",
                 font_size=18, color=GRAY)
-    add_page_number(slide, 9)
+    add_page_number(slide, 10)
 
     # 2カラム比較
     for i, (season, date, items) in enumerate([
@@ -347,31 +382,6 @@ def build_presentation():
     add_textbox(slide, 500000, 5700000, 11000000, 800000,
                 "→ 季節ごとに得意な検出パターンが違う。両方の結果を合わせると、より網羅的に丁場跡を把握できそうです。",
                 font_size=18, bold=True, color=DARK_BLUE)
-
-    # ============================================================
-    # Slide 10: 意外な発見
-    # ============================================================
-    slide = prs.slides.add_slide(blank_layout)
-    add_textbox(slide, 500000, 300000, 11000000, 700000,
-                "意外な発見 — 植生マスクはほぼ効かなかった", font_size=30, bold=True, color=DARK_BLUE)
-    add_page_number(slide, 10)
-
-    add_multiline_textbox(slide, 500000, 1200000, 11000000, 5000000, [
-        ("当初の狙い", True),
-        ("「夏の画像なら植生が豊富。植生を除外すれば、水域の検出精度が上がるはず」", False),
-        ("", False),
-        ("実際の結果", True),
-        ("植生マスクで除外されたのは…たった9ピクセル！", False),
-        ("", False),
-        ("なぜ？", True),
-        ("北木島の植生は、そもそも「水域っぽい」反射特性を持っていなかった。", False),
-        ("つまり、NDWIやMNDWIの段階で植生はすでに弾かれていたのです。", False),
-        ("植生マスクを追加しても、ほぼ何も変わりませんでした。", False),
-        ("", False),
-        ("教訓", True),
-        ("「効くはず」の手法が実際に効くかは、データで確認するまでわからない。", False),
-        ("花崗岩の島のように岩肌が卓越する環境では、植生マスクの出番は少ないようです。", False),
-    ], font_size=18, color=BLACK)
 
     # ============================================================
     # Slide 11: まとめ
