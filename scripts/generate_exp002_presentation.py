@@ -8,7 +8,7 @@ import os
 # --- 定数 ---
 SLIDE_W = Emu(12192000)
 SLIDE_H = Emu(6858000)
-TOTAL_SLIDES = 12
+TOTAL_SLIDES = 13
 PHOTO_DIR = os.path.join("docs", "results", "exp002", "photos")
 
 # 色定義
@@ -296,12 +296,34 @@ def build_presentation():
                 font_size=16, bold=True, color=BLUE)
 
     # ============================================================
-    # Slide 8: 検出結果の数字
+    # Slide 9: QGIS拡大画像 — 丁場跡の水域を拡大
+    # ============================================================
+    slide = prs.slides.add_slide(blank_layout)
+    add_textbox(slide, 500000, 300000, 11000000, 700000,
+                "丁場跡を拡大してみると…", font_size=30, bold=True, color=DARK_BLUE)
+    add_page_number(slide, 9)
+
+    add_textbox(slide, 500000, 900000, 11000000, 500000,
+                "水域指数の結果をGIS上で地図に重ねて拡大。島の北部を中心に、道路や建物のすぐ近くに青い水域が点在しています。",
+                font_size=18, color=BLACK)
+
+    qgis_path = os.path.join(PHOTO_DIR, "exp002_ndwi_qgis.png")
+    if os.path.exists(qgis_path):
+        slide.shapes.add_picture(qgis_path,
+                                 Emu(1000000), Emu(1500000),
+                                 Emu(10200000), Emu(4800000))
+
+    add_multiline_textbox(slide, 500000, 6300000, 11000000, 500000, [
+        ("青いピクセル = 水域として検出された場所。集落の間に丁場跡の水域が入り組んでいる様子がわかります。", False),
+    ], font_size=14, color=GRAY)
+
+    # ============================================================
+    # Slide 10: 検出結果の数字
     # ============================================================
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
                 "見つかった水域 — 145か所", font_size=30, bold=True, color=DARK_BLUE)
-    add_page_number(slide, 9)
+    add_page_number(slide, 10)
 
     # 大きな数字
     add_textbox(slide, 500000, 1200000, 5000000, 1200000,
@@ -336,7 +358,7 @@ def build_presentation():
     ], font_size=16, color=BLACK)
 
     # ============================================================
-    # Slide 9: 春 vs 夏
+    # Slide 11: 春 vs 夏
     # ============================================================
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
@@ -344,7 +366,7 @@ def build_presentation():
     add_textbox(slide, 500000, 900000, 11000000, 400000,
                 "同じ島を撮った2つの季節の衛星画像を比較しました",
                 font_size=18, color=GRAY)
-    add_page_number(slide, 10)
+    add_page_number(slide, 11)
 
     # 2カラム比較
     for i, (season, date, items) in enumerate([
@@ -384,12 +406,12 @@ def build_presentation():
                 font_size=18, bold=True, color=DARK_BLUE)
 
     # ============================================================
-    # Slide 11: まとめ
+    # Slide 12: まとめ
     # ============================================================
     slide = prs.slides.add_slide(blank_layout)
     add_textbox(slide, 500000, 300000, 11000000, 700000,
                 "まとめ — わかったこと", font_size=30, bold=True, color=DARK_BLUE)
-    add_page_number(slide, 11)
+    add_page_number(slide, 12)
 
     findings = [
         ("1", "衛星画像から丁場跡の水域を検出できた",
