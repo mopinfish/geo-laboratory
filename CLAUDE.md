@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Directory Structure
 
 - `docs/plans/` - 実験計画ドキュメント
-- `docs/results/` - 実験結果
+- `docs/results/` - 実験結果（レポートから参照する画像等。実験IDごとにサブフォルダを作成）
 - `docs/reports/` - 学術論文形式のレポート
 - `docs/presentations/` - プレゼンテーション用発表資料（pptx形式）
 - `docs/experiments/` - ノートブックと一対一で対応する実験内容ドキュメント
@@ -25,6 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ドキュメントおよびコメントは日本語で記述する
 - レポート（`docs/reports/`）は学術論文の形式に従う
 - `tmp/` 配下のファイルはコミットしない
+- レポートから参照する画像・図表は `docs/results/<実験ID>/` に配置し、Git管理下に置く。`tmp/` の出力ファイルを直接参照しない（`tmp/` はGit管理外のため）
 
 ## ドキュメント規約
 
