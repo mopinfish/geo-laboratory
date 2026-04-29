@@ -1,15 +1,16 @@
-"""地理交流広場第10号 北木島訪問記の新規図版（図1・図4・図8・図9）を生成する。
+"""地理交流広場第10号 北木島訪問記の新規図版（図2・図4・図8・図9）を生成する。
 
 実行方法:
     uv run python scripts/build_chiri_koryu_figures.py
 
 生成される図版:
-    docs/articles/2026_chiri-koryu-10/figures/fig01_location_map.png
+    docs/articles/2026_chiri-koryu-10/figures/fig02_location_map.png
     docs/articles/2026_chiri-koryu-10/figures/fig04_walking_route.png
     docs/articles/2026_chiri-koryu-10/figures/fig08_water_distribution.png
     docs/articles/2026_chiri-koryu-10/figures/fig09_multiscale.png
 
-注: 図2・3・5・6 はユーザ撮影写真、図7 は exp002 の既存図版（コピー済）。
+注: 図1（湖上ステージ）・図3（桂林岩壁）・図5（ドローン離陸）・図6（上空からの丁場群）
+   はユーザ撮影写真。図7 は exp002 の既存図版（コピー済）。
    背景地図は地理院淡色タイル（淡色地図）を使用。出典は記事の注に記載。
 """
 
@@ -79,8 +80,8 @@ def _setup_map_axes(ax, west: float, south: float, east: float, north: float) ->
         spine.set_linewidth(0.6)
 
 
-def make_fig01_location() -> None:
-    """図1: 北木島の位置図（西日本俯瞰 + 笠岡諸島拡大の2パネル、地理院タイル背景）。"""
+def make_fig02_location() -> None:
+    """図2: 北木島の位置図（西日本俯瞰 + 笠岡諸島拡大の2パネル、地理院タイル背景）。"""
     fig, axes = plt.subplots(1, 2, figsize=(9, 4.2), gridspec_kw={"width_ratios": [1, 1]})
 
     # 左パネル: 西日本俯瞰
@@ -131,7 +132,7 @@ def make_fig01_location() -> None:
     ax2.set_title("(b) 笠岡諸島", fontsize=10)
 
     plt.tight_layout()
-    out = FIGURES / "fig01_location_map.png"
+    out = FIGURES / "fig02_location_map.png"
     plt.savefig(out, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
     print(f"saved: {out}")
@@ -256,7 +257,7 @@ def make_fig09_multiscale() -> None:
     import rasterio  # ローカルインポート（重い依存のため）
     import numpy as np
 
-    img_walk = Image.open(FIGURES / "fig02_keirin_cliff.jpg").convert("RGB")
+    img_walk = Image.open(FIGURES / "fig03_keirin_cliff.jpg").convert("RGB")
     img_drone = Image.open(FIGURES / "fig06_aerial_quarries.jpg").convert("RGB")
 
     # 衛星画像は GeoTIFF から直接読む。RGBA の RGB チャネルを使用。
@@ -308,7 +309,7 @@ def make_fig09_multiscale() -> None:
 
 def main() -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
-    make_fig01_location()
+    make_fig02_location()
     make_fig04_walking_route()
     make_fig08_water_distribution()
     make_fig09_multiscale()
