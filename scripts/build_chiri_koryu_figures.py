@@ -80,6 +80,15 @@ def _setup_map_axes(ax, west: float, south: float, east: float, north: float) ->
         spine.set_linewidth(0.6)
 
 
+def _save_as_grayscale(out_path: Path) -> None:
+    """カラーで保存された PNG を L (グレースケール) モードに変換して上書き保存。
+
+    モノクロ印刷時の可読性を確保するため、地図系の図に適用する。
+    """
+    img = Image.open(out_path).convert("L")
+    img.save(out_path, "PNG", optimize=True)
+
+
 def make_fig02_location() -> None:
     """図2: 北木島の位置図（西日本俯瞰 + 笠岡諸島拡大の2パネル、地理院タイル背景）。"""
     fig, axes = plt.subplots(1, 2, figsize=(9, 4.2), gridspec_kw={"width_ratios": [1, 1]})
@@ -103,8 +112,9 @@ def make_fig02_location() -> None:
         ax1.text(x + 8000, y, name, fontsize=8, va="center", zorder=6)
 
     kx, ky = lonlat_to_3857(*KITAGI_CENTER)
-    ax1.plot(kx, ky, "*", color="red", markersize=16, zorder=10)
-    ax1.text(kx + 12000, ky - 8000, "北木島", fontsize=10, color="red", va="top", weight="bold", zorder=10)
+    ax1.plot(kx, ky, "*", color="black", markersize=18, markeredgecolor="white",
+             markeredgewidth=1.0, zorder=10)
+    ax1.text(kx + 12000, ky - 8000, "北木島", fontsize=10, color="black", va="top", weight="bold", zorder=10)
 
     ax1.set_title("(a) 西日本における位置", fontsize=10)
 
@@ -118,16 +128,16 @@ def make_fig02_location() -> None:
         "笠岡港 (伏越港)": (133.498, 34.500, "s", "black", 7),
         "高島": (133.513, 34.470, "o", "gray", 5),
         "白石島": (133.515, 34.430, "o", "gray", 5),
-        "北木島": (133.543, 34.374, "*", "red", 16),
+        "北木島": (133.543, 34.374, "*", "black", 18),
         "真鍋島": (133.560, 34.330, "o", "gray", 5),
     }
     for name, (lon, lat, marker, color, size) in ports_islands.items():
         x, y = lonlat_to_3857(lon, lat)
-        ax2.plot(x, y, marker, color=color, markersize=size, zorder=10)
+        edge = dict(markeredgecolor="white", markeredgewidth=1.0) if name == "北木島" else {}
+        ax2.plot(x, y, marker, color=color, markersize=size, zorder=10, **edge)
         weight = "bold" if name == "北木島" else "normal"
-        text_color = color if name == "北木島" else "black"
         ax2.text(x + 400, y, name, fontsize=9 if name == "北木島" else 8,
-                 color=text_color, va="center", weight=weight, zorder=10)
+                 color="black", va="center", weight=weight, zorder=10)
 
     ax2.set_title("(b) 笠岡諸島", fontsize=10)
 
@@ -135,7 +145,8 @@ def make_fig02_location() -> None:
     out = FIGURES / "fig02_location_map.png"
     plt.savefig(out, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
-    print(f"saved: {out}")
+    _save_as_grayscale(out)
+    print(f"saved (grayscale): {out}")
 
 
 def make_fig04_walking_route() -> None:
@@ -158,25 +169,25 @@ def make_fig04_walking_route() -> None:
         ("千ノ浜", 133.5309, 34.3930),         # ユーザ提示 34°23'34.8"N 133°31'51.3"E
     ]
 
-    # 移動経路を線で結ぶ（Web Mercator 座標で）
+    # 移動経路を線で結ぶ（Web Mercator 座標で、モノクロ対応で黒線・破線）
     pts = [(lonlat_to_3857(lon, lat), name) for name, lon, lat in waypoints]
     xs = [p[0][0] for p in pts]
     ys = [p[0][1] for p in pts]
-    ax.plot(xs, ys, "-", color="red", linewidth=2.5, alpha=0.85, zorder=4)
+    ax.plot(xs, ys, "-", color="black", linewidth=2.5, alpha=0.95, zorder=4)
 
     for (x, y), name in pts:
         if "桂林" in name:
-            ax.plot(x, y, "*", color="red", markersize=18, markeredgecolor="white",
-                    markeredgewidth=1.0, zorder=10)
+            ax.plot(x, y, "*", color="black", markersize=20, markeredgecolor="white",
+                    markeredgewidth=1.5, zorder=10)
             ax.annotate(name, xy=(x, y), xytext=(14, 12), textcoords="offset points",
-                        fontsize=10, color="red", weight="bold", zorder=10,
-                        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.85))
+                        fontsize=10, color="black", weight="bold", zorder=10,
+                        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.9))
         else:
-            ax.plot(x, y, "o", color="black", markersize=9, markeredgecolor="white",
+            ax.plot(x, y, "o", color="black", markersize=10, markeredgecolor="white",
                     markeredgewidth=1.0, zorder=10)
             ax.annotate(name, xy=(x, y), xytext=(12, 10), textcoords="offset points",
-                        fontsize=9, zorder=10,
-                        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="gray", alpha=0.85))
+                        fontsize=9, color="black", zorder=10,
+                        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="black", alpha=0.9))
 
     ax.set_title("当日の主な訪問地と移動順序", fontsize=11)
 
@@ -184,7 +195,8 @@ def make_fig04_walking_route() -> None:
     out = FIGURES / "fig04_walking_route.png"
     plt.savefig(out, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
-    print(f"saved: {out}")
+    _save_as_grayscale(out)
+    print(f"saved (grayscale): {out}")
 
 
 def make_fig08_water_distribution() -> None:
@@ -216,25 +228,25 @@ def make_fig08_water_distribution() -> None:
         if in_bbox and area_m2 < SEA_AREA_THRESHOLD_M2:
             polygons_island.append(geom)
 
-    # 各ポリゴンを Web Mercator に変換して描画
+    # 各ポリゴンを Web Mercator に変換して描画（モノクロ対応で黒塗り）
     project = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True).transform
     for poly in polygons_island:
         poly_3857 = shapely_transform(project, poly)
         if poly_3857.geom_type == "Polygon":
             xs, ys = poly_3857.exterior.xy
-            ax.fill(xs, ys, color="red", alpha=0.65, edgecolor="darkred", linewidth=0.5, zorder=5)
+            ax.fill(xs, ys, color="black", alpha=0.85, edgecolor="black", linewidth=0.5, zorder=5)
         elif poly_3857.geom_type == "MultiPolygon":
             for p in poly_3857.geoms:
                 xs, ys = p.exterior.xy
-                ax.fill(xs, ys, color="red", alpha=0.65, edgecolor="darkred", linewidth=0.5, zorder=5)
+                ax.fill(xs, ys, color="black", alpha=0.85, edgecolor="black", linewidth=0.5, zorder=5)
 
     # 桂林の位置（OSM「今岡石材丁場跡（北木の桂林）」 ノードに基づく、島北部）
     keirin_x, keirin_y = lonlat_to_3857(133.5329, 34.3912)
-    ax.plot(keirin_x, keirin_y, "*", color="red", markersize=18, markeredgecolor="white",
-            markeredgewidth=1.0, zorder=15)
+    ax.plot(keirin_x, keirin_y, "*", color="black", markersize=20, markeredgecolor="white",
+            markeredgewidth=1.5, zorder=15)
     ax.annotate("桂林", xy=(keirin_x, keirin_y), xytext=(14, 10),
-                textcoords="offset points", fontsize=10, color="red", weight="bold", zorder=15,
-                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.85))
+                textcoords="offset points", fontsize=10, color="black", weight="bold", zorder=15,
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.9))
 
     ax.set_title(
         f"検出された島内水域 ({len(polygons_island)}件、面積100m²以上)", fontsize=11
@@ -244,7 +256,8 @@ def make_fig08_water_distribution() -> None:
     out = FIGURES / "fig08_water_distribution.png"
     plt.savefig(out, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
-    print(f"saved: {out} ({len(polygons_island)} polygons)")
+    _save_as_grayscale(out)
+    print(f"saved (grayscale): {out} ({len(polygons_island)} polygons)")
 
 
 def make_fig09_multiscale() -> None:

@@ -67,8 +67,13 @@ def set_run_font(run, name: str, size_pt: float, bold: bool = False) -> None:
 def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 9.0,
                   bold: bool = False, align: str | None = None,
                   space_before: float = 0.0, space_after: float = 0.0,
-                  first_line_indent: bool = False) -> None:
-    """本文段落を追加する。インライン記法（**bold**, ^sup^）も簡易処理する。"""
+                  first_line_indent: bool = False,
+                  clear_wrap: bool = False):
+    """本文段落を追加する。インライン記法（**bold**, ^sup^）も簡易処理する。
+
+    clear_wrap=True にすると、段落の先頭に clear="all" のテキスト改行を入れ、
+    上にある回り込み画像の下から段落が始まるようにする（見出し等で使用）。
+    """
     p = doc.add_paragraph()
     pf = p.paragraph_format
     pf.space_before = Pt(space_before)
@@ -80,6 +85,14 @@ def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 
     elif align == "right":
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
+    # 回り込み解除ブレーク（見出しなど、画像の隣に並びたくない段落用）
+    if clear_wrap:
+        clear_run = p.add_run()
+        br = OxmlElement("w:br")
+        br.set(qn("w:type"), "textWrapping")
+        br.set(qn("w:clear"), "all")
+        clear_run._element.append(br)
+
     # インライン記法を解釈してランを作る
     for piece, kind in _parse_inline(text):
         run = p.add_run(piece)
@@ -87,6 +100,7 @@ def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 
         set_run_font(run, font, size_pt, bold=is_bold)
         if kind == "sup":
             run.font.superscript = True
+    return p
 
 
 def _parse_inline(text: str) -> Iterator[tuple[str, str]]:
@@ -332,13 +346,15 @@ def render(blocks: list[dict], doc) -> None:
             # 区切り線は空段落として扱う（罫線は省略）
             continue
         elif t == "h2":
-            # 章: UD N-B 11pt 太字、章前に間
+            # 章: UD N-B 11pt 太字、章前に間。フロート画像の下から開始させる
             add_paragraph(doc, blk["text"], font=FONT_BOLD, size_pt=11.0,
-                          bold=True, space_before=10, space_after=4)
+                          bold=True, space_before=10, space_after=4,
+                          clear_wrap=True)
         elif t == "h3":
-            # 節: UD N-B 9.5pt 太字
+            # 節: UD N-B 9.5pt 太字。フロート画像の下から開始させる
             add_paragraph(doc, blk["text"], font=FONT_BOLD, size_pt=9.5,
-                          bold=True, space_before=6, space_after=2)
+                          bold=True, space_before=6, space_after=2,
+                          clear_wrap=True)
         elif t == "image":
             img_path = ARTICLE_DIR / blk["path"]
             if img_path.exists():
