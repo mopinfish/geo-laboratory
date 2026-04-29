@@ -65,6 +65,22 @@ def set_run_font(run, name: str, size_pt: float, bold: bool = False) -> None:
         run.bold = True
 
 
+def _add_clear_wrap_spacer(doc) -> None:
+    """空の段落に clear="all" のテキスト改行を入れて、フロート画像の下から始める。
+
+    本段落と見出しを分離することで、見出し本文に余分な break が混ざらないようにし、
+    日本語見出しの文字幅膨張を回避する。
+    """
+    spacer = doc.add_paragraph()
+    spacer.paragraph_format.space_before = Pt(0)
+    spacer.paragraph_format.space_after = Pt(0)
+    sp_run = spacer.add_run()
+    br = OxmlElement("w:br")
+    br.set(qn("w:type"), "textWrapping")
+    br.set(qn("w:clear"), "all")
+    sp_run._element.append(br)
+
+
 def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 9.0,
                   bold: bool = False, align: str | None = None,
                   space_before: float = 0.0, space_after: float = 0.0,
@@ -72,9 +88,13 @@ def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 
                   clear_wrap: bool = False):
     """本文段落を追加する。インライン記法（**bold**, ^sup^）も簡易処理する。
 
-    clear_wrap=True にすると、段落の先頭に clear="all" のテキスト改行を入れ、
-    上にある回り込み画像の下から段落が始まるようにする（見出し等で使用）。
+    clear_wrap=True にすると、段落の **前に** 別途 clear="all" の空段落を挿入し、
+    上にある回り込み画像の下から本段落が始まるようにする（見出し等で使用）。
+    本段落自体には break を入れないので、文字幅は自然な詰まり方になる。
     """
+    if clear_wrap:
+        _add_clear_wrap_spacer(doc)
+
     p = doc.add_paragraph()
     pf = p.paragraph_format
     pf.space_before = Pt(space_before)
@@ -87,14 +107,6 @@ def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     elif align == "left":
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-
-    # 回り込み解除ブレーク（見出しなど、画像の隣に並びたくない段落用）
-    if clear_wrap:
-        clear_run = p.add_run()
-        br = OxmlElement("w:br")
-        br.set(qn("w:type"), "textWrapping")
-        br.set(qn("w:clear"), "all")
-        clear_run._element.append(br)
 
     # インライン記法を解釈してランを作る
     for piece, kind in _parse_inline(text):
@@ -274,6 +286,7 @@ def add_image(doc, image_path: Path, caption: str) -> None:
 FULLWIDTH_FIGURES = {
     "fig02_location_map.png",
     "fig07_ndwi_histogram.png",
+    "fig08_water_distribution.png",
     "fig09_multiscale.png",
 }
 
