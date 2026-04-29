@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Iterator
 
 from docx import Document
+from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.shared import Mm, Pt
@@ -121,97 +122,126 @@ def _parse_inline(text: str) -> Iterator[tuple[str, str]]:
         yield text[pos:], "normal"
 
 
-def _convert_inline_to_anchor(picture_run, *, side: str = "right") -> None:
-    """add_picture で挿入された inline 画像を anchor (wrapSquare) に変換する。
+def _set_no_borders(tbl_pr) -> None:
+    """テーブルの境界線をすべて非表示にする。"""
+    borders = OxmlElement("w:tblBorders")
+    for b in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        e = OxmlElement(f"w:{b}")
+        e.set(qn("w:val"), "nil")
+        borders.append(e)
+    tbl_pr.append(borders)
 
-    本文が画像の左右に回り込むようにする。テンプレートの画像配置と整合させる。
+
+def _make_table_floating(table, *, side: str = "right",
+                         left_from_text: int = 180,
+                         right_from_text: int = 180) -> None:
+    """テーブル全体を回り込みフロートにする（画像+キャプションを一体で浮かべる）。
+
+    side: "right" / "left"
+    left_from_text/right_from_text は本文との余白（twip 単位、180=約3pt=1mm弱）
     """
-    drawing = picture_run.find(qn("w:drawing"))
-    if drawing is None:
-        return
-    inline = drawing.find(qn("wp:inline"))
-    if inline is None:
-        return
+    tbl_pr = table._element.find(qn("w:tblPr"))
+    if tbl_pr is None:
+        tbl_pr = OxmlElement("w:tblPr")
+        table._element.insert(0, tbl_pr)
 
-    extent = inline.find(qn("wp:extent"))
-    docPr = inline.find(qn("wp:docPr"))
-    cNvGraphicFramePr = inline.find(qn("wp:cNvGraphicFramePr"))
-    graphic = inline.find(qn("a:graphic"))
+    tblpPr = OxmlElement("w:tblpPr")
+    tblpPr.set(qn("w:leftFromText"), str(left_from_text))
+    tblpPr.set(qn("w:rightFromText"), str(right_from_text))
+    tblpPr.set(qn("w:topFromText"), "100")
+    tblpPr.set(qn("w:bottomFromText"), "100")
+    tblpPr.set(qn("w:vertAnchor"), "text")
+    tblpPr.set(qn("w:horzAnchor"), "margin")
+    tblpPr.set(qn("w:tblpXSpec"), side)
+    tbl_pr.append(tblpPr)
 
-    anchor = OxmlElement("wp:anchor")
-    for k, v in [
-        ("distT", "0"), ("distB", "0"),
-        ("distL", "114300"), ("distR", "114300"),
-        ("simplePos", "0"), ("relativeHeight", "251660288"),
-        ("behindDoc", "0"), ("locked", "0"),
-        ("layoutInCell", "1"), ("allowOverlap", "1"),
-    ]:
-        anchor.set(k, v)
+    overlap = OxmlElement("w:tblOverlap")
+    overlap.set(qn("w:val"), "never")
+    tbl_pr.append(overlap)
 
-    simple_pos = OxmlElement("wp:simplePos")
-    simple_pos.set("x", "0")
-    simple_pos.set("y", "0")
-    anchor.append(simple_pos)
 
-    # 横位置: テンプレートと同じく margin 基準で右寄せ
-    pos_h = OxmlElement("wp:positionH")
-    pos_h.set("relativeFrom", "margin")
-    align_h = OxmlElement("wp:align")
-    align_h.text = side  # "right" or "left"
-    pos_h.append(align_h)
-    anchor.append(pos_h)
+def _add_picture_to_cell(cell, image_path: Path, width_mm: float) -> None:
+    """セル内に画像を中央揃えで挿入。"""
+    p = cell.paragraphs[0]
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pf = p.paragraph_format
+    pf.space_before = Pt(0)
+    pf.space_after = Pt(0)
+    run = p.add_run()
+    run.add_picture(str(image_path), width=Mm(width_mm))
 
-    # 縦位置: 段落の先頭を基準に top
-    pos_v = OxmlElement("wp:positionV")
-    pos_v.set("relativeFrom", "paragraph")
-    align_v = OxmlElement("wp:align")
-    align_v.text = "top"
-    pos_v.append(align_v)
-    anchor.append(pos_v)
 
-    anchor.append(deepcopy(extent))
+def _add_caption_to_cell(cell, caption: str) -> None:
+    """セル内にキャプションを中央揃えで追加。"""
+    p = cell.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pf = p.paragraph_format
+    pf.space_before = Pt(0)
+    pf.space_after = Pt(0)
+    run = p.add_run(caption)
+    set_run_font(run, FONT_REGULAR, 9.0)
 
-    effect_extent = OxmlElement("wp:effectExtent")
-    for k, v in [("l", "0"), ("t", "0"), ("r", "0"), ("b", "0")]:
-        effect_extent.set(k, v)
-    anchor.append(effect_extent)
 
-    # 文字回り込み: 両側
-    wrap = OxmlElement("wp:wrapSquare")
-    wrap.set("wrapText", "bothSides")
-    anchor.append(wrap)
+def add_image_floating(doc, image_path: Path, caption: str, *, side: str = "right",
+                       width_mm: float = 70.0) -> None:
+    """画像とキャプションを 1×1 テーブルにまとめて、回り込みフロート配置する。
 
-    if docPr is not None:
-        anchor.append(deepcopy(docPr))
-    if cNvGraphicFramePr is not None:
-        anchor.append(deepcopy(cNvGraphicFramePr))
-    if graphic is not None:
-        anchor.append(deepcopy(graphic))
+    テンプレートの画像配置と同様、本文が画像（とキャプション）の反対側に回り込む。
+    キャプションは画像の直下、テーブル内に確実に配置される。
+    """
+    table = doc.add_table(rows=1, cols=1)
+    table.autofit = False
+    cell = table.cell(0, 0)
+    cell.width = Mm(width_mm + 4)
 
-    drawing.remove(inline)
-    drawing.append(anchor)
+    _add_picture_to_cell(cell, image_path, width_mm)
+    _add_caption_to_cell(cell, caption)
+
+    # テーブルの幅を明示
+    tbl_pr = table._element.find(qn("w:tblPr"))
+    tbl_w = OxmlElement("w:tblW")
+    tbl_w.set(qn("w:w"), str(int((width_mm + 4) * 56.7)))  # mm → twip
+    tbl_w.set(qn("w:type"), "dxa")
+    tbl_pr.append(tbl_w)
+
+    _set_no_borders(tbl_pr)
+    _make_table_floating(table, side=side)
+
+
+def add_image_grid(doc, image_blocks: list[dict], *, width_mm: float = 65.0) -> None:
+    """連続する複数の画像を 1×N テーブル（横並び）で配置する。
+
+    回り込みではなく中央寄せのインラインテーブルとし、各セルに画像+キャプションを入れる。
+    これによって連続画像のオーバーラップを防ぎ、左右に並べて表示する。
+    """
+    n = len(image_blocks)
+    table = doc.add_table(rows=1, cols=n)
+    table.autofit = False
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+    for i, blk in enumerate(image_blocks):
+        cell = table.cell(0, i)
+        cell.width = Mm(width_mm + 4)
+        img_path = ARTICLE_DIR / blk["path"]
+        if img_path.exists():
+            _add_picture_to_cell(cell, img_path, width_mm)
+            _add_caption_to_cell(cell, blk["caption"])
+
+    # 各セルの幅と境界線設定
+    tbl_pr = table._element.find(qn("w:tblPr"))
+    if tbl_pr is None:
+        tbl_pr = OxmlElement("w:tblPr")
+        table._element.insert(0, tbl_pr)
+    tbl_w = OxmlElement("w:tblW")
+    tbl_w.set(qn("w:w"), str(int((width_mm + 4) * n * 56.7)))
+    tbl_w.set(qn("w:type"), "dxa")
+    tbl_pr.append(tbl_w)
+    _set_no_borders(tbl_pr)
 
 
 def add_image(doc, image_path: Path, caption: str) -> None:
-    """文字回り込みで画像を貼り、下にキャプション。
-
-    テンプレートに準拠: 画像は anchor wrapSquare で右寄せ、本文が左に回り込む。
-    キャプションは画像直後の段落に右寄せで配置する。
-    """
-    # 画像を含む段落
-    p = doc.add_paragraph()
-    pf = p.paragraph_format
-    pf.space_before = Pt(2)
-    pf.space_after = Pt(2)
-    run = p.add_run()
-    # 画像幅 75mm（B5本文幅 148mm の約半分）— 文字回り込みのスペースを確保
-    run.add_picture(str(image_path), width=Mm(75))
-    # inline → anchor 変換
-    _convert_inline_to_anchor(run._element, side="right")
-
-    # キャプション（同じ段落の続きに右寄せで入れる）
-    cap_run = p.add_run(caption)
-    set_run_font(cap_run, FONT_REGULAR, 9.0)
+    """単独画像を回り込みフロートで配置（後方互換のため残す）。"""
+    add_image_floating(doc, image_path, caption, side="right", width_mm=70.0)
 
 
 def clear_body_keep_sectPr(doc) -> None:
@@ -324,10 +354,36 @@ def is_author_line(text: str) -> bool:
 
 
 def render(blocks: list[dict], doc) -> None:
-    """ブロックを Word ドキュメントに書き込む。"""
+    """ブロックを Word ドキュメントに書き込む。
+
+    連続する画像ブロックはまとめて検出し、1枚なら回り込みフロート、
+    2枚以上なら横並びテーブル（インライン中央寄せ）として配置する。
+    """
     # まず空のドキュメントから始まる前提。最初に表紙的に title/subtitle/author を扱う
     seen_h1 = False
-    for blk in blocks:
+    i = 0
+    while i < len(blocks):
+        blk = blocks[i]
+        # 連続する画像はグループ化
+        if blk["type"] == "image":
+            group = [blk]
+            j = i + 1
+            while j < len(blocks) and blocks[j]["type"] == "image":
+                group.append(blocks[j])
+                j += 1
+            if len(group) == 1:
+                img_path = ARTICLE_DIR / group[0]["path"]
+                if img_path.exists():
+                    add_image_floating(doc, img_path, group[0]["caption"],
+                                       side="right", width_mm=70.0)
+                else:
+                    add_paragraph(doc, f"[画像が見つかりません: {group[0]['path']}]",
+                                  font=FONT_REGULAR, size_pt=9.0)
+            else:
+                add_image_grid(doc, group, width_mm=65.0)
+            i = j
+            continue
+
         t = blk["type"]
         if t == "h1":
             # タイトル: UD N-B 12pt 中央揃え
@@ -343,7 +399,8 @@ def render(blocks: list[dict], doc) -> None:
             add_paragraph(doc, blk["text"], font=FONT_REGULAR, size_pt=10.5,
                           align="center", space_after=12)
         elif t == "hr":
-            # 区切り線は空段落として扱う（罫線は省略）
+            # 区切り線はスキップ
+            i += 1
             continue
         elif t == "h2":
             # 章: UD N-B 11pt 太字、章前に間。フロート画像の下から開始させる
@@ -355,13 +412,6 @@ def render(blocks: list[dict], doc) -> None:
             add_paragraph(doc, blk["text"], font=FONT_BOLD, size_pt=9.5,
                           bold=True, space_before=6, space_after=2,
                           clear_wrap=True)
-        elif t == "image":
-            img_path = ARTICLE_DIR / blk["path"]
-            if img_path.exists():
-                add_image(doc, img_path, blk["caption"])
-            else:
-                add_paragraph(doc, f"[画像が見つかりません: {blk['path']}]",
-                              font=FONT_REGULAR, size_pt=9.0)
         elif t == "list_item":
             # 文献リスト
             p = doc.add_paragraph()
@@ -390,6 +440,7 @@ def render(blocks: list[dict], doc) -> None:
             else:
                 add_paragraph(doc, blk["text"], font=FONT_REGULAR, size_pt=9.0,
                               first_line_indent=True, space_after=2)
+        i += 1
 
 
 def main() -> None:
