@@ -10,6 +10,7 @@
     docs/articles/2026_chiri-koryu-10/figures/fig09_multiscale.png
 
 注: 図2・3・5・6 はユーザ撮影写真、図7 は exp002 の既存図版（コピー済）。
+   背景地図は地理院淡色タイル（淡色地図）を使用。出典は記事の注に記載。
 """
 
 from __future__ import annotations
@@ -17,10 +18,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import contextily as cx
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from shapely.geometry import shape
+from shapely.ops import transform as shapely_transform
+import pyproj
 
 # プロジェクトパス
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +37,18 @@ RESULTS = PROJECT_ROOT / "docs" / "results" / "exp002"
 KITAGI_CENTER = (133.543, 34.374)  # (lon, lat)
 KITAGI_BBOX = (133.515, 34.350, 133.570, 34.400)  # (W, S, E, N)
 
+# 地理院淡色タイル（XYZ 形式）— モノクロ印刷耐性が高い
+GSI_PALE = "https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png"
+GSI_ATTR = "地理院タイル（淡色地図）"
+
+# 投影変換用ヘルパ（lat/lon → Web Mercator EPSG:3857）
+_to_3857 = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True).transform
+
+
+def lonlat_to_3857(lon: float, lat: float) -> tuple[float, float]:
+    return _to_3857(lon, lat)
+
+
 # matplotlib の日本語フォント設定（macOS）
 plt.rcParams["font.family"] = [
     "Hiragino Sans",
@@ -44,12 +60,35 @@ plt.rcParams["font.family"] = [
 plt.rcParams["axes.unicode_minus"] = False
 
 
+def _add_gsi_basemap(ax, zoom: int = 11) -> None:
+    """地理院淡色タイルを背景地図として追加する。"""
+    cx.add_basemap(ax, source=GSI_PALE, zoom=zoom, attribution=False)
+
+
+def _setup_map_axes(ax, west: float, south: float, east: float, north: float) -> None:
+    """地図軸の見た目を整える。X/Y 軸ラベル・目盛りを非表示にする。"""
+    xmin, ymin = lonlat_to_3857(west, south)
+    xmax, ymax = lonlat_to_3857(east, north)
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_edgecolor("black")
+        spine.set_linewidth(0.6)
+
+
 def make_fig01_location() -> None:
-    """図1: 北木島の位置図（西日本俯瞰 + 笠岡諸島拡大の2パネル）。"""
-    fig, axes = plt.subplots(1, 2, figsize=(8, 4), gridspec_kw={"width_ratios": [1, 1.2]})
+    """図1: 北木島の位置図（西日本俯瞰 + 笠岡諸島拡大の2パネル、地理院タイル背景）。"""
+    fig, axes = plt.subplots(1, 2, figsize=(9, 4.2), gridspec_kw={"width_ratios": [1, 1]})
 
     # 左パネル: 西日本俯瞰
     ax1 = axes[0]
+    west, south, east, north = 131.5, 33.4, 137.0, 35.6
+    _setup_map_axes(ax1, west, south, east, north)
+    _add_gsi_basemap(ax1, zoom=7)
+
     cities = {
         "大阪": (135.50, 34.70),
         "岡山": (133.93, 34.66),
@@ -58,56 +97,37 @@ def make_fig01_location() -> None:
         "松山": (132.77, 33.84),
     }
     for name, (lon, lat) in cities.items():
-        ax1.plot(lon, lat, "o", color="dimgray", markersize=4)
-        ax1.text(lon + 0.10, lat, name, fontsize=8, va="center")
+        x, y = lonlat_to_3857(lon, lat)
+        ax1.plot(x, y, "o", color="dimgray", markersize=4, zorder=5)
+        ax1.text(x + 8000, y, name, fontsize=8, va="center", zorder=6)
 
-    ax1.plot(*KITAGI_CENTER, "*", color="red", markersize=14, zorder=5)
-    ax1.text(
-        KITAGI_CENTER[0] + 0.15,
-        KITAGI_CENTER[1] - 0.10,
-        "北木島",
-        fontsize=10,
-        color="red",
-        va="top",
-        weight="bold",
-    )
+    kx, ky = lonlat_to_3857(*KITAGI_CENTER)
+    ax1.plot(kx, ky, "*", color="red", markersize=16, zorder=10)
+    ax1.text(kx + 12000, ky - 8000, "北木島", fontsize=10, color="red", va="top", weight="bold", zorder=10)
 
-    ax1.set_xlim(131.5, 137.0)
-    ax1.set_ylim(33.4, 35.6)
-    ax1.set_aspect("equal")
-    ax1.grid(True, alpha=0.3, linestyle="--")
-    ax1.set_xlabel("経度", fontsize=9)
-    ax1.set_ylabel("緯度", fontsize=9)
     ax1.set_title("(a) 西日本における位置", fontsize=10)
 
     # 右パネル: 笠岡諸島
     ax2 = axes[1]
+    west2, south2, east2, north2 = 133.45, 34.30, 133.62, 34.52
+    _setup_map_axes(ax2, west2, south2, east2, north2)
+    _add_gsi_basemap(ax2, zoom=12)
+
     ports_islands = {
         "笠岡港 (伏越港)": (133.498, 34.500, "s", "black", 7),
         "高島": (133.513, 34.470, "o", "gray", 5),
         "白石島": (133.515, 34.430, "o", "gray", 5),
-        "北木島": (133.543, 34.374, "*", "red", 14),
+        "北木島": (133.543, 34.374, "*", "red", 16),
         "真鍋島": (133.560, 34.330, "o", "gray", 5),
     }
     for name, (lon, lat, marker, color, size) in ports_islands.items():
-        ax2.plot(lon, lat, marker, color=color, markersize=size, zorder=5)
+        x, y = lonlat_to_3857(lon, lat)
+        ax2.plot(x, y, marker, color=color, markersize=size, zorder=10)
         weight = "bold" if name == "北木島" else "normal"
-        ax2.text(
-            lon + 0.005,
-            lat,
-            name,
-            fontsize=9 if name == "北木島" else 8,
-            color=color if name == "北木島" else "dimgray",
-            va="center",
-            weight=weight,
-        )
+        text_color = color if name == "北木島" else "black"
+        ax2.text(x + 400, y, name, fontsize=9 if name == "北木島" else 8,
+                 color=text_color, va="center", weight=weight, zorder=10)
 
-    ax2.set_xlim(133.46, 133.62)
-    ax2.set_ylim(34.30, 34.52)
-    ax2.set_aspect("equal")
-    ax2.grid(True, alpha=0.3, linestyle="--")
-    ax2.set_xlabel("経度", fontsize=9)
-    ax2.set_ylabel("緯度", fontsize=9)
     ax2.set_title("(b) 笠岡諸島", fontsize=10)
 
     plt.tight_layout()
@@ -118,10 +138,14 @@ def make_fig01_location() -> None:
 
 
 def make_fig04_walking_route() -> None:
-    """図4: 当日の主な訪問地と移動順序（簡易版）。"""
+    """図4: 当日の主な訪問地と移動順序（簡易版、地理院タイル背景）。"""
     fig, ax = plt.subplots(1, 1, figsize=(7, 6))
 
-    # 主要訪問地（座標は推定値、実際の YAMAP ルートを反映する場合は GPX 取得が望ましい）
+    west, south, east, north = KITAGI_BBOX
+    _setup_map_axes(ax, west, south, east, north)
+    _add_gsi_basemap(ax, zoom=14)
+
+    # 主要訪問地（座標は推定値）
     waypoints = [
         ("北木大浦港", 133.520, 34.358),
         ("島内集会所", 133.528, 34.366),
@@ -129,41 +153,26 @@ def make_fig04_walking_route() -> None:
         ("地ノ浜", 133.555, 34.385),
     ]
 
-    # 移動経路を線で結ぶ
-    xs = [w[1] for w in waypoints]
-    ys = [w[2] for w in waypoints]
-    ax.plot(xs, ys, "-", color="black", linewidth=2, alpha=0.6, zorder=1)
+    # 移動経路を線で結ぶ（Web Mercator 座標で）
+    pts = [(lonlat_to_3857(lon, lat), name) for name, lon, lat in waypoints]
+    xs = [p[0][0] for p in pts]
+    ys = [p[0][1] for p in pts]
+    ax.plot(xs, ys, "-", color="red", linewidth=2.5, alpha=0.85, zorder=4)
 
-    # 各地点をマーカーで描画
-    for name, lon, lat in waypoints:
+    for (x, y), name in pts:
         if "桂林" in name:
-            ax.plot(lon, lat, "*", color="red", markersize=14, zorder=2)
-            ax.annotate(
-                name,
-                xy=(lon, lat),
-                xytext=(10, 10),
-                textcoords="offset points",
-                fontsize=10,
-                color="red",
-                weight="bold",
-            )
+            ax.plot(x, y, "*", color="red", markersize=18, markeredgecolor="white",
+                    markeredgewidth=1.0, zorder=10)
+            ax.annotate(name, xy=(x, y), xytext=(14, 12), textcoords="offset points",
+                        fontsize=10, color="red", weight="bold", zorder=10,
+                        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.85))
         else:
-            ax.plot(lon, lat, "o", color="black", markersize=8, zorder=2)
-            ax.annotate(
-                name,
-                xy=(lon, lat),
-                xytext=(10, 10),
-                textcoords="offset points",
-                fontsize=9,
-            )
+            ax.plot(x, y, "o", color="black", markersize=9, markeredgecolor="white",
+                    markeredgewidth=1.0, zorder=10)
+            ax.annotate(name, xy=(x, y), xytext=(12, 10), textcoords="offset points",
+                        fontsize=9, zorder=10,
+                        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="gray", alpha=0.85))
 
-    ax.set_xlim(KITAGI_BBOX[0], KITAGI_BBOX[2])
-    ax.set_ylim(KITAGI_BBOX[1], KITAGI_BBOX[3])
-    ax.set_aspect("equal")
-    ax.ticklabel_format(useOffset=False, style="plain")
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.set_xlabel("経度", fontsize=9)
-    ax.set_ylabel("緯度", fontsize=9)
     ax.set_title("当日の主な訪問地と移動順序", fontsize=11)
 
     plt.tight_layout()
@@ -174,7 +183,7 @@ def make_fig04_walking_route() -> None:
 
 
 def make_fig08_water_distribution() -> None:
-    """図8: 145件の水域分布図（exp002 の geojson から描画）。"""
+    """図8: 145件の水域分布図（exp002 の geojson から描画、地理院タイル背景）。"""
     geojson_path = TMP / "exp002_kitagi_water_bodies.geojson"
     if not geojson_path.exists():
         print(f"WARN: {geojson_path} が見つかりません。図8はスキップ。")
@@ -184,51 +193,44 @@ def make_fig08_water_distribution() -> None:
         gj = json.load(f)
 
     fig, ax = plt.subplots(1, 1, figsize=(8, 7))
+    west, south, east, north = KITAGI_BBOX
+    _setup_map_axes(ax, west, south, east, north)
+    _add_gsi_basemap(ax, zoom=14)
 
     # 島内のポリゴンのみフィルタ（海域は面積で除外。島面積≒7.5km²、最大丁場≒8000m²）
     SEA_AREA_THRESHOLD_M2 = 100_000
     polygons_island = []
     for feat in gj["features"]:
         geom = shape(feat["geometry"])
-        cx, cy = geom.centroid.x, geom.centroid.y
+        cx_lon, cy_lat = geom.centroid.x, geom.centroid.y
         area_m2 = feat["properties"].get("area_m2", 0)
         in_bbox = (
-            KITAGI_BBOX[0] <= cx <= KITAGI_BBOX[2]
-            and KITAGI_BBOX[1] <= cy <= KITAGI_BBOX[3]
+            KITAGI_BBOX[0] <= cx_lon <= KITAGI_BBOX[2]
+            and KITAGI_BBOX[1] <= cy_lat <= KITAGI_BBOX[3]
         )
         if in_bbox and area_m2 < SEA_AREA_THRESHOLD_M2:
             polygons_island.append(geom)
 
-    # 描画
+    # 各ポリゴンを Web Mercator に変換して描画
+    project = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True).transform
     for poly in polygons_island:
-        if poly.geom_type == "Polygon":
-            xs, ys = poly.exterior.xy
-            ax.fill(xs, ys, color="black", alpha=0.85)
-        elif poly.geom_type == "MultiPolygon":
-            for p in poly.geoms:
+        poly_3857 = shapely_transform(project, poly)
+        if poly_3857.geom_type == "Polygon":
+            xs, ys = poly_3857.exterior.xy
+            ax.fill(xs, ys, color="red", alpha=0.65, edgecolor="darkred", linewidth=0.5, zorder=5)
+        elif poly_3857.geom_type == "MultiPolygon":
+            for p in poly_3857.geoms:
                 xs, ys = p.exterior.xy
-                ax.fill(xs, ys, color="black", alpha=0.85)
+                ax.fill(xs, ys, color="red", alpha=0.65, edgecolor="darkred", linewidth=0.5, zorder=5)
 
     # 桂林の位置（南東部の主要丁場跡水域に相当）
-    keirin_pos = (133.5421, 34.3781)
-    ax.plot(*keirin_pos, "*", color="red", markersize=16, zorder=5)
-    ax.annotate(
-        "桂林",
-        xy=keirin_pos,
-        xytext=(12, 8),
-        textcoords="offset points",
-        fontsize=10,
-        color="red",
-        weight="bold",
-    )
+    keirin_x, keirin_y = lonlat_to_3857(133.5421, 34.3781)
+    ax.plot(keirin_x, keirin_y, "*", color="red", markersize=18, markeredgecolor="white",
+            markeredgewidth=1.0, zorder=15)
+    ax.annotate("桂林", xy=(keirin_x, keirin_y), xytext=(14, 10),
+                textcoords="offset points", fontsize=10, color="red", weight="bold", zorder=15,
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.85))
 
-    ax.set_xlim(KITAGI_BBOX[0], KITAGI_BBOX[2])
-    ax.set_ylim(KITAGI_BBOX[1], KITAGI_BBOX[3])
-    ax.set_aspect("equal")
-    ax.ticklabel_format(useOffset=False, style="plain")
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.set_xlabel("経度", fontsize=9)
-    ax.set_ylabel("緯度", fontsize=9)
     ax.set_title(
         f"検出された島内水域 ({len(polygons_island)}件、面積100m²以上)", fontsize=11
     )
