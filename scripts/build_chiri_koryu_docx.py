@@ -115,8 +115,8 @@ def add_image(doc, image_path: Path, caption: str) -> None:
     pf.space_after = Pt(2)
     run = p.add_run()
     # B5 余白を引いた本文幅 = 182 - 17*2 = 148mm
-    # 余裕を持って 140mm 幅で挿入
-    run.add_picture(str(image_path), width=Mm(140))
+    # 110mm 幅で挿入（縦長写真でも約146mm 高に収まり、ページ数を抑えられる）
+    run.add_picture(str(image_path), width=Mm(110))
 
     # キャプション
     cap = doc.add_paragraph()
