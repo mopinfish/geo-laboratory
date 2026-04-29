@@ -239,9 +239,42 @@ def add_image_grid(doc, image_blocks: list[dict], *, width_mm: float = 65.0) -> 
     _set_no_borders(tbl_pr)
 
 
+def add_image_inline_full(doc, image_path: Path, caption: str,
+                          width_mm: float = 140.0) -> None:
+    """画像を中央寄せの inline 配置で大きく表示する（フル幅用）。
+
+    位置関係を正確に把握する必要がある図（位置図、三スケール比較等）に使用。
+    本文の回り込みは発生せず、図と次の段落は上下に配置される。
+    """
+    p_img = doc.add_paragraph()
+    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pf = p_img.paragraph_format
+    pf.space_before = Pt(6)
+    pf.space_after = Pt(2)
+    run = p_img.add_run()
+    run.add_picture(str(image_path), width=Mm(width_mm))
+
+    p_cap = doc.add_paragraph()
+    p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cf = p_cap.paragraph_format
+    cf.space_before = Pt(0)
+    cf.space_after = Pt(8)
+    cap_run = p_cap.add_run(caption)
+    set_run_font(cap_run, FONT_REGULAR, 9.0)
+
+
 def add_image(doc, image_path: Path, caption: str) -> None:
     """単独画像を回り込みフロートで配置（後方互換のため残す）。"""
     add_image_floating(doc, image_path, caption, side="right", width_mm=70.0)
+
+
+# 横幅いっぱいで表示する図（位置関係や全体把握が重要なもの）
+FULLWIDTH_FIGURES = {"fig02_location_map.png", "fig09_multiscale.png"}
+
+
+def _is_fullwidth(blk: dict) -> bool:
+    """そのブロックがフル幅 inline 表示にすべき画像か判定する。"""
+    return Path(blk["path"]).name in FULLWIDTH_FIGURES
 
 
 def clear_body_keep_sectPr(doc) -> None:
@@ -374,8 +407,14 @@ def render(blocks: list[dict], doc) -> None:
             if len(group) == 1:
                 img_path = ARTICLE_DIR / group[0]["path"]
                 if img_path.exists():
-                    add_image_floating(doc, img_path, group[0]["caption"],
-                                       side="right", width_mm=70.0)
+                    if _is_fullwidth(group[0]):
+                        # フル幅 inline 配置（位置図・三スケール比較）
+                        add_image_inline_full(doc, img_path, group[0]["caption"],
+                                              width_mm=140.0)
+                    else:
+                        # 通常は右寄せ float
+                        add_image_floating(doc, img_path, group[0]["caption"],
+                                           side="right", width_mm=70.0)
                 else:
                     add_paragraph(doc, f"[画像が見つかりません: {group[0]['path']}]",
                                   font=FONT_REGULAR, size_pt=9.0)

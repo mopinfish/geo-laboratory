@@ -320,12 +320,47 @@ def make_fig09_multiscale() -> None:
     print(f"saved: {out} ({composite.size})")
 
 
+COLOR_KEEP_FIGURES = ("fig01", "fig09")  # この接頭辞のファイルだけカラー維持
+"""カラーで残す図の prefix。それ以外はグレースケール化される。
+
+理由: 編集者からの「なるべくモノクロにして欲しい」というオーダーに対応。
+- 図1: 冒頭の桂林の景観を強くインパクトで見せたいためカラー維持
+- 図9: 三スケール比較の視認性を保つためカラー維持
+"""
+
+
+def _convert_remaining_to_grayscale() -> None:
+    """カラー維持指定以外のすべての写真・画像をグレースケールに変換する。
+
+    matplotlib で生成した地図系（fig02, fig04, fig08）は既にグレースケールだが、
+    写真系（fig03, fig05, fig06）と exp002 由来の解析図（fig07）はカラーなので、
+    ここで PIL で grayscale 変換して上書きする。
+    """
+    for path in sorted(FIGURES.iterdir()):
+        if not path.is_file():
+            continue
+        if any(path.name.startswith(k) for k in COLOR_KEEP_FIGURES):
+            continue
+        if path.suffix.lower() not in {".png", ".jpg", ".jpeg"}:
+            continue
+        img = Image.open(path)
+        if img.mode == "L":
+            continue  # 既にグレースケール
+        gray = img.convert("L")
+        if path.suffix.lower() == ".png":
+            gray.save(path, "PNG", optimize=True)
+        else:
+            gray.save(path, "JPEG", quality=92, optimize=True)
+        print(f"grayscaled: {path.name}")
+
+
 def main() -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
     make_fig02_location()
     make_fig04_walking_route()
     make_fig08_water_distribution()
     make_fig09_multiscale()
+    _convert_remaining_to_grayscale()
     print("All figures generated.")
 
 
