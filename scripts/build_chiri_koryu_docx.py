@@ -85,12 +85,17 @@ def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 
                   bold: bool = False, align: str | None = None,
                   space_before: float = 0.0, space_after: float = 0.0,
                   first_line_indent: bool = False,
-                  clear_wrap: bool = False):
+                  clear_wrap: bool = False,
+                  snap_to_grid: bool | None = None):
     """本文段落を追加する。インライン記法（**bold**, ^sup^）も簡易処理する。
 
     clear_wrap=True にすると、段落の **前に** 別途 clear="all" の空段落を挿入し、
     上にある回り込み画像の下から本段落が始まるようにする（見出し等で使用）。
     本段落自体には break を入れないので、文字幅は自然な詰まり方になる。
+
+    snap_to_grid=False を指定すると、文書グリッドへの文字スナップを無効化する。
+    本文と異なるサイズの見出し（11pt/9.5pt 等）でグリッド幅に文字が引き伸ばされる
+    現象を防ぐため、見出し段落で False を指定する。
     """
     if clear_wrap:
         _add_clear_wrap_spacer(doc)
@@ -107,6 +112,13 @@ def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     elif align == "left":
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+    # snapToGrid 制御（見出しなど、本文と異なるサイズの段落で off にする）
+    if snap_to_grid is False:
+        ppr = p._element.get_or_add_pPr()
+        snap = OxmlElement("w:snapToGrid")
+        snap.set(qn("w:val"), "0")
+        ppr.append(snap)
 
     # インライン記法を解釈してランを作る
     for piece, kind in _parse_inline(text):
@@ -463,16 +475,15 @@ def render(blocks: list[dict], doc) -> None:
             i += 1
             continue
         elif t == "h2":
-            # 章: UD N-B 11pt 太字、章前に間。フロート画像の下から開始させる。
-            # 左揃え（両端揃え＝均等割付による文字幅膨張を防ぐ）。
+            # 章: UD N-B 11pt 太字、左揃え、グリッドスナップ off（文字膨張防止）
             add_paragraph(doc, blk["text"], font=FONT_BOLD, size_pt=11.0,
                           bold=True, space_before=10, space_after=4,
-                          align="left", clear_wrap=True)
+                          align="left", snap_to_grid=False)
         elif t == "h3":
-            # 節: UD N-B 9.5pt 太字。フロート画像の下から開始させる。左揃え。
+            # 節: UD N-B 9.5pt 太字、左揃え、グリッドスナップ off
             add_paragraph(doc, blk["text"], font=FONT_BOLD, size_pt=9.5,
                           bold=True, space_before=6, space_after=2,
-                          align="left", clear_wrap=True)
+                          align="left", snap_to_grid=False)
         elif t == "list_item":
             # 文献リスト
             p = doc.add_paragraph()
