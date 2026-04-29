@@ -96,7 +96,7 @@
 
 分布を見ると、北部・南東部・中央部・西部の4つの集中地帯がある。最大水域は島北部の7,826m²で、これは桂林とは別の丁場（金風呂地区周辺）にあたる。桂林に相当する大型水域は、島南東部に確認できた。
 
-![図7 水域指数の空間分布（NDWI／MNDWI／NDVI／最終マスク）。Microsoft Planetary Computer, Sentinel-2 L2A データを処理して作成](figures/fig07_water_indices.png)
+![図7 NDWI／MNDWI／NDVI の値の分布。破線は水域・植生検出の閾値（NDWI>−0.2、MNDWI>−0.1、NDVI>0.3）。陸域・水域・植生がそれぞれ別の山として現れることが分かる](figures/fig07_ndwi_histogram.png)
 
 ![図8 検出された島内水域145件の分布図。Microsoft Planetary Computer, Sentinel-2 L2A データを処理して作成](figures/fig08_water_distribution.png)
 

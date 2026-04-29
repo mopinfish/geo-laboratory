@@ -85,6 +85,8 @@ def add_paragraph(doc, text: str, *, font: str = FONT_REGULAR, size_pt: float = 
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     elif align == "right":
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    elif align == "left":
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
     # 回り込み解除ブレーク（見出しなど、画像の隣に並びたくない段落用）
     if clear_wrap:
@@ -268,8 +270,12 @@ def add_image(doc, image_path: Path, caption: str) -> None:
     add_image_floating(doc, image_path, caption, side="right", width_mm=70.0)
 
 
-# 横幅いっぱいで表示する図（位置関係や全体把握が重要なもの）
-FULLWIDTH_FIGURES = {"fig02_location_map.png", "fig09_multiscale.png"}
+# 横幅いっぱいで表示する図（位置関係や全体把握が重要なもの、または横長の図）
+FULLWIDTH_FIGURES = {
+    "fig02_location_map.png",
+    "fig07_ndwi_histogram.png",
+    "fig09_multiscale.png",
+}
 
 
 def _is_fullwidth(blk: dict) -> bool:
@@ -397,13 +403,15 @@ def render(blocks: list[dict], doc) -> None:
     i = 0
     while i < len(blocks):
         blk = blocks[i]
-        # 連続する画像はグループ化
+        # 連続する画像はグループ化（ただしフル幅画像は単独扱いにする）
         if blk["type"] == "image":
             group = [blk]
             j = i + 1
-            while j < len(blocks) and blocks[j]["type"] == "image":
-                group.append(blocks[j])
-                j += 1
+            if not _is_fullwidth(blk):
+                while (j < len(blocks) and blocks[j]["type"] == "image"
+                       and not _is_fullwidth(blocks[j])):
+                    group.append(blocks[j])
+                    j += 1
             if len(group) == 1:
                 img_path = ARTICLE_DIR / group[0]["path"]
                 if img_path.exists():
@@ -442,15 +450,16 @@ def render(blocks: list[dict], doc) -> None:
             i += 1
             continue
         elif t == "h2":
-            # 章: UD N-B 11pt 太字、章前に間。フロート画像の下から開始させる
+            # 章: UD N-B 11pt 太字、章前に間。フロート画像の下から開始させる。
+            # 左揃え（両端揃え＝均等割付による文字幅膨張を防ぐ）。
             add_paragraph(doc, blk["text"], font=FONT_BOLD, size_pt=11.0,
                           bold=True, space_before=10, space_after=4,
-                          clear_wrap=True)
+                          align="left", clear_wrap=True)
         elif t == "h3":
-            # 節: UD N-B 9.5pt 太字。フロート画像の下から開始させる
+            # 節: UD N-B 9.5pt 太字。フロート画像の下から開始させる。左揃え。
             add_paragraph(doc, blk["text"], font=FONT_BOLD, size_pt=9.5,
                           bold=True, space_before=6, space_after=2,
-                          clear_wrap=True)
+                          align="left", clear_wrap=True)
         elif t == "list_item":
             # 文献リスト
             p = doc.add_paragraph()
