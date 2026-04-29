@@ -234,7 +234,7 @@ def _is_block_start(line: str) -> bool:
 
 def is_author_line(text: str) -> bool:
     """著者行（短く、特定パターンに合う）を判定する。"""
-    return text.strip() == "Otsuka Noboru"
+    return text.strip() in ("Otsuka Noboru", "大塚　昇", "大塚 昇")
 
 
 def render(blocks: list[dict], doc) -> None:

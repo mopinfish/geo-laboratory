@@ -138,19 +138,23 @@ def make_fig01_location() -> None:
 
 
 def make_fig04_walking_route() -> None:
-    """図4: 当日の主な訪問地と移動順序（簡易版、地理院タイル背景）。"""
+    """図4: 当日の主な訪問地と移動順序（地理院タイル背景）。
+
+    全ての訪問地が島の北部に集中するため、北部のみを拡大して描画する。
+    """
     fig, ax = plt.subplots(1, 1, figsize=(7, 6))
 
-    west, south, east, north = KITAGI_BBOX
+    # 北部に拡大（全ウェイポイントは lon 133.530-133.537, lat 34.391-34.396 の範囲）
+    west, south, east, north = 133.525, 34.387, 133.545, 34.400
     _setup_map_axes(ax, west, south, east, north)
-    _add_gsi_basemap(ax, zoom=14)
+    _add_gsi_basemap(ax, zoom=15)
 
-    # 主要訪問地（座標は推定値）
+    # 主要訪問地（OSM／ユーザ提示の度分秒に基づく実座標）
     waypoints = [
-        ("北木大浦港", 133.520, 34.358),
-        ("島内集会所", 133.528, 34.366),
-        ("湖上ステージ\n(桂林)", 133.5421, 34.3781),
-        ("地ノ浜", 133.555, 34.385),
+        ("豊浦港", 133.5369, 34.3956),         # OSM ferry_terminal「北木島 豊浦」
+        ("豊浦公会堂", 133.5364, 34.3943),     # OSM 北木島郵便局近傍に推定
+        ("湖上ステージ\n(桂林)", 133.5329, 34.3912),  # OSM「今岡石材丁場跡（北木の桂林）」
+        ("千ノ浜", 133.5309, 34.3930),         # ユーザ提示 34°23'34.8"N 133°31'51.3"E
     ]
 
     # 移動経路を線で結ぶ（Web Mercator 座標で）
@@ -223,8 +227,8 @@ def make_fig08_water_distribution() -> None:
                 xs, ys = p.exterior.xy
                 ax.fill(xs, ys, color="red", alpha=0.65, edgecolor="darkred", linewidth=0.5, zorder=5)
 
-    # 桂林の位置（南東部の主要丁場跡水域に相当）
-    keirin_x, keirin_y = lonlat_to_3857(133.5421, 34.3781)
+    # 桂林の位置（OSM「今岡石材丁場跡（北木の桂林）」 ノードに基づく、島北部）
+    keirin_x, keirin_y = lonlat_to_3857(133.5329, 34.3912)
     ax.plot(keirin_x, keirin_y, "*", color="red", markersize=18, markeredgecolor="white",
             markeredgewidth=1.0, zorder=15)
     ax.annotate("桂林", xy=(keirin_x, keirin_y), xytext=(14, 10),
@@ -243,48 +247,49 @@ def make_fig08_water_distribution() -> None:
 
 
 def make_fig09_multiscale() -> None:
-    """図9: 同一場所を徒歩・ドローン・衛星の三スケールで並べた合成図。"""
+    """図9: 同一場所を徒歩・ドローン・衛星の三スケールで横並びに並べた合成図。
+
+    縦に並べると合計が縦長すぎて B5 ページからはみ出るため、横3列の構成にする。
+    各パネルは中央クロップで縦横比を揃え、ラベルは画像の上部に配置する。
+    """
     img_walk = Image.open(FIGURES / "fig02_keirin_cliff.jpg").convert("RGB")
     img_drone = Image.open(FIGURES / "fig06_aerial_quarries.jpg").convert("RGB")
     img_satellite = Image.open(RESULTS / "exp002_geotiff_preview.png").convert("RGB")
 
-    # 横幅を揃える
-    target_w = 1000
+    def square_crop(img: Image.Image) -> Image.Image:
+        """中央正方形クロップ。"""
+        w, h = img.size
+        s = min(w, h)
+        left = (w - s) // 2
+        top = (h - s) // 2
+        return img.crop((left, top, left + s, top + s))
 
-    def resize(img: Image.Image, w: int) -> Image.Image:
-        ratio = w / img.width
-        h = int(img.height * ratio)
-        return img.resize((w, h), Image.LANCZOS)
+    panel_size = 600  # 各パネルの一辺
+    panels_imgs = [square_crop(im).resize((panel_size, panel_size), Image.LANCZOS)
+                   for im in (img_walk, img_drone, img_satellite)]
 
-    img_walk = resize(img_walk, target_w)
-    img_drone = resize(img_drone, target_w)
-    img_satellite = resize(img_satellite, target_w)
-
-    # ラベル領域の高さ
     label_h = 40
-    composite_h = img_walk.height + img_drone.height + img_satellite.height + label_h * 3
-    composite = Image.new("RGB", (target_w, composite_h), "white")
+    gap = 10
+    composite_w = panel_size * 3 + gap * 2
+    composite_h = panel_size + label_h
+    composite = Image.new("RGB", (composite_w, composite_h), "white")
 
-    # フォント
     try:
         font = ImageFont.truetype("/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc", 22)
     except OSError:
         font = ImageFont.load_default()
 
     draw = ImageDraw.Draw(composite)
-
-    panels = [
-        ("(a) 徒歩スケール — 桂林の岩壁前", img_walk),
-        ("(b) ドローンスケール — 上空からの丁場群", img_drone),
-        ("(c) 衛星スケール — Sentinel-2 トゥルーカラー合成", img_satellite),
+    labels = [
+        "(a) 徒歩 — 桂林の岩壁前",
+        "(b) ドローン — 上空からの丁場群",
+        "(c) 衛星 — Sentinel-2 トゥルーカラー",
     ]
 
-    y = 0
-    for label, img in panels:
-        draw.text((20, y + 8), label, fill="black", font=font)
-        y += label_h
-        composite.paste(img, (0, y))
-        y += img.height
+    for i, (label, img) in enumerate(zip(labels, panels_imgs)):
+        x = i * (panel_size + gap)
+        draw.text((x + 10, 6), label, fill="black", font=font)
+        composite.paste(img, (x, label_h))
 
     out = FIGURES / "fig09_multiscale.png"
     composite.save(out, "PNG", optimize=True)
