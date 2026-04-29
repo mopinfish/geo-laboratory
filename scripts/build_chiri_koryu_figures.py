@@ -251,10 +251,20 @@ def make_fig09_multiscale() -> None:
 
     縦に並べると合計が縦長すぎて B5 ページからはみ出るため、横3列の構成にする。
     各パネルは中央クロップで縦横比を揃え、ラベルは画像の上部に配置する。
+    衛星パネルは exp002 の水域強調 GeoTIFF（RGBA）を rasterio で読んで RGB を取得する。
     """
+    import rasterio  # ローカルインポート（重い依存のため）
+    import numpy as np
+
     img_walk = Image.open(FIGURES / "fig02_keirin_cliff.jpg").convert("RGB")
     img_drone = Image.open(FIGURES / "fig06_aerial_quarries.jpg").convert("RGB")
-    img_satellite = Image.open(RESULTS / "exp002_geotiff_preview.png").convert("RGB")
+
+    # 衛星画像は GeoTIFF から直接読む。RGBA の RGB チャネルを使用。
+    sat_tif = PROJECT_ROOT / "tmp" / "exp002_kitagi_water_highlighted.tif"
+    with rasterio.open(sat_tif) as src:
+        data = src.read([1, 2, 3])  # RGB
+    rgb_array = np.transpose(data, (1, 2, 0)).astype(np.uint8)
+    img_satellite = Image.fromarray(rgb_array, mode="RGB")
 
     def square_crop(img: Image.Image) -> Image.Image:
         """中央正方形クロップ。"""
