@@ -31,3 +31,6 @@ build/
 .env
 *.env.local
 ~$*
+
+# 寄稿原稿の Word 出力（Markdownを真実とし、.docxはビルド成果物）
+docs/articles/**/*.docx
