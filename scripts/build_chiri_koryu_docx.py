@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import re
 import shutil
+from copy import deepcopy
 from pathlib import Path
 from typing import Iterator
 
@@ -106,25 +107,96 @@ def _parse_inline(text: str) -> Iterator[tuple[str, str]]:
         yield text[pos:], "normal"
 
 
+def _convert_inline_to_anchor(picture_run, *, side: str = "right") -> None:
+    """add_picture で挿入された inline 画像を anchor (wrapSquare) に変換する。
+
+    本文が画像の左右に回り込むようにする。テンプレートの画像配置と整合させる。
+    """
+    drawing = picture_run.find(qn("w:drawing"))
+    if drawing is None:
+        return
+    inline = drawing.find(qn("wp:inline"))
+    if inline is None:
+        return
+
+    extent = inline.find(qn("wp:extent"))
+    docPr = inline.find(qn("wp:docPr"))
+    cNvGraphicFramePr = inline.find(qn("wp:cNvGraphicFramePr"))
+    graphic = inline.find(qn("a:graphic"))
+
+    anchor = OxmlElement("wp:anchor")
+    for k, v in [
+        ("distT", "0"), ("distB", "0"),
+        ("distL", "114300"), ("distR", "114300"),
+        ("simplePos", "0"), ("relativeHeight", "251660288"),
+        ("behindDoc", "0"), ("locked", "0"),
+        ("layoutInCell", "1"), ("allowOverlap", "1"),
+    ]:
+        anchor.set(k, v)
+
+    simple_pos = OxmlElement("wp:simplePos")
+    simple_pos.set("x", "0")
+    simple_pos.set("y", "0")
+    anchor.append(simple_pos)
+
+    # 横位置: テンプレートと同じく margin 基準で右寄せ
+    pos_h = OxmlElement("wp:positionH")
+    pos_h.set("relativeFrom", "margin")
+    align_h = OxmlElement("wp:align")
+    align_h.text = side  # "right" or "left"
+    pos_h.append(align_h)
+    anchor.append(pos_h)
+
+    # 縦位置: 段落の先頭を基準に top
+    pos_v = OxmlElement("wp:positionV")
+    pos_v.set("relativeFrom", "paragraph")
+    align_v = OxmlElement("wp:align")
+    align_v.text = "top"
+    pos_v.append(align_v)
+    anchor.append(pos_v)
+
+    anchor.append(deepcopy(extent))
+
+    effect_extent = OxmlElement("wp:effectExtent")
+    for k, v in [("l", "0"), ("t", "0"), ("r", "0"), ("b", "0")]:
+        effect_extent.set(k, v)
+    anchor.append(effect_extent)
+
+    # 文字回り込み: 両側
+    wrap = OxmlElement("wp:wrapSquare")
+    wrap.set("wrapText", "bothSides")
+    anchor.append(wrap)
+
+    if docPr is not None:
+        anchor.append(deepcopy(docPr))
+    if cNvGraphicFramePr is not None:
+        anchor.append(deepcopy(cNvGraphicFramePr))
+    if graphic is not None:
+        anchor.append(deepcopy(graphic))
+
+    drawing.remove(inline)
+    drawing.append(anchor)
+
+
 def add_image(doc, image_path: Path, caption: str) -> None:
-    """中央揃えで画像を貼り、下にキャプション。"""
+    """文字回り込みで画像を貼り、下にキャプション。
+
+    テンプレートに準拠: 画像は anchor wrapSquare で右寄せ、本文が左に回り込む。
+    キャプションは画像直後の段落に右寄せで配置する。
+    """
+    # 画像を含む段落
     p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     pf = p.paragraph_format
-    pf.space_before = Pt(6)
+    pf.space_before = Pt(2)
     pf.space_after = Pt(2)
     run = p.add_run()
-    # B5 余白を引いた本文幅 = 182 - 17*2 = 148mm
-    # 110mm 幅で挿入（縦長写真でも約146mm 高に収まり、ページ数を抑えられる）
-    run.add_picture(str(image_path), width=Mm(110))
+    # 画像幅 75mm（B5本文幅 148mm の約半分）— 文字回り込みのスペースを確保
+    run.add_picture(str(image_path), width=Mm(75))
+    # inline → anchor 変換
+    _convert_inline_to_anchor(run._element, side="right")
 
-    # キャプション
-    cap = doc.add_paragraph()
-    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cf = cap.paragraph_format
-    cf.space_before = Pt(0)
-    cf.space_after = Pt(8)
-    cap_run = cap.add_run(caption)
+    # キャプション（同じ段落の続きに右寄せで入れる）
+    cap_run = p.add_run(caption)
     set_run_font(cap_run, FONT_REGULAR, 9.0)
 
 
