@@ -119,10 +119,9 @@ Recommended single-page structure:
 - [ ] Specify exact figure placements, captions, required source credits, and approximate physical sizes in millimeters.
 - [ ] Set typography thresholds: title at least 72 pt, body text at least 24 pt, and captions/credits at least 18 pt unless a Codex review explicitly approves an exception.
 - [ ] Specify the final title and takeaway wording without overclaiming quarry identification.
+- [ ] Record the Task 1–2 design approval or rejection in an Issue #6 comment before Claude starts Task 3.
 
 **Exit check:** Claude can produce the poster without deciding the research story, numerical values, or figure order.
-
-- [ ] Record the Task 1–2 design approval or rejection in an Issue #6 comment before Claude starts Task 3.
 
 ### Task 3: Produce the first poster draft
 
