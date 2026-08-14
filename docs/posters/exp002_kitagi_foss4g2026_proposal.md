@@ -4,7 +4,7 @@
 
 - **Title:** Detecting Quarry Pond Remnants on a Japanese Island Heritage Site Using Sentinel-2 Imagery and Open-Source Remote Sensing Tools
 - **Author:** Noboru Otsuka
-- **Affiliation:** Geolonia Inc. (confirm against the final Pretalx record before export)
+- **Affiliation:** Geolonia Inc.
 - **Presentation listing:** 2026-09-02 13:30–14:00, Himawari
 - **Contribution license:** CC BY 4.0
 
@@ -60,4 +60,4 @@ Seto Inland Sea.
 
 ## Verification note
 
-This file records the proposal text supplied by the presenter for poster planning. Before the final PDF export, verify the author affiliation and any metadata against the final submission record in Pretalx.
+This file records the proposal text supplied by the presenter for poster planning. The author affiliation was verified against the public Pretalx speaker record.

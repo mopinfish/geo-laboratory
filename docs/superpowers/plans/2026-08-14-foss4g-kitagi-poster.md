@@ -85,7 +85,7 @@ Claims to lock before design:
 **Owner:** Codex
 
 - [ ] Extract every poster claim into a claim table with source path, source section, exact value, and permitted wording.
-- [ ] Copy the exact proposal title, abstract, author, affiliation, license, and open-source stack into the claim table; flag the affiliation for final Pretalx confirmation.
+- [ ] Copy the exact proposal title, abstract, author, affiliation, license, and open-source stack into the claim table; affiliation is verified against the public Pretalx speaker record.
 - [ ] Mark proposal requirements separately from analysis results so the poster does not introduce unsupported claims.
 - [ ] Confirm the Visipri product-specific requirements before design: finished size, 3 mm bleed, trim marks, CMYK/RGB policy, accepted PDF version/PDF-X profile, file-size limit, font handling, and image-resolution guidance. Record the URL and confirmation date in `exp002_kitagi_foss4g2026_print_log.md`.
 - [ ] Use the current public Visipri guidance as the initial baseline: A0 841 × 1189 mm, PDF input, CMYK preferred/required depending on product, 3 mm bleed for edge-to-edge artwork, and 300 dpi recommended. Treat the order-specific instructions as authoritative if they differ.
@@ -93,7 +93,7 @@ Claims to lock before design:
 - [ ] Confirm the chosen workflow can export a reduced PNG preview and preserve source/editability.
 - [ ] Record the final workflow and required local commands in the content file.
 - [ ] Use a standard Copernicus attribution such as `Contains modified Copernicus Sentinel data [2025]` or the exact wording required by the selected data/product guidance, and record the final wording in the content file.
-- [ ] Confirm with the official schedule/organizer whether the 9/2 13:30–14:00 Himawari listing is a separate talk, a poster introduction slot, or an administrative listing. If it is a separate talk, record the coverage plan for the 13:00–15:00 poster core time.
+- [x] Confirm the official listing: the 9/2 13:30–14:00 Himawari entry is the accepted poster session listing, not a separate talk. Confirm with the organizer only whether presenters are expected to be physically at Himawari during that slot in addition to the 13:00–15:00 poster core time. Session record: https://talks.osgeo.org/foss4g-2026/talk/GC3KYK/
 
 **Exit check:** The content file contains no unresolved numeric claims, no unspecified figure source, and one selected source/export workflow.
 
@@ -121,6 +121,8 @@ Recommended single-page structure:
 - [ ] Specify the final title and takeaway wording without overclaiming quarry identification.
 
 **Exit check:** Claude can produce the poster without deciding the research story, numerical values, or figure order.
+
+- [ ] Record the Task 1–2 design approval or rejection in an Issue #6 comment before Claude starts Task 3.
 
 ### Task 3: Produce the first poster draft
 
@@ -159,7 +161,6 @@ Recommended single-page structure:
 - [ ] Check that all citations and data/software attributions are present and readable.
 - [ ] Check the visual narrative at full size and at a reduced viewing scale.
 - [ ] Record findings as blocking, major, or minor review comments in Issue #6.
-- [ ] Record the Task 1–2 design approval or rejection in an Issue #6 comment before Claude starts Task 3.
 
 **Exit check:** Every blocking or major finding has a precise file/location and an unambiguous correction.
 
@@ -187,7 +188,7 @@ Recommended single-page structure:
 ### Task 6: Confirm Visipri order and production logistics
 
 **Files:**
-- Create: `docs/posters/exp002_kitagi_foss4g2026_print_log.md`
+- Update: `docs/posters/exp002_kitagi_foss4g2026_print_log.md`
 
 **Owner:** User, with Codex support
 
@@ -211,7 +212,7 @@ Recommended single-page structure:
 - [ ] Carry the poster and mounting pins to the venue.
 - [ ] Mount it in the Sakura Lounge after September 1, 09:00.
 - [ ] Be present during September 2, 13:00–15:00 core time.
-- [ ] If the Himawari 13:30–14:00 listing is a separate required talk, arrange a co-presenter or obtain organizer guidance so the poster is not unattended; record the resolution in Issue #6.
+- [ ] Confirm the organizer's attendance expectation for the Himawari 13:30–14:00 poster listing. If physical attendance there is required in addition to poster core time, record the practical coverage arrangement in Issue #6.
 - [ ] Prepare a short spoken explanation and answers for method, thresholds, seasonal difference, false positives, and field validation.
 - [ ] Remove the poster by September 3, 18:30.
 - [ ] Attach a completion note and close Issue #6 after all physical tasks are complete.
