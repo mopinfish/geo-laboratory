@@ -68,6 +68,9 @@ REQUIRED_STRINGS = [
     # 過大主張の防止（注意書きの確定文言）
     "not individually",
     "field-confirmed quarry ponds",
+    # Task 5 追加要件: B11 リサンプリング明記と春季プロベナンス注記
+    "resampled from 20 m",
+    "113 reported polygons",
 ]
 
 failures: list[str] = []

@@ -66,6 +66,49 @@ uv run python docs/posters/validate_exp002_kitagi_quarry_foss4g2026_poster.py  #
 
 全図版が最低 150 dpi・目標 200 dpi を満たす。衛星画像パネルの原データ解像度は Sentinel-2 の 10 m（ポスター上に限界として明記）。
 
+## Task 5 修正記録・ビジプリ入稿仕様確認（2026-08-14）
+
+### ビジプリ公開ガイドの確認結果（確認日 2026-08-14）
+
+| 項目 | 確認結果 | 出典 |
+|---|---|---|
+| RGB入稿の可否 | 可。ただし「印刷時にCMYKに変換される為、色味が変わる可能性」と明記。CMYK推奨 | PDFデータガイド |
+| CMYK必須か | 学会ポスター入稿ガイドは「RGBではなくCMYKカラーモードで作成する必要」と記載（推奨〜必須の表現揺れあり）。**発注時に選択製品で最終確認** | 学会ポスター入稿ガイド |
+| PDFバージョン | 記載なし（制限の明示なし。PDF 1.6/1.7 とも受領実績の範囲と判断、発注時に確認） | 両ガイド |
+| PDF/X指定 | 記載なし | 両ガイド |
+| Type 3フォントの可否 | 記載なし（禁止の明示なし。発注時に確認） | 両ガイド |
+| フォント | 埋め込みまたはアウトライン化が必要 → **全フォント埋め込み済み** | 両ガイド |
+| 塗り足し・トンボ | 塗り足し上下左右3mm（端まで届くアートワークの場合）。本ポスターは端に何も配置しない設計（外周余白18mm）のため該当せず。トンボは「トンボ付きPDFの場合」のみ言及 → 付けない | PDFデータガイド |
+| ファイル容量上限 | 記載なし（発注時に確認） | 両ガイド |
+| 推奨解像度 | 画像150〜300dpi目安、300dpi以上推奨 → **全図版 230〜313dpi で適合** | PDFデータガイド |
+| 入稿形式 | PDF可（PowerPoint作成時もPDF化して入稿） | A0製品ページ |
+| A0製品 | 841×1189mm。半光沢紙ほか。激安便3日/通常便当日/特急便3時間 | A0製品ページ |
+
+確認URL: https://visipri.com/dataguide/pdf/ 、https://visipri.com/gakkai/info-2-nyukou.php 、https://visipri.com/gakkai/gakkai_poster_a0.php
+
+### CMYK変換手順（再現可能・Codex再レビュー用）
+
+RGB版 `exp002_kitagi_quarry_foss4g2026_poster.pdf` から Ghostscript 10.07.1 で CMYK 版を生成:
+
+```bash
+gs -o docs/posters/exp002_kitagi_quarry_foss4g2026_poster_cmyk.pdf \
+   -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress \
+   -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK \
+   -dCompatibilityLevel=1.6 -dEmbedAllFonts=true \
+   docs/posters/exp002_kitagi_quarry_foss4g2026_poster.pdf
+```
+
+- 変換後検証: 1ページ・A0（2383.94 × 3370.39 pt）維持、PDF 1.6、フォント全埋め込み維持、全画像 CMYK 化（`pdfimages -list` で確認、QRのみgray）、画像解像度 230〜294 ppi 維持、9.7 MB
+- どちらのPDFを入稿するか（RGB版 or CMYK版）は、発注時の製品別確認と Codex 最終承認で決定する
+
+### Task 5 修正サマリ
+
+- B1: 春季113件のプロベナンス → レポート4.1に追記・5.4に限界追加、ポスター結果タイル直下に注記（113は維持）
+- M1: F3 をタイル不使用のシーン由来陸域シルエット地図に変更（英語のみ）。F1 は目視検証の結果、英語版タイルで日本語ラベルなしを確認（パネル別クロップで確認済み）
+- M2: 手法ボックスを「Sentinel-2 L2A; 10 m analysis grid; B11 SWIR resampled from 20 m」に変更、F4キャプションとデータ節にリサンプリングを明記
+- M3: 図版内部文字を配置後18pt以上に調整（F1: 15–16pt×1.22、F3: 18pt×1.05、F4: 18pt×1.07、F5: 19pt×0.99。カラーバー目盛は −1/0/1 の3点に削減）
+- M4: 上記の仕様確認とCMYK変換手順を記録
+
 ## Order-specific confirmation — complete before design export
 
 - [ ] Selected Visipri product and paper/finish:

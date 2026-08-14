@@ -32,8 +32,9 @@ notebooks/exp002_kitagi_quarry_water_detection.ipynb と同一。再計算した
     poster_f6_field_photos.jpg    — 現地写真2枚の横並び合成
 
 バンドデータは tmp/poster_cache_<season>.npz にキャッシュし、再実行時は
-ネットワークアクセスを省略する。背景地図は地理院淡色タイルを使用
-（クレジットはポスター側キャプションに記載）。
+ネットワークアクセスを省略する。背景地図は F1 のみ地理院英語版タイルを使用
+（クレジットはポスター側キャプションに記載）。F3 はタイルを使わず、
+シーン由来の陸域シルエットを背景とする（英語のみ要件のため）。
 """
 
 from __future__ import annotations
@@ -81,8 +82,8 @@ SUMMER_DATE = "2025-08-02"
 EXPECTED_SUMMER_ISLAND = 145
 EXPECTED_SUMMER_VEG_EXCL = 9
 
-# 地理院タイル（背景地図）。F1 は英語版（z5-11のみ提供）、F3 は淡色を使用
-GSI_PALE = "https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png"
+# 地理院タイル（背景地図）。F1 のみ英語版（z5-11提供）を使用。
+# 淡色・白地図タイルは日本語地名を含むため F3 では使用しない。
 GSI_ENGLISH = "https://cyberjapandata.gsi.go.jp/xyz/english/{z}/{x}/{y}.png"
 
 # ポスターの配色（内容契約の granite/sea パレット）
@@ -233,6 +234,17 @@ def analyze_scene(scene: dict) -> dict:
         if area_m2 >= MIN_AREA_M2:
             features.append({"area_m2": area_m2, "shape": poly})
 
+    # 陸域シルエット（F3 の背景用）: 水域マスクの補集合から抽出
+    land_mask = ~water_mask_4326
+    land_features = []
+    for geom, _val in rasterio_shapes(
+        land_mask.astype(np.uint8), mask=land_mask, transform=dst_transform_4326
+    ):
+        poly = shapely_shape(geom)
+        area_m2 = poly.area * (111_000**2) * cos_lat
+        if area_m2 >= 10_000:  # 微小なスペックルを除外
+            land_features.append(poly)
+
     island = [
         f
         for f in features
@@ -250,6 +262,7 @@ def analyze_scene(scene: dict) -> dict:
         "water_mask": water_mask,
         "features_all": features,
         "features_island": island,
+        "land_features": land_features,
     }
 
 
@@ -313,13 +326,13 @@ def make_f1_study_area():
     # 英語版タイルには主要都市名が既に入っているため、追加ラベルは北木島のみ
     cx.add_basemap(ax1, source=GSI_ENGLISH, zoom=8, attribution=False)
     kx, ky = _to_3857(*KITAGI_CENTER)
-    ax1.plot(kx, ky, "*", color=COL_WATER, markersize=20, markeredgecolor="white",
+    ax1.plot(kx, ky, "*", color=COL_WATER, markersize=24, markeredgecolor="white",
              markeredgewidth=1.2, zorder=10)
     ax1.annotate(
         "Kitagi Island",
         xy=(kx, ky),
-        xytext=(kx - 60000, ky - 75000),
-        fontsize=11,
+        xytext=(kx - 65000, ky - 80000),
+        fontsize=16,
         weight="bold",
         ha="center",
         va="top",
@@ -328,17 +341,16 @@ def make_f1_study_area():
         arrowprops=dict(arrowstyle="-", color=COL_TEXT, linewidth=1.0),
         bbox=dict(boxstyle="round,pad=0.3", fc="white", ec=COL_TEXT, alpha=0.9),
     )
-    ax1.set_title("(a) Seto Inland Sea, western Japan", fontsize=11)
+    ax1.set_title("(a) Seto Inland Sea, western Japan", fontsize=16)
 
     ax2 = axes[1]
     setup_map_axes(ax2, 133.45, 34.30, 133.62, 34.52)
     cx.add_basemap(ax2, source=GSI_ENGLISH, zoom=11, attribution=False)
     places = {
-        "Kasaoka Port": (133.498, 34.500, "s", "dimgray", 6, (600, -2500), "top"),
-        "Takashima": (133.513, 34.470, "o", "dimgray", 4, (600, 0), "center"),
-        "Shiraishi Island": (133.515, 34.430, "o", "dimgray", 4, (600, 0), "center"),
-        "Kitagi Island": (133.543, 34.374, "*", COL_WATER, 20, (900, 0), "center"),
-        "Manabe Island": (133.560, 34.330, "o", "dimgray", 4, (600, 0), "center"),
+        "Kasaoka Port": (133.498, 34.500, "s", "dimgray", 8, (800, -3300), "top"),
+        "Shiraishi Island": (133.515, 34.430, "o", "dimgray", 6, (900, 0), "center"),
+        "Kitagi Island": (133.543, 34.374, "*", COL_WATER, 24, (1100, 0), "center"),
+        "Manabe Island": (133.560, 34.330, "o", "dimgray", 6, (900, 0), "center"),
     }
     for name, (lon, lat, marker, color, size, (dx, dy), va) in places.items():
         x, y = _to_3857(lon, lat)
@@ -348,13 +360,14 @@ def make_f1_study_area():
             x + dx,
             y + dy,
             name,
-            fontsize=9 if "Kitagi" in name else 8,
+            fontsize=16 if "Kitagi" in name else 15,
             weight="bold" if "Kitagi" in name else "normal",
             va=va,
             zorder=10,
             color=COL_TEXT,
+            bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.75),
         )
-    ax2.set_title("(b) Kasaoka Islands, Okayama Pref.", fontsize=11)
+    ax2.set_title("(b) Kasaoka Islands, Okayama Pref.", fontsize=16)
 
     plt.tight_layout()
     out = OUT_DIR / "poster_f1_study_area.png"
@@ -365,22 +378,43 @@ def make_f1_study_area():
 
 # ---------------------------------------------------------------- F3 夏季分布図（主要図版）
 def make_f3_summer_map(res: dict):
+    """タイル背景を使わず、Sentinel-2 由来の陸域シルエット + 検出ポリゴンを描画する。
+
+    背景タイル（地理院淡色）には日本語地名が含まれ「英語のみ」要件に抵触する
+    ため、シーン自身から導出した海岸線・島形状を背景とする（Task 4 M1 対応）。
+    """
     fig, ax = plt.subplots(figsize=(9.8, 9.2), dpi=300)
     setup_map_axes(ax, *KITAGI_BBOX)
-    cx.add_basemap(ax, source=GSI_PALE, zoom=15, attribution=False)
+    ax.set_facecolor("#e9eff6")  # 海: ごく薄い青（グレースケール印刷でも陸と分離可能）
+
+    # 陸域シルエット（10 m マスク由来。ピクセル境界のまま描画）
+    for poly in res["land_features"]:
+        poly_3857 = shapely_transform(_to_3857, poly)
+        polys = [poly_3857] if poly_3857.geom_type == "Polygon" else list(poly_3857.geoms)
+        for p in polys:
+            xs, ys = p.exterior.xy
+            ax.fill(xs, ys, color="#eae5d9", edgecolor="#8a8375", linewidth=0.5, zorder=3)
+
+    # 検出水域ポリゴン
     for f in res["features_island"]:
         poly_3857 = shapely_transform(_to_3857, f["shape"])
         polys = [poly_3857] if poly_3857.geom_type == "Polygon" else list(poly_3857.geoms)
         for p in polys:
             xs, ys = p.exterior.xy
-            ax.fill(xs, ys, color=COL_WATER, alpha=0.9, edgecolor="#062a52",
+            ax.fill(xs, ys, color=COL_WATER, alpha=0.95, edgecolor="#062a52",
                     linewidth=0.4, zorder=5)
+
+    # 島名ラベル（英語のみ、島の上に配置）
+    lx, ly = _to_3857(133.5265, 34.3745)
+    ax.text(lx, ly, "Kitagi Island", fontsize=18, style="italic", color="#6b665c",
+            ha="center", zorder=10)
+
     count = len(res["features_island"])
     ax.set_title(
         f"Detected intra-island water polygons ≥100 m²  —  Summer {SUMMER_DATE}  ·  {count} polygons",
-        fontsize=16,
+        fontsize=18,
     )
-    add_scalebar(ax, KITAGI_CENTER[1], km=1.0, fontsize=15)
+    add_scalebar(ax, KITAGI_CENTER[1], km=1.0, fontsize=18)
 
     plt.tight_layout()
     out = OUT_DIR / "poster_f3_summer_map.png"
@@ -394,16 +428,16 @@ def make_f4_index_panels(res: dict):
     fig, axes = plt.subplots(2, 2, figsize=(9.6, 8.6), dpi=300)
 
     panels = [
-        (res["ndwi"], "RdYlBu", f"NDWI (Green−NIR)   threshold > {NDWI_THRESHOLD}"),
-        (res["mndwi"], "RdYlBu", f"MNDWI (Green−SWIR)   threshold > {MNDWI_THRESHOLD}"),
-        (res["ndvi"], "RdYlGn", f"NDVI (NIR−Red)   vegetation mask > {NDVI_VEG_THRESHOLD}"),
+        (res["ndwi"], "RdYlBu", f"NDWI  (> {NDWI_THRESHOLD})"),
+        (res["mndwi"], "RdYlBu", f"MNDWI  (> {MNDWI_THRESHOLD})"),
+        (res["ndvi"], "RdYlGn", f"NDVI  (mask > {NDVI_VEG_THRESHOLD})"),
     ]
     for ax, (data, cmap, title) in zip(axes.flat[:3], panels):
         im = ax.imshow(data, cmap=cmap, vmin=-1, vmax=1, interpolation="nearest")
-        ax.set_title(title, fontsize=13)
+        ax.set_title(title, fontsize=18)
         ax.axis("off")
-        cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-        cbar.ax.tick_params(labelsize=10, colors=COL_TEXT)
+        cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, ticks=[-1, 0, 1])
+        cbar.ax.tick_params(labelsize=18, colors=COL_TEXT)
 
     mask_rgb = np.zeros((*res["water_mask"].shape, 3), dtype=np.uint8)
     mask_rgb[~res["water_mask"] & ~res["veg_mask"]] = [176, 169, 153]  # COL_STONE
@@ -411,12 +445,9 @@ def make_f4_index_panels(res: dict):
     mask_rgb[res["water_mask"]] = [13, 71, 161]  # COL_WATER
     ax = axes.flat[3]
     ax.imshow(mask_rgb, interpolation="nearest")
-    ax.set_title("Final mask (blue = water, green = vegetation)", fontsize=13)
+    ax.set_title("Final mask", fontsize=18)
     ax.axis("off")
 
-    plt.suptitle(
-        f"Water and vegetation indices — Sentinel-2 L2A, {SUMMER_DATE}", fontsize=15
-    )
     plt.tight_layout()
     out = OUT_DIR / "poster_f4_index_panels.png"
     plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
@@ -438,14 +469,13 @@ def make_f5_truecolor_water(res: dict, scene: dict):
     g_hl[water_mask] = np.clip(g[water_mask] * (1 - blend) + 100 * blend, 0, 255).astype(np.uint8)
     b_hl[water_mask] = np.clip(bl[water_mask] * (1 - blend) + 255 * blend, 0, 255).astype(np.uint8)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12.0, 5.9), dpi=300)
+    fig, axes = plt.subplots(1, 2, figsize=(10.3, 5.1), dpi=300)
     axes[0].imshow(np.stack([r, g, bl], axis=-1), interpolation="nearest")
-    axes[0].set_title("True-color composite (B04/B03/B02)", fontsize=14)
+    axes[0].set_title("True color (B04/B03/B02)", fontsize=19)
     axes[0].axis("off")
     axes[1].imshow(np.stack([r_hl, g_hl, b_hl], axis=-1), interpolation="nearest")
-    axes[1].set_title("Detected water candidates highlighted in blue", fontsize=14)
+    axes[1].set_title("Detected water in blue", fontsize=19)
     axes[1].axis("off")
-    plt.suptitle(f"Sentinel-2 L2A, {SUMMER_DATE} — 10 m resolution", fontsize=15)
     plt.tight_layout()
     out = OUT_DIR / "poster_f5_truecolor_water.png"
     plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")

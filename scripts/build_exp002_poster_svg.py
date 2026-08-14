@@ -282,7 +282,8 @@ def build() -> None:
         [
             "Sentinel-2 L2A imagery accessed through the Microsoft Planetary Computer STAC API",
             "Spring scene 2025-03-23 (cloud cover 0.0%); summer scene 2025-08-02 (cloud cover 0.7%)",
-            "10 m spatial resolution for the visible and NIR bands; mixed pixels limit very small water bodies",
+            "10 m analysis grid: B02/B03/B04/B08 are native 10 m; B11 (SWIR) is resampled from its "
+            "native 20 m. Mixed pixels limit very small water bodies",
             "Minimum reported polygon area: 100 m²",
         ],
         COL_W, SZ_BODY, LH_BODY,
@@ -305,7 +306,7 @@ def build() -> None:
     y += SZ_BODY * 0.9
 
     steps = [
-        "Sentinel-2 L2A imagery (10 m bands)",
+        "Sentinel-2 L2A; 10 m analysis grid; B11 SWIR resampled from 20 m",
         "STAC search and band access — Microsoft Planetary Computer",
         "Water index union: NDWI + MNDWI",
         "NDVI vegetation mask, then water polygon extraction (≥100 m²)",
@@ -356,7 +357,8 @@ def build() -> None:
     y = svg.image(FIG_DIR / "poster_f4_index_panels.png", x, y, COL_W) + LH_CAPTION
     y = svg.caption(
         x, y,
-        "NDWI, MNDWI, NDVI and the final water/vegetation mask, Sentinel-2 L2A, 2025-08-02. "
+        "NDWI, MNDWI, NDVI and the final mask (blue = water, green = vegetation, gray = other), "
+        "Sentinel-2 L2A, 2025-08-02. B11 (SWIR, native 20 m) resampled to the 10 m grid. "
         "Contains modified Copernicus Sentinel data [2025].",
         COL_W,
     )
@@ -402,13 +404,21 @@ def build() -> None:
                  SZ_CAPTION * 1.15, "medium", COL_TEXT, anchor="middle")
         svg.text(tx + tile_w / 2, y + SZ_BIGNUM * 1.05 + SZ_CAPTION * 2.5, "water polygons ≥100 m²",
                  SZ_CAPTION, "normal", COL_MUTED, anchor="middle")
-    y += tile_h + 8.0
+    y += tile_h + LH_CAPTION
+    # 春季113件のプロベナンス注記（Task 4 B1 対応: 確定値は維持しつつ再現状況を明示）
+    y = svg.caption(
+        x, y,
+        "Spring count: 113 reported polygons; the exact historical run configuration "
+        "is not preserved in the current repository.",
+        COL_W,
+    )
+    y += 4.0
 
     y = svg.image(FIG_DIR / "poster_f3_summer_map.png", x, y, COL_W) + LH_CAPTION
     y = svg.caption(
         x, y,
-        "Summer result: 145 detected intra-island water polygons (blue). "
-        "Basemap: GSI Tiles (pale), Geospatial Information Authority of Japan.",
+        "Summer result: 145 detected intra-island water polygons (blue) on a land/sea outline "
+        "derived from the same Sentinel-2 scene. Contains modified Copernicus Sentinel data [2025].",
         COL_W,
     )
 
