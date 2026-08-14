@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="841mm" height="1189mm" viewBox="0 0 841 1189">
+<rect x="0.00" y="0.00" width="841.00" height="1189.00" fill="#ffffff"/>
+<text x="18.00" y="24.00" font-family="Helvetica Neue" font-size="9.172" font-weight="500" fill="#0d47a1" text-anchor="start">FOSS4G Hiroshima 2026 — Poster Session</text>
+<text x="823.00" y="24.00" font-family="Helvetica Neue" font-size="9.172" font-weight="400" fill="#5a564e" text-anchor="end">Sakura Lounge · September 1–3, 2026</text>
+<text x="18.00" y="46.00" font-family="Helvetica Neue" font-size="26.106" font-weight="700" fill="#2b2b2b" text-anchor="start">Detecting Quarry Pond Remnants on a Japanese Island Heritage</text>
+<text x="18.00" y="76.80" font-family="Helvetica Neue" font-size="26.106" font-weight="700" fill="#2b2b2b" text-anchor="start">Site Using Sentinel-2 Imagery and Open-Source Remote</text>
+<text x="18.00" y="107.61" font-family="Helvetica Neue" font-size="26.106" font-weight="700" fill="#2b2b2b" text-anchor="start">Sensing Tools</text>
+<text x="18.00" y="140.41" font-family="Helvetica Neue" font-size="11.289" font-weight="500" fill="#2b2b2b" text-anchor="start">Noboru Otsuka — Geolonia Inc.</text>
+<rect x="18.00" y="153.19" width="805.00" height="35.72" fill="#f0ece3" rx="2.00"/>
+<rect x="18.00" y="153.19" width="3.00" height="35.72" fill="#0d47a1"/>
+<text x="28.00" y="167.38" font-family="Helvetica Neue" font-size="9.525" font-weight="500" fill="#2b2b2b" text-anchor="start">Open-source Sentinel-2 processing revealed 113 spring and 145 summer intra-island water polygons on Kitagi Island; their distribution is consistent with historical quarrying</text>
+<text x="28.00" y="180.24" font-family="Helvetica Neue" font-size="9.525" font-weight="500" fill="#2b2b2b" text-anchor="start">patterns, while individual quarry-pond identities still require field validation.</text>
+<text x="18.00" y="213.63" font-family="Helvetica Neue" font-size="13.406" font-weight="700" fill="#0d47a1" text-anchor="start">1 · Background and heritage</text>
+<line x1="18.00" y1="217.13" x2="278.33" y2="217.13" stroke="#8a8375" stroke-width="0.60"/>
+<text x="18.00" y="239.47" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Kitagi Island (Kitagi-shima), in Kasaoka City, Okayama Prefecture,</text>
+<text x="18.00" y="251.40" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">is a granite-quarrying island in Japan’s Seto Inland Sea. Quarrying</text>
+<text x="18.00" y="263.33" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">here extends back to the early seventeenth century.</text>
+<text x="18.00" y="293.13" font-family="Helvetica Neue" font-size="21.167" font-weight="700" fill="#0d47a1" text-anchor="start">127</text>
+<text x="60.56" y="287.66" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">active quarry sites (dojo) recorded at the 1957 peak</text>
+<text x="18.00" y="306.12" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">As the industry declined, abandoned excavations filled with</text>
+<text x="18.00" y="318.04" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">rainwater and groundwater, forming isolated ponds enclosed by</text>
+<text x="18.00" y="329.97" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">steep granite walls. In 2019 the island’s stone culture became part</text>
+<text x="18.00" y="341.90" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">of Japan’s national heritage under the “Stone Islands of Setouchi”</text>
+<text x="18.00" y="353.83" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">program. No systematic spatial inventory of these quarry pond</text>
+<text x="18.00" y="365.75" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">remnants has been published.</text>
+<text x="18.00" y="396.40" font-family="Helvetica Neue" font-size="13.406" font-weight="700" fill="#0d47a1" text-anchor="start">2 · Research question</text>
+<line x1="18.00" y1="399.90" x2="278.33" y2="399.90" stroke="#8a8375" stroke-width="0.60"/>
+<text x="18.00" y="422.25" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Can open satellite imagery and reproducible open-source tools</text>
+<text x="18.00" y="434.18" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">map water bodies associated with former quarry sites, and do their</text>
+<text x="18.00" y="446.10" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">spatial patterns correspond to the island’s quarrying history?</text>
+<image x="18.00" y="462.03" width="260.33" height="155.35" xlink:href="figures/exp002/poster_f1_study_area.png"/>
+<text x="18.00" y="625.86" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Study area: Kitagi Island, Kasaoka City, Okayama Prefecture. Basemap: GSI Tiles</text>
+<text x="18.00" y="634.35" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">(English), Geospatial Information Authority of Japan.</text>
+<text x="18.00" y="659.56" font-family="Helvetica Neue" font-size="13.406" font-weight="700" fill="#0d47a1" text-anchor="start">3 · Data and study area</text>
+<line x1="18.00" y1="663.06" x2="278.33" y2="663.06" stroke="#8a8375" stroke-width="0.60"/>
+<text x="18.00" y="685.40" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="25.00" y="685.40" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Sentinel-2 L2A imagery accessed through the Microsoft</text>
+<text x="25.00" y="697.33" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Planetary Computer STAC API</text>
+<text x="18.00" y="710.75" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="25.00" y="710.75" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Spring scene 2025-03-23 (cloud cover 0.0%); summer scene</text>
+<text x="25.00" y="722.68" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">2025-08-02 (cloud cover 0.7%)</text>
+<text x="18.00" y="736.11" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="25.00" y="736.11" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">10 m spatial resolution for the visible and NIR bands; mixed</text>
+<text x="25.00" y="748.04" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">pixels limit very small water bodies</text>
+<text x="18.00" y="761.46" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="25.00" y="761.46" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Minimum reported polygon area: 100 m²</text>
+<image x="18.00" y="778.89" width="260.33" height="172.11" xlink:href="figures/exp002/poster_f6_field_photos.jpg"/>
+<text x="18.00" y="959.49" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Water-filled quarry remnants (“Choba lake”) enclosed by granite walls, Kitagi Island.</text>
+<text x="18.00" y="967.97" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Photos: Noboru Otsuka.</text>
+<text x="290.33" y="213.63" font-family="Helvetica Neue" font-size="13.406" font-weight="700" fill="#0d47a1" text-anchor="start">4 · Method — open-source pipeline</text>
+<line x1="290.33" y1="217.13" x2="550.67" y2="217.13" stroke="#8a8375" stroke-width="0.60"/>
+<rect x="290.33" y="239.47" width="260.33" height="18.74" fill="#ffffff" rx="2.00" stroke="#0d47a1" stroke-width="0.90"/>
+<text x="297.33" y="251.20" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">Sentinel-2 L2A imagery (10 m bands)</text>
+<line x1="420.50" y1="259.21" x2="420.50" y2="265.21" stroke="#0d47a1" stroke-width="1.20"/>
+<path d="M 417.90 264.41 L 423.10 264.41 L 420.50 268.21 Z" fill="#0d47a1"/>
+<rect x="290.33" y="269.21" width="260.33" height="29.97" fill="#ffffff" rx="2.00" stroke="#0d47a1" stroke-width="0.90"/>
+<text x="297.33" y="280.93" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">STAC search and band access — Microsoft Planetary</text>
+<text x="297.33" y="292.17" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">Computer</text>
+<line x1="420.50" y1="300.18" x2="420.50" y2="306.18" stroke="#0d47a1" stroke-width="1.20"/>
+<path d="M 417.90 305.38 L 423.10 305.38 L 420.50 309.18 Z" fill="#0d47a1"/>
+<rect x="290.33" y="310.18" width="260.33" height="18.74" fill="#ffffff" rx="2.00" stroke="#0d47a1" stroke-width="0.90"/>
+<text x="297.33" y="321.90" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">Water index union: NDWI + MNDWI</text>
+<line x1="420.50" y1="329.92" x2="420.50" y2="335.92" stroke="#0d47a1" stroke-width="1.20"/>
+<path d="M 417.90 335.12 L 423.10 335.12 L 420.50 338.92 Z" fill="#0d47a1"/>
+<rect x="290.33" y="339.92" width="260.33" height="29.97" fill="#ffffff" rx="2.00" stroke="#0d47a1" stroke-width="0.90"/>
+<text x="297.33" y="351.64" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">NDVI vegetation mask, then water polygon extraction</text>
+<text x="297.33" y="362.88" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">(≥100 m²)</text>
+<text x="290.33" y="383.89" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">NDWI  = (Green − NIR) / (Green + NIR)</text>
+<text x="290.33" y="395.82" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">MNDWI = (Green − SWIR) / (Green + SWIR)</text>
+<text x="290.33" y="407.74" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">NDVI  = (NIR − Red) / (NIR + Red)</text>
+<rect x="290.33" y="422.67" width="260.33" height="19.24" fill="#f0ece3" rx="2.00" stroke="#0d47a1" stroke-width="1.00"/>
+<text x="420.50" y="435.40" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="middle">(NDWI &gt; −0.2  OR  MNDWI &gt; −0.1)  AND NOT  (NDVI &gt; 0.3)</text>
+<text x="290.33" y="453.83" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">The union condition favors sensitivity to small water bodies</text>
+<text x="290.33" y="465.76" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">affected by spectral mixing at 10 m resolution, while the NDVI</text>
+<text x="290.33" y="477.69" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">mask excludes vegetation-like pixels.</text>
+<image x="290.33" y="493.62" width="260.33" height="249.45" xlink:href="figures/exp002/poster_f4_index_panels.png"/>
+<text x="290.33" y="751.55" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">NDWI, MNDWI, NDVI and the final water/vegetation mask, Sentinel-2 L2A, 2025-08-02.</text>
+<text x="290.33" y="760.03" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Contains modified Copernicus Sentinel data [2025].</text>
+<text x="290.33" y="790.39" font-family="Helvetica Neue" font-size="21.167" font-weight="700" fill="#0d47a1" text-anchor="start">10 m</text>
+<text x="346.23" y="779.30" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">Sentinel-2 spatial resolution — the key detection</text>
+<text x="346.23" y="790.54" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">limit</text>
+<text x="290.33" y="805.49" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">The summer NDVI mask excluded only 9 pixels, indicating limited</text>
+<text x="290.33" y="817.42" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">overlap between the detected water candidates and vegetation</text>
+<text x="290.33" y="829.35" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">zones in this granite-dominated landscape.</text>
+<image x="290.33" y="845.27" width="260.33" height="141.98" xlink:href="figures/exp002/poster_f5_truecolor_water.png"/>
+<text x="290.33" y="995.74" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Detected water candidates highlighted in blue; not individual quarry validation. Contains</text>
+<text x="290.33" y="1004.22" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">modified Copernicus Sentinel data [2025].</text>
+<text x="562.67" y="213.63" font-family="Helvetica Neue" font-size="13.406" font-weight="700" fill="#0d47a1" text-anchor="start">5 · Results — seasonal detection</text>
+<line x1="562.67" y1="217.13" x2="823.00" y2="217.13" stroke="#8a8375" stroke-width="0.60"/>
+<text x="562.67" y="239.47" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">Detected intra-island water polygons ≥100 m²</text>
+<rect x="562.67" y="245.52" width="126.17" height="62.49" fill="#f0ece3" rx="2.00"/>
+<text x="625.75" y="277.70" font-family="Helvetica Neue" font-size="33.867" font-weight="700" fill="#0d47a1" text-anchor="middle">113</text>
+<text x="625.75" y="288.26" font-family="Helvetica Neue" font-size="7.505" font-weight="500" fill="#2b2b2b" text-anchor="middle">Spring · 2025-03-23</text>
+<text x="625.75" y="297.40" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="middle">water polygons ≥100 m²</text>
+<rect x="696.83" y="245.52" width="126.17" height="62.49" fill="#f0ece3" rx="2.00"/>
+<text x="759.92" y="277.70" font-family="Helvetica Neue" font-size="33.867" font-weight="700" fill="#0d47a1" text-anchor="middle">145</text>
+<text x="759.92" y="288.26" font-family="Helvetica Neue" font-size="7.505" font-weight="500" fill="#2b2b2b" text-anchor="middle">Summer · 2025-08-02</text>
+<text x="759.92" y="297.40" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="middle">water polygons ≥100 m²</text>
+<image x="562.67" y="316.01" width="260.33" height="265.39" xlink:href="figures/exp002/poster_f3_summer_map.png"/>
+<text x="562.67" y="589.88" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Summer result: 145 detected intra-island water polygons (blue). Basemap: GSI Tiles</text>
+<text x="562.67" y="598.37" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">(pale), Geospatial Information Authority of Japan.</text>
+<text x="562.67" y="611.85" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Summer imagery detected 145 intra-island water polygons. The</text>
+<text x="562.67" y="623.78" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">detections were concentrated in northern, southeastern, central,</text>
+<text x="562.67" y="635.71" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">and western parts of the island, a pattern consistent with historical</text>
+<text x="562.67" y="647.63" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">quarrying records.</text>
+<rect x="562.67" y="661.56" width="260.33" height="44.78" fill="#f0ece3" rx="2.00" stroke="#8a8375" stroke-width="0.90"/>
+<text x="569.67" y="674.79" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">These are detected water polygons, not individually</text>
+<text x="569.67" y="686.71" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">field-confirmed quarry ponds. Natural ponds, reservoirs,</text>
+<text x="569.67" y="698.64" font-family="Helvetica Neue" font-size="8.643" font-weight="500" fill="#2b2b2b" text-anchor="start">shadows, and other false positives may remain.</text>
+<text x="562.67" y="731.07" font-family="Helvetica Neue" font-size="13.406" font-weight="700" fill="#0d47a1" text-anchor="start">6 · Interpretation and limitations</text>
+<line x1="562.67" y1="734.57" x2="823.00" y2="734.57" stroke="#8a8375" stroke-width="0.60"/>
+<text x="562.67" y="756.91" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="569.67" y="756.91" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">The count and distribution of detected polygons are consistent</text>
+<text x="569.67" y="768.84" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">with the historical quarrying context; the 145-to-127 comparison</text>
+<text x="569.67" y="780.77" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">is a scale comparison, not a one-to-one match.</text>
+<text x="562.67" y="794.20" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="569.67" y="794.20" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Sentinel-2’s 10 m resolution causes spectral mixing for narrow or</text>
+<text x="569.67" y="806.12" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">small ponds.</text>
+<text x="562.67" y="819.55" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="569.67" y="819.55" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Negative thresholds improve sensitivity but can add false</text>
+<text x="569.67" y="831.48" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">positives from dark rock or shadows.</text>
+<text x="562.67" y="844.90" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="569.67" y="844.90" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Individual quarry-pond identity and accuracy metrics require field</text>
+<text x="569.67" y="856.83" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">validation.</text>
+<text x="562.67" y="870.26" font-family="Helvetica Neue" font-size="8.643" font-weight="700" fill="#0d47a1" text-anchor="start">•</text>
+<text x="569.67" y="870.26" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">Season changes which water bodies are most detectable; spring</text>
+<text x="569.67" y="882.19" font-family="Helvetica Neue" font-size="8.643" font-weight="400" fill="#2b2b2b" text-anchor="start">and summer results are not interchangeable observations.</text>
+<line x1="18.00" y1="1090.00" x2="823.00" y2="1090.00" stroke="#8a8375" stroke-width="0.80"/>
+<text x="18.00" y="1100.00" font-family="Helvetica Neue" font-size="7.505" font-weight="700" fill="#0d47a1" text-anchor="start">Conclusion and reuse</text>
+<text x="18.00" y="1110.61" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">A lightweight, reproducible workflow can provide a first spatial inventory of quarry-pond</text>
+<text x="18.00" y="1119.09" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">candidates and a practical base layer for field validation and heritage documentation.</text>
+<text x="18.00" y="1127.57" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">Results are exported as GeoJSON and GeoTIFF. The workflow uses open-source Python</text>
+<text x="18.00" y="1136.06" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">libraries — rasterio, numpy, shapely, pystac-client, planetary-computer, and folium —</text>
+<text x="18.00" y="1144.54" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">and could be extended to other quarried islands in the Seto Inland Sea.</text>
+<text x="292.00" y="1100.00" font-family="Helvetica Neue" font-size="7.505" font-weight="700" fill="#0d47a1" text-anchor="start">References</text>
+<text x="292.00" y="1110.61" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">McFeeters, S. K. (1996) The use of the Normalized Difference Water Index (NDWI) in the</text>
+<text x="292.00" y="1119.09" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">delineation of open water features. Int. J. Remote Sensing, 17(7), 1425–1432.</text>
+<text x="292.00" y="1128.57" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">Xu, H. (2006) Modification of normalised difference water index (NDWI) to enhance open water</text>
+<text x="292.00" y="1137.06" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">features in remotely sensed imagery. Int. J. Remote Sensing, 27(14), 3025–3033.</text>
+<text x="292.00" y="1146.54" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">Du, Y. et al. (2016) Water bodies’ mapping from Sentinel-2 imagery with MNDWI at 10-m</text>
+<text x="292.00" y="1155.03" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">spatial resolution. Remote Sensing, 8(4), 354.</text>
+<text x="292.00" y="1164.51" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">Japan Heritage story “Islands of stone”: stone-islands.jp/en/story/</text>
+<text x="582.00" y="1100.00" font-family="Helvetica Neue" font-size="7.505" font-weight="700" fill="#0d47a1" text-anchor="start">Attribution and license</text>
+<text x="582.00" y="1110.61" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">Contains modified Copernicus Sentinel data [2025]. Sentinel-2</text>
+<text x="582.00" y="1119.09" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">L2A data accessed through Microsoft Planetary Computer</text>
+<text x="582.00" y="1127.57" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">STAC API. Analysis uses rasterio, numpy, shapely, pystac-client,</text>
+<text x="582.00" y="1136.06" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">planetary-computer, and folium. Conference contribution</text>
+<text x="582.00" y="1144.54" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#2b2b2b" text-anchor="start">licensed CC BY 4.0.</text>
+<text x="582.00" y="1153.03" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Basemaps: GSI Tiles, Geospatial Information Authority of Japan.</text>
+<text x="582.00" y="1161.51" font-family="Helvetica Neue" font-size="6.526" font-weight="400" fill="#5a564e" text-anchor="start">Code and data: github.com/mopinfish/geo-laboratory</text>
+<image x="781.00" y="1097.00" width="42.00" height="42.00" xlink:href="figures/exp002/poster_qr_repo.png"/>
+</svg>
