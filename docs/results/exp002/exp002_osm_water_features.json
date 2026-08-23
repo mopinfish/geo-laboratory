@@ -1,0 +1,499 @@
+{
+ "retrieved": "2026-08-23",
+ "endpoint": "https://overpass-api.de/api/interpreter",
+ "query": "[out:json][timeout:90];\n(\n  nwr[\"natural\"=\"water\"](34.35,133.515,34.4,133.57);\n  nwr[\"landuse\"=\"quarry\"](34.35,133.515,34.4,133.57);\n  nwr[\"water\"](34.35,133.515,34.4,133.57);\n);\nout tags center;\n",
+ "bbox": [
+  133.515,
+  34.35,
+  133.57,
+  34.4
+ ],
+ "elements": [
+  {
+   "type": "way",
+   "id": 312895295,
+   "center": {
+    "lat": 34.3924579,
+    "lon": 133.5311484
+   },
+   "tags": {
+    "name": "北木のベニス",
+    "natural": "water",
+    "water": "lake"
+   }
+  },
+  {
+   "type": "way",
+   "id": 312895297,
+   "center": {
+    "lat": 34.3911657,
+    "lon": 133.532899
+   },
+   "tags": {
+    "disused": "yes",
+    "landuse": "quarry",
+    "name": "今岡石材丁場跡（北木の桂林）",
+    "natural": "water"
+   }
+  },
+  {
+   "type": "way",
+   "id": 312895298,
+   "center": {
+    "lat": 34.3911564,
+    "lon": 133.5334889
+   },
+   "tags": {
+    "disused": "yes",
+    "landuse": "quarry",
+    "name": "馬越道也石材丁場跡",
+    "natural": "water"
+   }
+  },
+  {
+   "type": "way",
+   "id": 312895299,
+   "center": {
+    "lat": 34.3902225,
+    "lon": 133.5322284
+   },
+   "tags": {
+    "disused": "yes",
+    "landuse": "quarry",
+    "name": "馬越石材工業所丁場跡",
+    "natural": "water"
+   }
+  },
+  {
+   "type": "way",
+   "id": 317741478,
+   "center": {
+    "lat": 34.3931744,
+    "lon": 133.5332741
+   },
+   "tags": {
+    "name": "トレビの泉",
+    "natural": "water"
+   }
+  },
+  {
+   "type": "way",
+   "id": 317748102,
+   "center": {
+    "lat": 34.3904323,
+    "lon": 133.5216066
+   },
+   "tags": {
+    "disused": "yes",
+    "landuse": "quarry",
+    "name": "村上石材丁場跡",
+    "natural": "water",
+    "water": "lake"
+   }
+  },
+  {
+   "type": "way",
+   "id": 317748104,
+   "center": {
+    "lat": 34.3874475,
+    "lon": 133.5201924
+   },
+   "tags": {
+    "landuse": "quarry",
+    "name": "花本石材採石場"
+   }
+  },
+  {
+   "type": "way",
+   "id": 321415252,
+   "center": {
+    "lat": 34.3847806,
+    "lon": 133.5272657
+   },
+   "tags": {
+    "name": "北木北ポンプ室",
+    "natural": "water",
+    "source": "GSImaps/std",
+    "water": "reservoir"
+   }
+  },
+  {
+   "type": "way",
+   "id": 875692855,
+   "center": {
+    "lat": 34.3874606,
+    "lon": 133.5313726
+   },
+   "tags": {
+    "fixme": "正確なエリアの適用まではできていない。2015/01 survey",
+    "landuse": "quarry",
+    "name": "鶴田石材採石場"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507174,
+   "center": {
+    "lat": 34.3864109,
+    "lon": 133.5475952
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507175,
+   "center": {
+    "lat": 34.3866366,
+    "lon": 133.5414402
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507176,
+   "center": {
+    "lat": 34.3878866,
+    "lon": 133.5401132
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507177,
+   "center": {
+    "lat": 34.3903945,
+    "lon": 133.5410439
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507178,
+   "center": {
+    "lat": 34.3961457,
+    "lon": 133.5389531
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507179,
+   "center": {
+    "lat": 34.3962271,
+    "lon": 133.537891
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507180,
+   "center": {
+    "lat": 34.3961435,
+    "lon": 133.5383403
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507181,
+   "center": {
+    "lat": 34.3959465,
+    "lon": 133.5381069
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507182,
+   "center": {
+    "lat": 34.3958171,
+    "lon": 133.538418
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507183,
+   "center": {
+    "lat": 34.3966808,
+    "lon": 133.5379997
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507184,
+   "center": {
+    "lat": 34.3966305,
+    "lon": 133.5398289
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507185,
+   "center": {
+    "lat": 34.3973033,
+    "lon": 133.5404981
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507186,
+   "center": {
+    "lat": 34.397213,
+    "lon": 133.5456721
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363507187,
+   "center": {
+    "lat": 34.3961209,
+    "lon": 133.5487157
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363779148,
+   "center": {
+    "lat": 34.3895074,
+    "lon": 133.5341446
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363779149,
+   "center": {
+    "lat": 34.3896165,
+    "lon": 133.5352584
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363779150,
+   "center": {
+    "lat": 34.3914647,
+    "lon": 133.5350424
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363779151,
+   "center": {
+    "lat": 34.3853146,
+    "lon": 133.53715
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363779152,
+   "center": {
+    "lat": 34.385153,
+    "lon": 133.5436644
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363779153,
+   "center": {
+    "lat": 34.3860683,
+    "lon": 133.5444296
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363957843,
+   "center": {
+    "lat": 34.3878451,
+    "lon": 133.5194006
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363957844,
+   "center": {
+    "lat": 34.3859156,
+    "lon": 133.5169355
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363957845,
+   "center": {
+    "lat": 34.3890222,
+    "lon": 133.5201214
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363957846,
+   "center": {
+    "lat": 34.3860152,
+    "lon": 133.5289613
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363957847,
+   "center": {
+    "lat": 34.3873029,
+    "lon": 133.5329403
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363957848,
+   "center": {
+    "lat": 34.3864728,
+    "lon": 133.5318245
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1363957849,
+   "center": {
+    "lat": 34.385194,
+    "lon": 133.5321805
+   },
+   "tags": {
+    "natural": "water",
+    "source": "GSImaps/seamless",
+    "water": "pond"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1490919531,
+   "center": {
+    "lat": 34.389788,
+    "lon": 133.5319341
+   },
+   "tags": {
+    "disused": "yes",
+    "landuse": "quarry",
+    "name": "竹本丁場跡",
+    "natural": "water"
+   }
+  }
+ ]
+}
