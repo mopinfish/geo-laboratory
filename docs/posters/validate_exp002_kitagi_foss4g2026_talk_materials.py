@@ -191,8 +191,24 @@ for heading in ("### 0-1. 1画面カード", "## 1. 30秒版", "## 2. 2〜3分�
 card = section(talk, "### 0-1.", "### 0-2.")
 check("|" not in card, "1画面カードに表が含まれている（1画面に収まらない）")
 check(len(card.splitlines()) <= 16, f"1画面カードが長すぎる: {len(card.splitlines())} 行")
-check("Sakura Lounge" in talk, "口頭スクリプトにコアタイム会場の記載が無い")
-check("13:00–15:00" in talk, "口頭スクリプトにコアタイムの記載が無い")
+# 現行前提（口頭発表）の記載
+check("Regular Talk" in talk, "口頭スクリプトに採択形式（Regular Talk）の記載が無い")
+check("13:30–14:00" in talk, "口頭スクリプトに登壇時刻の記載が無い")
+check("Himawari" in talk, "口頭スクリプトに登壇会場の記載が無い")
+check("前提訂正（2026-08-23）" in talk, "冒頭の前提訂正の告知が無い")
+
+# 旧ポスター前提の断定が残っていないこと（廃止記述としての言及は許容）
+STALE = [
+    (r"本ポスターの掲載枠", "Himawari 枠をポスター掲載枠とする旧前提"),
+    (r"別会場でのトークがある", "在席要否が未確認という旧前提"),
+    (r"(?<!旧版は)コアタイムは \*\*9月2日", "ポスターコアタイムを基準とする旧運用"),
+]
+for lineno, line in enumerate(talk.splitlines(), 1):
+    if "廃止" in line or "旧版" in line:
+        continue  # 廃止済みとして言及している行は対象外
+    for pattern, why in STALE:
+        if re.search(pattern, line):
+            check(False, f"口頭スクリプト L{lineno}: 旧ポスター前提が残っている — {why}")
 
 if errors:
     print(f"FAIL ({len(errors)} / {checks} checks failed)")

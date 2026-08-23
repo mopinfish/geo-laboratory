@@ -2,7 +2,16 @@
 
 対象ポスター: `exp002_kitagi_quarry_foss4g2026_poster.pdf` — *Detecting Quarry Pond Remnants on a Japanese Island Heritage Site Using Sentinel-2 Imagery and Open-Source Remote Sensing Tools* / Noboru Otsuka (Geolonia Inc.)
 
-掲出: Sakura Lounge, September 1–3, 2026 ／ コアタイム: September 2, 13:00–15:00
+> **前提訂正（2026-08-23）**: 本発表の採択形式は**ポスターではなく口頭発表**（Regular Talk）である。
+> **2026-09-02 13:30–14:00、Himawari、発表20分＋質疑5分、英語**。根拠は主催者メール3通と公式
+> スケジュール（`schedule.json` v0.27）で、記録は Issue #6 #issuecomment-5385220162 および
+> `docs/posters/exp002_kitagi_foss4g2026_proposal.md`「発表形式（2026-08-23 確定）」を参照。
+> ポスター掲出・コアタイムを前提とした本書の運用記述は**廃止**した（§5 参照）。
+>
+> 本書のうち引き続き有効なのは、チートシート（§0）・30秒版・2〜3分版・5分版（廊下や休憩時間の
+> 会話用）・定型フレーズ・出典である。スライドの正本は
+> `docs/presentations/exp002_kitagi_foss4g2026_presentation.md`、発表後の質疑には
+> `exp002_kitagi_foss4g2026_qa.md` を使う。
 
 想定質問への回答は `exp002_kitagi_foss4g2026_qa.md` を参照。
 
@@ -177,10 +186,14 @@
 
 ## 5. 運用メモ
 
-- コアタイムは **9月2日 13:00–15:00（Sakura Lounge）**。この時間帯を基準に説明を組む。
-- Pretalx上の 9月2日 13:30–14:00（Himawari）は本ポスターの掲載枠。**その枠での物理的在席が必要かは主催者未確認**（Issue #6 の発注前確認事項）。確認が取れるまで、聴衆に「別会場でのトークがある」とは言わない。
-- 30秒版は暗記、2〜3分版は流れを暗記して言い回しは即興、5分版は本紙を手元に置く運用を想定。
-- 想定問答（`exp002_kitagi_foss4g2026_qa.md`）はスマートフォンで開ける状態にしておく。
+**廃止した記述（2026-08-23）**: 旧版はポスター掲出（Sakura Lounge、9月1〜3日）とコアタイム（9月2日 13:00–15:00）を前提に、Himawari 枠での在席要否を未確認事項としていた。採択形式が口頭発表と確定したため、これらの前提はすべて無効である。Himawari 枠は本発表そのものの登壇枠であり、在席要否という論点は存在しない。
+
+**現行の運用**:
+
+- 登壇は **9月2日 13:30–14:00、Himawari**。発表20分・質疑5分・入替5分。使用言語は英語
+- 本書の30秒版・2〜3分版・5分版は、廊下・休憩時間・懇親会での会話用として使う。登壇本体のスクリプトは `docs/presentations/exp002_kitagi_foss4g2026_presentation_speaker_notes.md`
+- 登壇後の質疑5分には想定問答（`exp002_kitagi_foss4g2026_qa.md`）を使う。スマートフォンで開ける状態にしておく
+- 同日 17:30 に別会場（Dahlia1）で別発表があるため、質疑後の移動時間を確保する
 
 ---
 
