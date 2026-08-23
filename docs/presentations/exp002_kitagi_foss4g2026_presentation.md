@@ -107,7 +107,7 @@
 ## Slide 3 — On foot: I could stand in front of five or six of them
 
 - **Central claim**: 徒歩の縮尺で分かるのは質感である。切削面、緑の水面、深さ。だが島全体は見えない。
-- **Projected body**: `March 2026 — a drone mapping party on the island`; `Vertical granite walls, cut not weathered`; `Water in an unusual green; reported depths of a few metres to about twenty`; `A stage on the water, built from leftover stone`; `Five or six sites during the event.`
+- **Projected body**: `March 2026 — a drone mapping party on the island`; `Vertical granite walls, cut not weathered`; `Water in an unusual green; reported depths of a few metres to about twenty`; `A wooden stage on the water, with stone blocks arranged as seats`; `Five or six sites during the event.`
 - **Visual**: 現地写真2枚を同寸で並置（`fig01_lake_stage.jpg`、`choba_lake_1.jpg`）。**固定寸法スロット**。
   （Fix round 3: `choba_lake_2.jpg` は水面（緑がかった池）がほぼ写らず投影文と
   対応しないため、垂直な花崗岩壁が緑がかった水面へ直接落ち込む `choba_lake_1.jpg`
