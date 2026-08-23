@@ -29,7 +29,7 @@
 
 ## 中心メッセージ（聴衆が1つだけ持ち帰るもの）
 
-> Standard open satellite processing turned a heritage island's quarry ponds into a finite list of candidates — a list that can be walked, confirmed, and put on the public map.
+> Standard open satellite processing turned a heritage island's quarry ponds into a finite list of candidates — a list that can be checked in the field, confirmed, and put on the public map.
 
 ## 採択プロポーザルとの対応（約束の履行台帳）
 
@@ -104,7 +104,7 @@
 ## Slide 3 — On foot: I could stand in front of five or six of them
 
 - **Central claim**: 徒歩の縮尺で分かるのは質感である。切削面、緑の水面、深さ。だが島全体は見えない。
-- **Projected body**: `March 2026 — a drone mapping party on the island`; `Vertical granite walls, cut not weathered`; `Water in an unusual green; reported depths of a few metres to about twenty`; `A stage on the water, built from leftover stone`; `Five or six sites in a day.`
+- **Projected body**: `March 2026 — a drone mapping party on the island`; `Vertical granite walls, cut not weathered`; `Water in an unusual green; reported depths of a few metres to about twenty`; `A stage on the water, built from leftover stone`; `Five or six sites during the event.`
 - **Visual**: 現地写真2枚を同寸で並置（`fig03_keirin_cliff.jpg`、`fig01_lake_stage.jpg`）。**固定寸法スロット**。
 - **Notes-only boundary**: 水深は報告書由来の記述であり、著者の計測値ではない。
 - **Claim type**: Field observation（定性・質感）。
@@ -120,7 +120,7 @@
 - **Claim type**: Field observation（定性・境界）。
 - **Duration**: 1:30
 - **Evidence**: 訪問記 Ⅱ章、写真は著者撮影。
-- **物語上の役割**: ここで OSM への地物追加に触れ、S12 の「地図に還す」で回収する。
+- **物語上の役割**: ここで OSM への地物追加に触れ、S12 の「地図に還す」で回収する。イベントで追加したのは現地で観察した地物であり、徒歩到達範囲を網羅的に地図化したとは述べない。
 
 ## Slide 5 — On the train home: one satellite scene covers the whole island
 
@@ -138,8 +138,16 @@
 - **Projected body**: 大きな数値 `145`; `intra-island water polygons ≥ 100 m², summer 2025-08-02`; `Clustered in the north, south-east, centre and west — consistent with historical quarrying records`; `145 detections vs 127 recorded quarry sites — a comparison of scale, not a one-to-one match`; 小タイル `Spring 2025-03-23 — 113 polygons reported`; `These are detected water polygons, not individually field-confirmed quarry ponds.`; `Contains modified Copernicus Sentinel data [2025].`
 - **Visual**: 検出分布図（4集中地帯を注記した**新規図版 P6**）。春季113は小さな数値タイルで併記。
 - **Notes-only boundary**: 145は検出数であって丁場数ではない。春季113は当時の報告値で、実行設定が保存されておらず差の原因は特定できていない（現行パイプラインの再計算は180）。夏季のNDVIマスクで除外されたのは9ピクセルのみで、これは仮説の棄却である。
+- **Required spoken content（英語ノートで必須。投影面に全て載せる必要はない）**:
+  - `Spring: 2025-03-23, 0.0% cloud — 113 reported polygons, largest 1.28 hectares`
+  - `Summer: 2025-08-02, 0.7% cloud — 145 polygons, largest 7,826 square metres`
+  - `The two reported scenes differed, but we have not isolated the cause`
+  - `The spring figure is what we reported; that run's configuration is not preserved`
+  - `The NDVI vegetation mask removed only nine pixels`
+  - `These are detected water polygons, not individually field-confirmed quarry ponds`
+  これらは内部注記ではなく**英語の発話本文**に置く。S6 で時間を詰める場合も、この6行と候補／非検証の留保は削らない。
 - **Claim type**: Direct result。
-- **Duration**: 2:30
+- **Duration**: 2:30（S6 単体で 2:30 以内に収めることを通し読みのハードゲートとする）
 - **Evidence**: 報告書 4.1（再現性追記）、4.2、4.3、4.4、5.1、ポスター §5・§6。
 
 ## Slide 7 — Each scale shows what the others cannot
@@ -152,17 +160,17 @@
 - **Duration**: 1:10
 - **Evidence**: 訪問記 Ⅲ-3、`fig09_multiscale.png`。
 
-## Slide 8 — I have stood beside fewer than five percent of them
+## Slide 8 — Five or six sites visited — the scan produced 145 candidates
 
-- **Central claim**: 衛星が示した145件のうち著者が現地で見たのは5%未満である。残りは歩いて確かめられる有限のリストになっている。
-- **Projected body**: `Five or six visited · 145 detected`; `Individual ponds are not field-confirmed — no precision or recall yet`; `The quarry sites already on OpenStreetMap are among the detections (retrieved 2026-08-23, for reference)`; `The rest is a finite list I can walk.`
-- **Visual**: 検出分布図の上に、訪問済み地点を控えめに重ねる（**新規図版 P8**）。
-- **Notes-only boundary**: 5%未満は徒歩で訪れた5〜6か所を145で割った概算であり、精度指標ではない。OSM は参考値であって正解データではない。件数の内訳・距離の定義は投影しない（照合記録と想定問答にある）。
-- **Claim type**: Acknowledged gap ＋ OSM を参考値として1行。
+- **Central claim**: 現地で訪れたのは5〜6か所、衛星が返したのは145件の候補である。両者は規模が違う。候補は有限の現地確認リストになる。
+- **Projected body**: `Five or six quarry sites visited during the event`; `145 water polygons detected from one scene`; `Individual ponds are not field-confirmed — no precision or recall yet`; `Every quarry feature already mapped in OpenStreetMap overlaps one of the detections (retrieved 2026-08-23, for reference)`; `The candidates form a finite field-check list.`
+- **Visual**: 検出分布図の上に、**座標を確認できた訪問地点のみ**を控えめに重ねる（**新規図版 P8**）。訪問記の図4で座標が特定できているのは4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜）であり、この4地点だけを表示する。
+- **Notes-only boundary**: 訪問した5〜6か所を145ポリゴンの個別IDへ照合した記録はない。ここで述べているのは**規模の対比**であり、訪問地点が検出集合の部分集合であるという主張ではない。到達可能性は安全・立入許可に依存し、すべてが徒歩で到達できるとは限らない。OSM は参考値であって正解データではなく、重なりは同一地物の同定や精度を意味しない。件数の内訳・距離の定義は投影しない。
+- **Claim type**: Scale contrast ＋ acknowledged gap ＋ OSM を参考値として1行。
 - **Duration**: 1:30
-- **Evidence**: 報告書 5.4、6.3、`exp002_osm_comparison.md`（参考）。
+- **Evidence**: 訪問記 Ⅲ-3（訪問数）、報告書 4.2（145件）、5.4、6.3、`exp002_osm_comparison.md`（参考）。
 
-## Slide 9 — Two days ago I went back to look
+## Slide 9 — Two days ago I went back — a first look, not validation
 
 - **Central claim**: 衛星が指し示した候補地点へ実際に戻った。これは現地確認の開始であって精度検証ではない。
 - **Projected body**: `2026-08-31 — return visit`; `Candidates selected from the published GeoJSON`; `Illustrative field photographs — not accuracy validation`; `What the scan pointed at, seen from the ground.`
@@ -196,7 +204,7 @@
 ## Slide 12 — Check them on the ground, then put them on the map
 
 - **Central claim**: 衛星で候補を絞り、現地で目で確かめ、確かめたものを OpenStreetMap に還す。この一巡が、記録の整っていない産業遺産の景観を公共の地図に載せていく道筋である。
-- **Projected body**: `Satellite scan → a finite candidate list`; `Field visit → see it with your own eyes`; `OpenStreetMap → put what you confirmed on the public map`; `I plan to contribute the ponds I can confirm.`; `The March mapping party mapped what we could walk to. The scan says where to walk next.`; `Thank you · Q&A`.
+- **Projected body**: `Satellite scan → a finite candidate list`; `Field visit → see it with your own eyes`; `OpenStreetMap → put what you confirmed on the public map`; `I plan to contribute the ponds I can confirm.`; `The March mapping party added features observed on the ground. The scan suggests where to look next.`; `Thank you · Q&A`.
 - **Visual**: 3ステップの横並びフロー（**新規図版 P12**、同じ寸法の図形3つ・矢印は細い無彩色）。
 - **Notes-only boundary**: OSM への還元は**今後の計画**であり、まだ行っていない。地物の追加は現地確認できたものに限る。
 - **Claim type**: Proposal（今後の計画）。
@@ -208,7 +216,7 @@
 | ID | 内容 | 生成元 |
 |---|---|---|
 | P6 | 4集中地帯を注記した検出分布図 | `scripts/generate_exp002_poster_figures.py` の F3 派生 |
-| P8 | 検出分布図に訪問済み地点を控えめに重ねた図 | 公開GeoJSON + 訪問記の経路4地点 |
+| P8 | 検出分布図に、座標を確認できた訪問地点4点のみを重ねた図 | 公開GeoJSON + 訪問記 図4 の4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜） |
 | P12 | 「衛星 → 現地 → 地図」の3ステップフロー | 新規作図（図形3つ・細い矢印） |
 | S3・S4・S9 | 写真スロット（固定寸法） | 訪問記の写真、8月31日撮影分 |
 
@@ -221,6 +229,13 @@
 3. 現地で確認できた地物は、後日 OSM への追加候補として記録する（S12 の計画の実行）
 
 これは標本設計された accuracy validation ではなく、探索的な現地確認である。
+
+## 実装時のハードゲート
+
+- 本文を **15 pt 未満へ自動縮小しない**。収まらない場合は footer またはスピーカーノートへ送る（投影文字列が多い S2・S5・S6・S11 で特に注意）
+- S5 の式、S6 の補足値（春季タイル・雲量）は、中心メッセージより**小さい evidence 階層**に置く
+- 英語の通し読みで **S6 単体 2:30 以内・本編 17:30 前後**に収まることを確認する。語数計測は英語部分のみを対象とする
+- S6 の required spoken content と、各スライドのヘッジは英語の発話本文に置く（内部注記に留めない）
 
 ## 成果物
 
@@ -248,6 +263,17 @@
 | Minor 1: Slide 2 タイトル | 探索範囲を限定した表現へ（`I found no island-wide record of the ponds themselves.`） |
 | Minor 2: 投影境界 | 閾値の説明を「mixed pixels によって動機づけられる」へ。公開物（GeoJSON）とパイプライン出力（GeoJSON/GeoTIFF）を分離 |
 | Minor 3: 見出しの番号二重化 | 修正済み |
+
+### 2026-08-23 設計レビュー第3回（#issuecomment-5386098831）の反映
+
+| 指摘 | 対応 |
+|---|---|
+| integrity 1: S8 の集合包含 | タイトルを規模の対比（`Five or six sites visited — the scan produced 145 candidates`）へ変更。`The rest ... I can walk` を削除し `The candidates form a finite field-check list.` へ。訪問5〜6か所を145の部分集合として扱わない旨を境界に明記。P8 は座標を確認できた4地点のみ表示。中心メッセージの `can be walked` を `can be checked in the field` へ |
+| integrity 2: 春季値・9px の発話保証 | S6 に **required spoken content**（英語6行）を新設。春季の雲量0.0%・113件・最大1.28 ha、夏季の雲量0.7%・145件、原因未分離、プロベナンス、NDVI 9px、候補である旨を英語の発話本文で必須化 |
+| integrity 3: 出典が支えない一般化 | S3 を `Five or six sites during the event.` へ。S12 を `The March mapping party added features observed on the ground. The scan suggests where to look next.` へ限定 |
+| story 1: S9 タイトル | `Two days ago I went back — a first look, not validation` へ変更（境界を述語に載せる） |
+| DESIGN_GUIDE・タイミング判定 | 15pt下限、evidence階層、S6 2:30・本編17:30の通し読みゲートを「実装時のハードゲート」節に明記 |
+| out-of-scope 2件 | 距離定義の最適化・感度分析・精度指標・新規手法は本発表の修正条件としない（後続の論文化向けに記録） |
 
 ### 2026-08-23 発表者による設計方針の確定
 
