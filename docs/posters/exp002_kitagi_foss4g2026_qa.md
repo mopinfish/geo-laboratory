@@ -181,9 +181,9 @@
 
 ### Q7-2. Any specific pond you can name?
 - **JP:** 特定できている池はありますか。
-- **A (EN):** One candidate, and I'll keep the hedge: the large water body detected in the south-east may correspond to the former Imaoka quarry known locally as "Kitagi no Keirin". That is a plausible correspondence from local records, not a verified identification.
-- **A (JP):** 一つ候補はありますが、留保は付けたままにします。南東部で検出された大型水域は、旧今岡石材の丁場跡「北木の桂林」に相当する可能性があります。地域の記録から見て妥当な対応ですが、検証された同定ではありません。
-- 根拠: 報告書 5.3（Tier 3・ヘッジ必須）
+- **A (EN):** Our largest detected polygon overlaps the OpenStreetMap feature named as the former Imaoka quarry, known locally as "Kitagi no Keirin" `[report]`. All seven named quarry features in OSM here overlap a detected polygon. OSM is community-contributed data, not ground truth, so I call these candidates for on-site confirmation rather than identifications — I plan to record GPS, direction and time at the site.
+- **A (JP):** 検出最大ポリゴンは、OSM上で旧今岡石材の丁場跡「北木の桂林」として登録されている地物と重なっています `[報告書]`。この範囲にある名前付きの採石場・丁場跡地物7件は、いずれも検出ポリゴンと重なります。ただしOSMはコミュニティ寄稿データで正解データではないので、同定ではなく「現地確認の候補」と言うにとどめます。現地でGPS・撮影方向・撮影時刻を記録する予定です。
+- 根拠: 報告書 5.3（OSM照合、2026-08-23）、`docs/results/exp002/exp002_osm_comparison.md`。OSMは正解データではないためヘッジ必須
 
 ### Q7-3. Could satellite imagery detect quarries that history forgot?
 - **JP:** 記録に残っていない丁場を衛星画像で見つけられる可能性はありますか。
