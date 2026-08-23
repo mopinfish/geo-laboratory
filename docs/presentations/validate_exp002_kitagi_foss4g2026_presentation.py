@@ -3,7 +3,8 @@
 
 図版（P6・P8・P12）、PPTX 本体（スライド数・タイトル・画像数・callout の文字サイズ）、
 再訪なし版（`--no-revisit` で生成される11枚版）、スピーカーノート Markdown
-（構造・英語語数・S6 の required spoken content）と PPTX ノートペインとの同期を検査する。
+（構造・英語語数・S6 の required spoken content・再訪ノートの申し送り）と
+PPTX ノートペインとの同期を検査する。
 後続タスク（数値照合等）はこのファイルに追記していく前提の構造とする。
 
 使い方: uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py
@@ -36,18 +37,39 @@ EN_MARKER = "**EN (spoken)**"
 JA_MARKER = "**JA (not spoken)**"
 
 # 内容契約 Slide 6 の `Required spoken content`。内部注記ではなく英語の発話本文に
-# 置くことが契約上の要件であるため、S6 の EN 部分に対する部分文字列一致で検査する。
-S6_REQUIRED = [
-    "Spring: 2025-03-23, 0.0% cloud",
-    "113 reported polygons",
-    "largest 1.28 hectares",
-    "Summer: 2025-08-02, 0.7% cloud",
-    "145 polygons",
-    "we have not isolated the cause",
-    "that run's configuration is not preserved",
-    "removed only nine pixels",
-    "not individually field-confirmed quarry ponds",
+# 置くことが契約上の要件であるため、S6 の EN 部分に対して検査する。
+#
+# 契約が要求しているのは**事実が発話されること**であり、スライドのタイル文字列を
+# そのまま読み上げることではない。逐語の部分文字列で固定すると
+# `Spring: 2025-03-23, 0.0% cloud — 113 reported polygons` のような
+# 動詞のない・日付が読み上げられない書き言葉を強制してしまうため、事実単位の
+# 正規表現で検査し、数字表記と綴り字表記の双方を受け入れる。
+# (事実の説明, その事実が発話されていると認める正規表現) の並び。
+S6_REQUIRED_FACTS: list[tuple[str, str]] = [
+    ("春季シーンの日付", r"2025-03-23|twenty-third of March"),
+    ("春季シーンの雲量（0.0%）", r"0\.0%|no cloud at all|zero cloud"),
+    ("春季の報告件数（113）", r"\b113\b|one hundred and thirteen"),
+    ("春季の最大面積（1.28 ha）", r"1\.28 hectares|one point two eight hectares"),
+    ("夏季シーンの日付", r"2025-08-02|second of August"),
+    ("夏季シーンの雲量（0.7%）", r"0\.7%|zero point seven percent"),
+    ("夏季の検出件数（145）", r"\b145\b|one hundred and forty-five"),
+    ("夏季の最大面積（7,826 m²）",
+     r"7,826 square metres|seven thousand eight hundred and twenty-six square metres"),
+    ("差の原因が特定できていないこと", r"have not isolated the cause"),
+    ("春季実行の設定が保存されていないこと", r"configuration is not preserved"),
+    ("NDVIマスクの除外が9ピクセルであること", r"removed only nine pixels"),
+    ("候補であって個別の現地確認をしていないこと",
+     r"not individually field-confirmed quarry ponds"),
 ]
+
+# S9 の再訪写真スロットに実写が入ったかどうかの判定材料。生成スクリプトの
+# `resolve_revisit_photo()` と同じファイル名・同じ拡張子の並びを見る。
+REVISIT_PHOTO_STEMS = ("revisit_1", "revisit_2")
+REVISIT_PHOTO_EXTS = ("jpg", "jpeg", "png")
+
+# 再訪写真がプレースホルダのままである間、S9 のノートに残すことを必須とする目印。
+# S9 の英語本文は再訪前に書いたものであり、写真の差し替え時に本文も見直す必要がある。
+REVISIT_UPDATE_MARKER = "[UPDATE AFTER 2026-08-31]"
 
 # 再訪なし版（11枚）の各スライド位置に対応する内容契約のスライド番号。
 # S9（再訪）が抜けるため、位置9以降は内容契約の番号とずれる。
@@ -470,10 +492,53 @@ def check_speaker_notes() -> dict[int, dict[str, str]]:
         )
 
     en6 = sections.get(6, {}).get("en", "")
-    for line in S6_REQUIRED:
-        check(line in en6, f"S6: required spoken content が EN 本文に無い — '{line}'")
+    for description, pattern in S6_REQUIRED_FACTS:
+        check(
+            re.search(pattern, en6) is not None,
+            f"S6: required spoken content の事実が EN 本文に無い — {description}",
+        )
 
+    check_revisit_update_marker(sections)
     return sections
+
+
+def revisit_photos_are_placeholders() -> bool:
+    """S9 の写真スロットが実写に差し替わっていないかを判定する。
+
+    生成スクリプトは `images/revisit_{n}.jpg`（`.jpeg` / `.png` も可）があればそれを、
+    無ければプレースホルダを使う。2枚のうち片方でも実写が無ければプレースホルダ運用中と
+    みなす（解決順を生成側と一致させないと、`.png` で納品された場合に判定がずれる）。
+    """
+    return not all(
+        any((IMAGES / f"{stem}.{ext}").is_file() for ext in REVISIT_PHOTO_EXTS)
+        for stem in REVISIT_PHOTO_STEMS
+    )
+
+
+def check_revisit_update_marker(sections: dict[int, dict[str, str]]) -> None:
+    """S9 の再訪ノートの見直し要求が、写真がプレースホルダの間だけ立つことを確認する。
+
+    S9 の英語本文は 8/31 の再訪より前に書いたものであり、まだ起きていない出来事を
+    語らない構成にしてある。写真が実写に差し替わったら本文も見直す必要があるため、
+    プレースホルダ運用中は `REVISIT_UPDATE_MARKER` を **JA（非発話）側**に置くことを
+    必須とする。実写2枚が揃った時点でこの要求は自動的に消える。
+
+    目印は英語の発話本文に入ってはならない（英語は読み上げるため）。この禁止は
+    写真の有無にかかわらず常に検査する。
+    """
+    en9 = sections.get(9, {}).get("en", "")
+    check(
+        REVISIT_UPDATE_MARKER not in en9,
+        f"S9: '{REVISIT_UPDATE_MARKER}' が EN 発話本文にある（読み上げてしまう）",
+    )
+    if not revisit_photos_are_placeholders():
+        return
+    ja9 = sections.get(9, {}).get("ja", "")
+    check(
+        REVISIT_UPDATE_MARKER in ja9,
+        f"S9: 再訪写真がプレースホルダのままなのに JA 側に "
+        f"'{REVISIT_UPDATE_MARKER}' が無い（再訪後の本文見直しの申し送りが消えている）",
+    )
 
 
 def check_notes_sync(sections: dict[int, dict[str, str]]) -> None:
