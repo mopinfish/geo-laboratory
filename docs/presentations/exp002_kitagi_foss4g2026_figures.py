@@ -10,6 +10,9 @@
 
 出力先: docs/presentations/images/
     p06_clusters_map.png         — 検出145ポリゴン + 4地区（英語ラベル、報告書§4.3準拠）
+    p07_three_scales.png         — 三スケール合成図（英語ラベルのみ。Task 4 レビュー
+                                    指摘の修正: 日本語記事と共有される
+                                    `fig09_multiscale.png` の英語投影面への流用を解消）
     p08_visit_anchors_map.png    — 同じ地図 + 座標確認済み訪問4地点（凡例つき）
     p12_loop_diagram.png         — 「衛星 → 現地 → 地図」の3ステップフロー図
 
@@ -382,6 +385,125 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
     audit_slide_font_sizes("P8", width_px, font_elements)
 
 
+# ---------------------------------------------------------------- P7: 三スケール合成図（英語ラベルのみ）
+# S4（`exp002_kitagi_foss4g2026_presentation.py` の `s04()`）で採用した写真スロットの
+# アスペクト比（`PHOTO_SLOT_W_IN` / `PHOTO_SLOT_H_IN`）と同じ値をここで再現する。
+# 値そのものを import するのではなく定数として複製するのは、本スクリプトが
+# tmp/・ネットワークだけでなく presentation.py の実行順序にも依存しない
+# （どちらを先に実行しても成立する）ようにするため。
+P07_PHOTO_SLOT_AR = 5.6 / 3.15  # 16:9。PHOTO_SLOT_W_IN / PHOTO_SLOT_H_IN と同一
+P07_FIG06_VBIAS = 0.2768  # S4 の s04() で fig06_aerial_quarries.jpg に使った値をそのまま再利用
+
+
+def _load_photo(path: Path) -> Image.Image:
+    with Image.open(path) as im:
+        return im.convert("RGB").copy()
+
+
+def _crop_top_bottom_to_aspect(img: Image.Image, target_ar: float, vbias: float) -> Image.Image:
+    """画像の上下だけをクロップして目的のアスペクト比 `target_ar` に合わせる。
+
+    `add_picture_cover()`（`exp002_kitagi_foss4g2026_presentation.py`）の
+    「必要クロップ量はアスペクト比の差分から一意に決まり、`vbias` が上下の配分を
+    決める」という式をここで再現する。本関数は「画像が目的より縦長
+    （`img_ar < target_ar`）で上下だけをクロップする」場合のみを扱う
+    （fig06_aerial_quarries.jpg はこのケースに該当する）。
+    """
+    iw, ih = img.size
+    img_ar = iw / ih
+    assert img_ar < target_ar, "この関数は img_ar < target_ar の場合のみ対応する"
+    visible = img_ar / target_ar
+    total = 1 - visible
+    top_px = round(total * vbias * ih)
+    bottom_px = ih - round(total * (1 - vbias) * ih)
+    return img.crop((0, top_px, iw, bottom_px))
+
+
+def make_p07_three_scales(features: list[dict]) -> None:
+    """三スケール合成図（英語ラベルのみ）を生成する。
+
+    Task 4 レビュー指摘への対応: S7 に配置していた `fig09_multiscale.png` は
+    日本語記事（`docs/articles/2026_chiri-koryu-10/`）と共有される図版で、
+    パネル注記が日本語で焼き込まれている上、(b) パネルには動画再生UIの写り込みが
+    残っている。英語のみの投影面という契約に抵触するため、発表専用の図版を
+    ここで新規に生成する（日本語記事側の図版・生成スクリプトは変更しない）。
+
+    パネル:
+        (a) On foot — texture         : fig03_keirin_cliff.jpg（S1と同一写真、クロップなし）
+        (b) From the air — boundaries : fig06_aerial_quarries.jpg を S4 と同じ縦クロップ
+                                         （`P07_FIG06_VBIAS`）で動画UIの写り込みを除去
+        (c) From orbit — distribution : 検出145ポリゴンの分布（p06/p08と同じ配色・
+                                         地図範囲。ゾーンラベル・訪問地点は描かない）
+
+    3パネルは高さを揃えて横並びにする（各パネルの実アスペクト比を列幅の比に使うため、
+    letterbox＝余白がほぼ生じない）。
+    """
+    photo_a = _load_photo(OUT_DIR / "fig03_keirin_cliff.jpg")
+    ar_a = photo_a.size[0] / photo_a.size[1]
+
+    photo_b = _crop_top_bottom_to_aspect(
+        _load_photo(OUT_DIR / "fig06_aerial_quarries.jpg"),
+        P07_PHOTO_SLOT_AR, P07_FIG06_VBIAS,
+    )
+    ar_b = photo_b.size[0] / photo_b.size[1]
+
+    west, south, east, north = MAP_BBOX
+    xmin, ymin = _to_3857(west, south)
+    xmax, ymax = _to_3857(east, north)
+    ar_c = (xmax - xmin) / (ymax - ymin)
+
+    # 3パネルの合計アスペクト比（約3.66）から逆算した高さ。(a) 列は縦長写真
+    # （アスペクト比0.75）のため他列より狭く、キャプションを1行で置くと隣の列に
+    # 溢れる（実測で確認済み）。P12（Task 4 fix round 1）と同じ「フォントを縮めず
+    # 2行に折り返す」方針をここでも採用する。
+    panel_height_in = 3.2
+    caption_fontsize = 21.0
+
+    fig, (ax_a, ax_b, ax_c) = plt.subplots(
+        1, 3, figsize=(panel_height_in * (ar_a + ar_b + ar_c), panel_height_in),
+        dpi=SAVE_DPI, gridspec_kw={"width_ratios": [ar_a, ar_b, ar_c], "wspace": 0.05},
+    )
+
+    font_elements: list[tuple[str, float]] = []
+    title_texts = []
+    panels = (
+        (ax_a, photo_a, "(a) On foot —\ntexture"),
+        (ax_b, photo_b, "(b) From the air —\nboundaries"),
+    )
+    for ax, photo, label in panels:
+        ax.imshow(photo)
+        ax.axis("off")
+        title_texts.append(ax.set_title(label, fontsize=caption_fontsize, color=COL_TEXT, pad=10))
+        font_elements.append((label.replace("\n", " "), caption_fontsize))
+
+    setup_map_axes(ax_c, MAP_BBOX)
+    draw_water_polygons(ax_c, features)
+    add_scalebar(ax_c, fontsize=caption_fontsize)
+    font_elements.append(("scale bar label", caption_fontsize))
+    label_c = "(c) From orbit —\ndistribution"
+    title_texts.append(ax_c.set_title(label_c, fontsize=caption_fontsize, color=COL_TEXT, pad=10))
+    font_elements.append((label_c.replace("\n", " "), caption_fontsize))
+
+    # 各キャプションが自列（ax の描画領域）の幅を超えて隣の列に溢れないことを検査する
+    # （(a) 列が縦長写真で狭いため、1行キャプションで実際に衝突する回帰が試作時に
+    # 発生した。P12 の caption-vs-box 検査と同じ発想の再発防止）。
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    for ax, title_text in zip((ax_a, ax_b, ax_c), title_texts):
+        col_width_px = ax.get_window_extent(renderer=renderer).width
+        title_width_px = title_text.get_window_extent(renderer=renderer).width
+        assert title_width_px <= col_width_px * 1.05, (
+            f"P7: キャプション '{title_text.get_text()!r}' の表示幅 {title_width_px:.1f}px が "
+            f"自列幅 {col_width_px:.1f}px の105%を超えている（隣列と衝突する可能性）"
+        )
+
+    out = OUT_DIR / "p07_three_scales.png"
+    plt.savefig(out, dpi=SAVE_DPI, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    width_px = report_size(out)
+    audit_slide_font_sizes("P7", width_px, font_elements)
+
+
 # ---------------------------------------------------------------- P12: 3ステップフロー図
 def make_p12_loop_diagram() -> None:
     # キャプションは24pt(P12の床は19pt native)。24pt・1行のままでは各キャプションの幅が
@@ -487,6 +609,7 @@ def main() -> None:
     print(f"loaded {len(features)} polygons from {GEOJSON_PATH.relative_to(PROJECT_ROOT)}")
 
     make_p06_clusters_map(features)
+    make_p07_three_scales(features)
     make_p08_visit_anchors_map(features)
     make_p12_loop_diagram()
     print("\nAll presentation figures generated.")

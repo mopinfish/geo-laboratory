@@ -26,7 +26,16 @@ NO_REVISIT_PPTX = BASE / "exp002_kitagi_foss4g2026_presentation_no_revisit.pptx"
 # 配置幅 220 mm で 200 dpi を満たす最小ピクセル幅
 MIN_WIDTH_PX = int(220 / 25.4 * 200)  # 1732
 
-FIGURES = ("p06_clusters_map.png", "p08_visit_anchors_map.png", "p12_loop_diagram.png")
+FIGURES = (
+    "p06_clusters_map.png", "p07_three_scales.png", "p08_visit_anchors_map.png",
+    "p12_loop_diagram.png",
+)
+
+# S7 に配置すべき図版（英語ラベルのみの三スケール合成図）。日本語記事と共有される
+# `fig09_multiscale.png`（日本語キャプション焼き込み・動画UI写り込み）が英語投影面に
+# 流用される回帰を防ぐため、ファイル名一致だけでなくバイト内容の一致まで確認する
+# （Task 4 レビュー指摘の再発防止）。
+S07_EXPECTED_IMAGE = "p07_three_scales.png"
 
 # 各スライドの画像（PICTURE シェイプ）の期待枚数。S9 は8/31撮影分（未着の間はプレースホルダ）
 # 2枚、S10 はテキスト中心のため意図的に0枚。
@@ -272,6 +281,34 @@ def check_callout_range(prs: Presentation) -> None:
                 )
 
 
+def check_s07_picture(prs: Presentation) -> None:
+    """S7 の PICTURE シェイプが `p07_three_scales.png`（英語ラベルのみの三スケール
+    合成図）そのものであることをバイト単位で確認する。
+
+    シェイプ名やファイル名の一致だけでは、日本語記事と共有される
+    `fig09_multiscale.png`（`(a) 徒歩 — 桂林の岩壁前` 等の日本語キャプションと
+    動画UIの写り込みを持つ）が誤って残っていても検出できない。埋め込み画像の
+    バイト列を `docs/presentations/images/p07_three_scales.png` の内容と直接比較する。
+    """
+    slides = list(prs.slides)
+    if len(slides) < 7:
+        check(False, "S7: スライドが存在しない（画像の同定不可）")
+        return
+    pics = [sh for sh in slides[6].shapes if sh.shape_type == MSO_SHAPE_TYPE.PICTURE]
+    check(len(pics) == 1, f"S7: PICTUREシェイプが1個でない: {len(pics)}個")
+    if len(pics) != 1:
+        return
+    expected_path = IMAGES / S07_EXPECTED_IMAGE
+    check(expected_path.is_file(), f"{S07_EXPECTED_IMAGE} が存在しない")
+    if not expected_path.is_file():
+        return
+    check(
+        pics[0].image.blob == expected_path.read_bytes(),
+        f"S7: 画像が {S07_EXPECTED_IMAGE} と一致しない（バイト比較。"
+        "fig09_multiscale.png 等の日本語キャプション付き図版が残っている可能性）",
+    )
+
+
 def check_no_revisit_variant() -> None:
     """`--no-revisit` で生成される11枚版が存在し、S9 が除外されていることを確認する。"""
     if not NO_REVISIT_PPTX.is_file():
@@ -317,6 +354,7 @@ def main() -> None:
         check_font_floor(prs)
         check_image_counts(prs)
         check_callout_range(prs)
+        check_s07_picture(prs)
 
     check_no_revisit_variant()
 

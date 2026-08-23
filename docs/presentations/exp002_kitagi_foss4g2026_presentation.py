@@ -528,7 +528,15 @@ def s06(slide, n: int) -> None:
 def s07(slide, n: int) -> None:
     """三つの縮尺が示すもの（内容契約 Slide 7 Projected body）。
 
-    視覚: 三スケール合成図（`fig09_multiscale.png`）を本文の下に横断的に配置。
+    視覚: 三スケール合成図（`p07_three_scales.png`、英語ラベルのみ）を本文の下に
+    横断的に配置する。
+
+    Task 4 レビュー指摘の修正: 元は `fig09_multiscale.png`（日本語記事
+    `docs/articles/2026_chiri-koryu-10/` と共有される図版で、パネル注記が日本語で
+    焼き込まれ、(b) パネルに動画UIの写り込みがある）を使っていたが、英語のみの
+    投影面という契約に抵触するため、発表専用の英語版図版に差し替えた
+    （`exp002_kitagi_foss4g2026_figures.py` の `make_p07_three_scales()` が生成。
+    日本語記事側の図版・生成スクリプトは変更していない）。
     """
     add_title(slide, TITLES[6])
     text_h = Inches(1.3)
@@ -545,7 +553,7 @@ def s07(slide, n: int) -> None:
     img_top = GRAPHIC_TOP + text_h + Inches(0.15)
     img_height = GRAPHIC_BOTTOM - img_top
     add_picture_contain(
-        slide, IMAGES / "fig09_multiscale.png",
+        slide, IMAGES / "p07_three_scales.png",
         USABLE_LEFT, img_top, USABLE_WIDTH, img_height, "Picture1",
     )
     add_slide_number(slide, n)

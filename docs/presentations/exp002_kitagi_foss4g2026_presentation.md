@@ -154,11 +154,17 @@
 
 - **Central claim**: 徒歩は質感を、上空は境界を、衛星は分布を可視化する。三つは代替ではなく別のものを見せる。
 - **Projected body**: `On foot — texture: the cut face, the water, the depth`; `From the air — boundaries: property lines standing as rock walls`; `From orbit — distribution: 145 candidates across the island`; `Not better or worse. Different things become visible.`
-- **Visual**: 三スケール合成図（`fig09_multiscale.png`）。
+- **Visual**: 三スケール合成図（`p07_three_scales.png`、英語ラベルのみ。
+  発表専用に生成。日本語記事と共有される `fig09_multiscale.png` は日本語キャプション
+  焼き込み・動画UI写り込みのため不採用。ソース: (a) `fig03_keirin_cliff.jpg`、
+  (b) `fig06_aerial_quarries.jpg`（S4と同じ縦クロップでUI除去）、
+  (c) 検出145ポリゴンの分布（`exp002_kitagi_summer_water_polygons_2025-08-02.geojson`、
+  ゾーンラベル・訪問地点なし）。生成: `exp002_kitagi_foss4g2026_figures.py` の
+  `make_p07_three_scales()`）。
 - **Notes-only boundary**: なし（解釈の提示）。
 - **Claim type**: Framing（論旨）。
 - **Duration**: 1:10
-- **Evidence**: 訪問記 Ⅲ-3、`fig09_multiscale.png`。
+- **Evidence**: 訪問記 Ⅲ-3、`p07_three_scales.png`。
 
 ## Slide 8 — Five or six sites visited — the scan produced 145 candidates
 
