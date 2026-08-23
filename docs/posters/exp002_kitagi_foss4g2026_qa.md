@@ -9,8 +9,8 @@
 ## 0. 回答の原則
 
 1. **裏付けのない質問には「未検証です」と答える。** 精度指標、個別の丁場同定、経年変化はいずれも未実施。推測を数値で語らない。
-2. **数値の階層を守る。** Tier 1（ポスター掲載の確定値: 113 / 145 / 127 / 9 px / 100 m² / 10 m / 2025-03-23 / 2025-08-02 / −0.2 / −0.1 / 0.3）は自由に使う。Tier 2（報告書に根拠のある補足値。本文中に `[report]` と付記）は口頭で出す際に「ポスターには載せていない報告書の値」と添える。Tier 3（報告書の推定）は *may / possibly* のヘッジを外さない。
-3. **「検出水域」と「現地確認済みの丁場池」を混ぜない。** 英語では *detected water polygons* / *candidates* を使い、*confirmed quarry ponds* は否定形以外で使わない。
+2. **数値の階層を守る。** Tier 1 は**ポスターに掲載されている値すべて**（主要値: 113 / 145 / 127 / 9 px / 100 m² / 10 m / 20 m / 2025-03-23 / 2025-08-02 / 雲量 0.0% / 0.7% / −0.2 / −0.1 / 0.3。網羅列挙ではない）で、自由に使う。Tier 2 はポスターに無く報告書のみに基づく補足値で、同一行に `[report]` / `[報告書]` を付し、口頭で出す際は「ポスターには載せていない報告書の値」と添える。Tier 3（報告書の推定）は *may / possibly* のヘッジを外さない。
+3. **「検出水域」と「現地確認済みの丁場池」を混ぜない。** 英語では *detected water polygons* / *candidates* を使う。丁場池を「確認済み」と述べてよいのは、`not (individually) field-confirmed …` のように対象句を直接否定する構文のときだけ。
 4. **145 と 127 の関係は規模比較。** 1対1対応と読める言い方をしない。
 
 ---
@@ -37,8 +37,8 @@
 
 ### Q1-4. Why does the NDVI mask matter if it only removed 9 pixels?
 - **JP:** 9ピクセルしか除外していないNDVIマスクに意味はあるのですか。
-- **A (EN):** Honestly, not here — that was my third hypothesis and it was rejected. The vegetation mask itself covered a large area `[report: 72,636 px]`, but it barely overlapped the water candidates, so only 9 pixels changed. I keep it because it costs nothing and it will matter when the workflow moves to greener islands.
-- **A (JP):** 正直に言えば、この島では意味がありませんでした。3番目の仮説として立て、棄却されました。植生マスク自体は広い面積を覆っています `[報告書: 72,636 px]` が、水域候補との重複がほとんどなく、変化したのは9ピクセルだけでした。コストがゼロで、より緑の多い島へ展開するときには効くはずなので残しています。
+- **A (EN):** Honestly, not in this scene — that was my third hypothesis and it was rejected. The vegetation mask itself covered a large area `[report: 72,636 px]`, but it barely overlapped the water candidates, so only 9 pixels changed. I keep it as a low-cost safeguard: it will matter when the workflow moves to greener islands.
+- **A (JP):** 正直に言えば、このシーンでは意味がありませんでした。3番目の仮説として立て、棄却されました。植生マスク自体は広い面積を覆っています `[報告書: 72,636 px]` が、水域候補との重複がほとんどなく、変化したのは9ピクセルだけでした。低コストな安全策として残しています。より緑の多い島へ展開するときには効くはずです。
 - 根拠: 報告書 4.2（表4-2）、5.1（仮説3は棄却）
 
 ---
@@ -53,8 +53,8 @@
 
 ### Q2-2. How did you choose −0.2, −0.1 and 0.3? Are they tuned?
 - **JP:** −0.2、−0.1、0.3はどう決めたのですか。チューニングしたのですか。
-- **A (EN):** From the index histograms, not from an optimisation. NDWI has a land peak near −0.5 and a sea peak around 0.05 to 0.15, and −0.2 sits in the valley between them; NDVI 0.3 sits in the valley between the bare-surface peak near zero and the vegetation sub-peak at 0.5 to 0.7 `[report]`. They are defensible, not optimal — optimal thresholds need field data.
-- **A (JP):** 最適化ではなく、指数のヒストグラムから決めています。NDWIは陸域ピークが−0.5付近、海域ピークが0.05〜0.15付近にあり、−0.2はその谷に位置します。NDVIの0.3は、0付近の裸地ピークと0.5〜0.7の植生サブピークの谷にあります `[報告書]`。妥当ではありますが最適ではありません。最適閾値の決定には現地データが必要です。
+- **A (EN):** For NDWI and NDVI, from the index histograms rather than an optimisation: NDWI has a land peak near −0.5 and a sea peak around 0.05 to 0.15, so −0.2 sits in the valley between them, and NDVI 0.3 sits in the valley between the bare-surface peak near zero and the vegetation sub-peak at 0.5 to 0.7 `[report]`. For MNDWI, −0.1 has no independent documented basis — it was set in the same spirit of allowing spectrally mixed pixels through. None of the three has been optimised, sensitivity-tested or field-validated.
+- **A (JP):** NDWIとNDVIについては、最適化ではなく指数のヒストグラムから決めています。NDWIは陸域ピークが−0.5付近、海域ピークが0.05〜0.15付近にあり、−0.2はその谷に位置します。NDVIの0.3は、0付近の裸地ピークと0.5〜0.7の植生サブピークの谷にあります `[報告書]`。MNDWIの−0.1については独立した根拠を文書化していません。スペクトル混合したピクセルを通す、という同じ考え方で設定した値です。3つとも最適化・感度分析・現地検証はしていません。
 - 根拠: 報告書 4.2（図4-2 ヒストグラム）、5.4 第3項
 
 ### Q2-3. Did you run a sensitivity analysis?
@@ -85,6 +85,12 @@
 - **A (JP):** 考えられる要因は3つあり、分離できていません。大気の水蒸気量増加による近赤外の透過率低下、海水温上昇と懸濁物質による海域NDWIの低下、太陽高度角の違いによる水面反射の変化です。これは仮説のリストであって、結論ではありません。
 - 根拠: 報告書 5.2
 
+### Q3-4. Why these two dates in 2025?
+- **JP:** なぜ2025年のこの2日を選んだのですか。
+- **A (EN):** They were selected automatically, not curated: the search window was 2023 through 2025 with a 10 percent cloud ceiling, and the pipeline picks the least-cloudy scene — 0.0 percent for spring and 0.7 percent for summer. So the dates are a consequence of cloud cover, not of anything I expected to see.
+- **A (JP):** 選定は自動で、こちらが選んだものではありません。検索期間は2023年〜2025年、雲量上限10%で、最も雲量の少ないシーンを選ぶ実装です。結果として春季0.0%、夏季0.7%になりました。日付は雲量の結果であって、何かを期待して選んだものではありません。
+- 根拠: `docs/plans/exp002_kitagi_quarry_water_detection.md`「画像選択基準」、報告書 3.2
+
 ---
 
 ## 4. 偽陽性・水域の性質
@@ -109,9 +115,15 @@
 
 ### Q4-4. How small a pond can you actually see?
 - **JP:** 実際にどのくらい小さい池まで見えるのですか。
-- **A (EN):** The reporting floor is 100 square metres, which is about one Sentinel-2 pixel, so anything at or below one pixel is out of reach. In practice a pond narrower than roughly 10 metres is unreliable regardless of its area, because no pixel is purely water.
-- **A (JP):** 報告の下限は100 m²で、これはSentinel-2の約1ピクセルに相当します。1ピクセル以下のものは検出できません。実務的には、面積にかかわらず幅10 m未満の池は信頼できません。純粋に水だけのピクセルが存在しないためです。
+- **A (EN):** The reporting floor is 100 square metres — about one Sentinel-2 pixel — and polygons below that are excluded, so smaller ponds are simply not in the inventory. Above that floor, a pond narrower than roughly 10 metres is difficult and unreliable regardless of its area, because no pixel is purely water. The smallest polygon in the published set is just over 100 square metres.
+- **A (JP):** 報告の下限は100 m²で、Sentinel-2の約1ピクセルに相当します。これ未満のポリゴンは除外しているので、それより小さい池はインベントリに入っていません。下限より大きくても、幅が10 m程度未満の池は面積にかかわらず検出が難しく信頼できません。純粋に水だけのピクセルが存在しないためです。公開しているデータの最小ポリゴンは100 m²を少し超える程度です。
 - 根拠: 報告書 5.4 第1項、ポスター §3・10 m カウント
+
+### Q4-5. How exactly do you decide a polygon is "intra-island"?
+- **JP:** 「島内」の判定は具体的にどうしているのですか。
+- **A (EN):** Two mechanical rules: the polygon's area must be under 10 hectares, which drops the sea itself, and its centroid must fall inside the island's bounding box. That's it — no coastline geometry is involved, which is exactly why coastal polygons remain a known weakness.
+- **A (JP):** 機械的な2つのルールです。ポリゴンの面積が10 ha未満であること（これで海域そのものが落ちます）、そして重心が島のバウンディングボックス内にあること。それだけです。海岸線のジオメトリは使っていません。だからこそ海岸線付近のポリゴンが既知の弱点として残っています。
+- 根拠: `scripts/generate_exp002_poster_figures.py`（`SEA_AREA_THRESHOLD_M2 = 100_000`、`KITAGI_BBOX` による重心判定）、報告書 5.4 第2項
 
 ---
 
@@ -141,14 +153,14 @@
 
 ### Q6-1. Why does the poster say the spring configuration is "not preserved"?
 - **JP:** 春季の設定が「保存されていない」とはどういう意味ですか。
-- **A (EN):** The 113 figure comes from our confirmed run in March 2026, but that run's exact configuration was not committed to the repository. Re-running today's pipeline on the same scene gives 180 intra-island polygons `[report]`. The index statistics match the original exactly, so the input imagery is unchanged — it's the run configuration that is missing, and I'd rather say that than quietly swap the number.
-- **A (JP):** 113は2026年3月の確定実行の結果ですが、その実行の設定がリポジトリにコミットされていませんでした。同一シーンに現行パイプラインを適用すると島内180ポリゴンになります `[報告書]`。指数統計は当初と完全に一致しているので、入力画像は変わっていません。欠けているのは実行設定です。数値を黙って差し替えるより、そう言う方がよいと考えました。
+- **A (EN):** 113 is the figure reported from our run in March 2026, and that run's exact configuration was not preserved in the repository. Re-running the current pipeline on the same scene gives 180 intra-island polygons `[report]`. The index statistics match the original, which tells us the input scene is the same, but we have not isolated where the difference comes from — the historical code state, post-processing and environment are equally unrecorded. So: 113 is the reported figure, 180 is the current recomputation, and I'd rather state both than quietly swap the number.
+- **A (JP):** 113は2026年3月の実行で報告した値で、その実行の設定はリポジトリに保存されていませんでした。同一シーンに現行パイプラインを適用すると島内180ポリゴンになります `[報告書]`。指数統計は当初と一致しているので入力シーンは同じですが、差がどこから来ているかは特定できていません。当時のコードの状態・後処理・実行環境も同様に記録されていないためです。113は報告値、180は現行の再計算値であり、黙って差し替えるより両方を述べる方がよいと考えました。
 - 根拠: 報告書 4.1 追記（2026-08-14）、5.4 第6項、ポスター §5 の注記
 
 ### Q6-2. Then why keep 113 on the poster at all?
 - **JP:** ならばなぜ113をポスターに残しているのですか。
-- **A (EN):** Because 113 is the number in the report that this poster presents, and replacing it with an unreviewed recomputation would be a different claim. The poster carries the caveat right under the number, so nobody reads it as reproducible.
-- **A (JP):** 113はこのポスターが提示している報告書の値であり、レビューを経ていない再計算値に差し替えるのは別の主張になってしまうからです。数値の直下に注記を置いているので、再現可能だと誤読されることはありません。
+- **A (EN):** Because 113 is the number in the report that this poster presents, and replacing it with an unreviewed recomputation would be a different claim. The poster states the reproducibility limit directly under the number, so the caveat travels with the figure.
+- **A (JP):** 113はこのポスターが提示している報告書の値であり、レビューを経ていない再計算値に差し替えるのは別の主張になってしまうからです。数値の直下に再現性の限界を明示しているので、注記は数値と一緒に読まれます。
 - 根拠: ポスター §5 注記、内容契約（Tier 1 のロック値）
 
 ### Q6-3. Is the summer result reproducible?
@@ -207,14 +219,14 @@
 
 ### Q9-2. Can I download the GeoJSON of the 145 polygons?
 - **JP:** 145件のGeoJSONはダウンロードできますか。
-- **A (EN):** The pipeline exports GeoJSON and GeoTIFF, but those output files are written to an untracked working directory, so they are not in the public repository right now — you regenerate them by running the notebook. If you want the file itself, give me your contact and I'll send it.
-- **A (JP):** パイプラインはGeoJSONとGeoTIFFを出力しますが、出力先がGit管理外の作業ディレクトリのため、現時点では公開リポジトリに入っていません。ノートブックを実行すれば再生成できます。ファイル自体が必要であれば、連絡先をいただいてお送りします。
-- 根拠: ノートブックの出力先は `tmp/`（Git管理外）。ポスターの "exported as GeoJSON and GeoTIFF" はパイプラインの出力仕様を指す
+- **A (EN):** Yes — it's published in the repository behind the QR code, at `docs/results/exp002/`, with a README that records the generating commit, the attribution and the cautions. It's EPSG:4326, one polygon per feature with its area in square metres. The GeoTIFF isn't published; you regenerate that from the notebook.
+- **A (JP):** はい。QRコードのリポジトリの `docs/results/exp002/` に公開しています。生成コミット・帰属表示・注意書きを記録したREADMEも同じディレクトリにあります。EPSG:4326で、1ポリゴン1featureに面積（m²）が付いています。GeoTIFFは公開していないので、必要ならノートブックで再生成してください。
+- 根拠: `docs/results/exp002/exp002_kitagi_summer_water_polygons_2025-08-02.geojson`（145 features、生成: `scripts/generate_exp002_poster_figures.py`）、同 `_README.md`
 
 ### Q9-3. What's the software stack and does it cost anything?
 - **JP:** ソフトウェア構成は。費用はかかりますか。
-- **A (EN):** Zero cost, all open source: rasterio, numpy, shapely, pystac-client, planetary-computer and folium, on Python 3.11 with uv for package management. The imagery is free Sentinel-2 through the Microsoft Planetary Computer STAC API.
-- **A (JP):** 費用はゼロ、すべてオープンソースです。rasterio、numpy、shapely、pystac-client、planetary-computer、folium、Python 3.11、パッケージ管理はuv。画像はMicrosoft Planetary ComputerのSTAC API経由の無償Sentinel-2です。
+- **A (EN):** No licence fee for the stack and no imagery purchase: rasterio, numpy, shapely, pystac-client, planetary-computer and folium, on Python 3.11 with uv for package management, and Sentinel-2 through the Microsoft Planetary Computer STAC API. You still pay for your own compute and bandwidth.
+- **A (JP):** ソフトウェアのライセンス費用と画像の購入費はかかりません。rasterio、numpy、shapely、pystac-client、planetary-computer、folium、Python 3.11、パッケージ管理はuv、画像はMicrosoft Planetary ComputerのSTAC API経由のSentinel-2です。計算資源と通信の費用は自分持ちです。
 - 根拠: 報告書 3.5、ポスター §7・フッター
 
 ### Q9-4. What license? Can I reuse the poster and the figures?
@@ -228,6 +240,12 @@
 - **A (EN):** Spring is `S2C_MSIL2A_20250323T014711` and summer is `S2A_MSIL2A_20250802T015121`, both tile T53SLU, processed in EPSG:32653 `[report]`. The bounding box and all constants are in the notebook.
 - **A (JP):** 春季が `S2C_MSIL2A_20250323T014711`、夏季が `S2A_MSIL2A_20250802T015121`、いずれもタイルT53SLU、処理はEPSG:32653です `[報告書]`。バウンディングボックスと各定数はノートブックにあります。
 - 根拠: 報告書 3.1、3.2
+
+### Q9-6. How long does it take to run? What hardware?
+- **JP:** 処理時間はどれくらいですか。必要なマシンスペックは。
+- **A (EN):** I haven't measured it properly, so I won't quote a number. Practically it's a single Sentinel-2 scene clipped to one small island, so it runs on a laptop — the download dominates, not the computation. If you need real figures I can measure and send them.
+- **A (JP):** きちんと計測していないので数値は出しません。実感としては、1シーンを小さな島の範囲に切り出すだけなのでノートPCで動きます。支配的なのは計算ではなくダウンロードです。実測値が必要であれば、計測してお送りします。
+- 根拠: 未計測（定型フレーズで回答する項目）
 
 ---
 
