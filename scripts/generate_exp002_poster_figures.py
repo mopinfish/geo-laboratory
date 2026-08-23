@@ -31,6 +31,10 @@ notebooks/exp002_kitagi_quarry_water_detection.ipynb と同一。再計算した
     poster_f5_truecolor_water.png — 夏季トゥルーカラー + 水域強調画像
     poster_f6_field_photos.jpg    — 現地写真2枚の横並び合成
 
+docs/results/exp002/
+    exp002_kitagi_summer_water_polygons_2025-08-02.geojson
+                                  — 夏季の島内水域ポリゴン145件（EPSG:4326）
+
 バンドデータは tmp/poster_cache_<season>.npz にキャッシュし、再実行時は
 ネットワークアクセスを省略する。背景地図は F1 のみ地理院英語版タイルを使用
 （クレジットはポスター側キャプションに記載）。F3 はタイルを使わず、
@@ -39,6 +43,7 @@ notebooks/exp002_kitagi_quarry_water_detection.ipynb と同一。再計算した
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import contextily as cx
@@ -55,6 +60,7 @@ from rasterio.features import shapes as rasterio_shapes
 from rasterio.transform import from_bounds as transform_from_bounds
 from rasterio.warp import calculate_default_transform, reproject, transform_bounds
 from rasterio.windows import from_bounds
+from shapely.geometry import mapping as shapely_mapping
 from shapely.geometry import shape as shapely_shape
 from shapely.ops import transform as shapely_transform
 
@@ -62,6 +68,8 @@ from shapely.ops import transform as shapely_transform
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = PROJECT_ROOT / "docs" / "posters" / "figures" / "exp002"
 PHOTO_DIR = PROJECT_ROOT / "docs" / "results" / "exp002" / "photos"
+RESULTS_DIR = PROJECT_ROOT / "docs" / "results" / "exp002"
+GEOJSON_PATH = RESULTS_DIR / "exp002_kitagi_summer_water_polygons_2025-08-02.geojson"
 CACHE_DIR = PROJECT_ROOT / "tmp"
 
 # 北木島の中心座標と範囲（exp002 ノートブックと同一）
@@ -264,6 +272,71 @@ def analyze_scene(scene: dict) -> dict:
         "features_island": island,
         "land_features": land_features,
     }
+
+
+def export_summer_geojson(res: dict, scene: dict) -> Path:
+    """夏季の島内水域ポリゴン（145件）を GeoJSON として出力する。
+
+    座標系は EPSG:4326（RFC 7946 の既定 CRS84、経度・緯度順）。実行日時や
+    コミットハッシュは埋め込まず、再実行でバイト一致する内容にする（生成コミット
+    はサイドカーの README に記録する）。
+    """
+    features = sorted(res["features_island"], key=lambda f: -f["area_m2"])
+    geojson = {
+        "type": "FeatureCollection",
+        "metadata": {
+            "title": "Detected intra-island water polygons, Kitagi Island (summer scene)",
+            "description": (
+                "Water polygons of at least 100 m2 detected inside Kitagi Island "
+                "(Kasaoka City, Okayama Prefecture, Japan) from a single Sentinel-2 L2A scene."
+            ),
+            "caution": (
+                "These are detected water polygons, not individually field-confirmed quarry ponds. "
+                "Natural ponds, reservoirs, shadows and other false positives may remain, no strict "
+                "coastline mask was applied so polygons near the shore may include seawater, and no "
+                "accuracy metrics (precision/recall) have been computed."
+            ),
+            "scene_id": scene["scene_id"],
+            "imagery_date": SUMMER_DATE,
+            "sensor": "Sentinel-2 L2A",
+            "data_access": "Microsoft Planetary Computer STAC API",
+            "water_condition": "(NDWI > -0.2 OR MNDWI > -0.1) AND NOT (NDVI > 0.3)",
+            "analysis_grid_m": 10,
+            "min_polygon_area_m2": MIN_AREA_M2,
+            "feature_count": len(features),
+            "crs": "urn:ogc:def:crs:OGC::CRS84 (EPSG:4326, longitude/latitude order)",
+            "attribution": "Contains modified Copernicus Sentinel data [2025].",
+            "license": "CC BY 4.0",
+            "author": "Noboru Otsuka (Geolonia Inc.)",
+            "source_report": "docs/reports/exp002_kitagi_quarry_water_detection_report.md",
+            "generator": "scripts/generate_exp002_poster_figures.py",
+        },
+        "features": [
+            {
+                "type": "Feature",
+                "id": i,
+                "properties": {"id": i, "area_m2": round(f["area_m2"], 1)},
+                "geometry": _round_geometry(shapely_mapping(f["shape"]), 6),
+            }
+            for i, f in enumerate(features, start=1)
+        ],
+    }
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    GEOJSON_PATH.write_text(
+        json.dumps(geojson, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+    )
+    return GEOJSON_PATH
+
+
+def _round_geometry(geom: dict, ndigits: int) -> dict:
+    """GeoJSON ジオメトリの座標を丸める（ファイル肥大と浮動小数のノイズを抑える）。"""
+
+    def walk(coords):
+        if isinstance(coords[0], (int, float)):
+            return [round(float(c), ndigits) for c in coords]
+        return [walk(c) for c in coords]
+
+    return {"type": geom["type"], "coordinates": walk(geom["coordinates"])}
 
 
 # ---------------------------------------------------------------- 図版ヘルパ
@@ -524,6 +597,9 @@ def main():
             f"レポート確定値（{EXPECTED_SUMMER_ISLAND}, {EXPECTED_SUMMER_VEG_EXCL}px）"
             "と一致しません。ポスター制作を中止します。"
         )
+
+    geojson_path = export_summer_geojson(res, scene)
+    print(f"GeoJSON: {geojson_path.relative_to(PROJECT_ROOT)} ({n_island} features)")
 
     make_f1_study_area()
     make_f3_summer_map(res)
