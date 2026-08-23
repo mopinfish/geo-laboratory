@@ -351,14 +351,22 @@ def add_slide_number(slide, n: int):
 def s01(slide, n: int) -> None:
     """表紙。演者・カンファレンス・日時（内容契約 Slide 1 Projected body）。
 
-    視覚: 桂林の岩壁写真（`fig03_keirin_cliff.jpg`）を右側に大きく配置し、
-    タイトル・演者情報は左揃えで残す。
+    視覚: 丁場池の写真（`choba_lake_3.jpg`）を右側に大きく配置し、タイトル・
+    演者情報は左揃えで残す。
+
+    Fix round 2（レビュー指摘）: 元は `fig03_keirin_cliff.jpg`（日本語記事用に
+    グレースケール化された図版）を使っていたが、島の特徴である「緑がかった水」を
+    表紙で見せられないのは事故的な欠落であるとのレビュー指摘を受け、色付きの
+    `choba_lake_3.jpg`（垂直な花崗岩壁＋緑がかった水面＋青空）に差し替えた
+    （担当者ルーリング）。S7 パネル(a)でも同じ写真を再利用する（再認識が目的）。
     """
     add_title(slide, TITLES[0])
+    cover_path = IMAGES / "choba_lake_3.jpg"
     photo_h = GRAPHIC_HEIGHT
-    photo_w = int(photo_h * 0.75)  # 元写真のアスペクト比（縦長）に合わせ、クロップなしで大きく配置
+    cover_iw, cover_ih = _image_size(cover_path)
+    photo_w = int(photo_h * cover_iw / cover_ih)  # 元写真のアスペクト比に合わせ、クロップなしで大きく配置
     photo_left = SLIDE_W - MARGIN - photo_w
-    add_picture_cover(slide, IMAGES / "fig03_keirin_cliff.jpg", photo_left, GRAPHIC_TOP, photo_w, photo_h, "Picture1")
+    add_picture_cover(slide, cover_path, photo_left, GRAPHIC_TOP, photo_w, photo_h, "Picture1")
     text_width = photo_left - MARGIN - IMAGE_TEXT_GAP
     add_body(
         slide,
@@ -403,11 +411,15 @@ def s02(slide, n: int) -> None:
 def s03(slide, n: int) -> None:
     """徒歩スケール：質感（内容契約 Slide 3 Projected body）。
 
-    視覚: 現地写真2枚を同寸で並置。桂林の岩壁は S1 の表紙で既に使用しているため
-    重複させず、`fig01_lake_stage.jpg` と `choba_lake_3.jpg` を使う
-    （担当者ルーリングにより `poster_f6_field_photos.jpg` 系の代替として選定。
-    `choba_lake_3.jpg` は垂直な花崗岩壁と緑がかった水面が写り、機材等が写り込む
-    `choba_lake_2.jpg` より `fig01_lake_stage.jpg` との組み合わせに適する）。
+    視覚: 現地写真2枚を同寸で並置。`fig01_lake_stage.jpg` と `choba_lake_2.jpg` を使う。
+
+    Fix round 2（レビュー指摘）: 元は `fig01_lake_stage.jpg` と `choba_lake_3.jpg` の
+    組だったが、`choba_lake_3.jpg` は表紙（S1）・S7パネル(a)に採用されたため、
+    表紙と同じ写真をS3で繰り返さないという担当者ルーリングにより `choba_lake_2.jpg`
+    に差し替えた。`choba_lake_2.jpg` は丁場の谷を見下ろして遠景の海まで写した構図で、
+    Task 4 時点では「水面（緑がかった池）がほぼ写っていない」ことを理由に不採用として
+    いたが、本ラウンドのルーリングはこの点を認識した上で明示的にこの写真を指定して
+    いる（水面の可視性ではなく「表紙は繰り返さない」を優先する判断）。
     """
     add_title(slide, TITLES[2])
     add_body(
@@ -421,12 +433,16 @@ def s03(slide, n: int) -> None:
         ],
         top=GRAPHIC_TOP, height=PHOTO_TEXT_HEIGHT,
     )
-    # 縦長写真をそのまま中央対称クロップすると、水面が写る下部が失われ岩壁のみになる
-    # （元画像は上2/3が岩壁・下1/3が水面のため）。水面・ステージが見える構図を残す
-    # よう上側を多くクロップする（vbias>0.5、2枚とも同じ配分）。
+    # fig01: 縦長写真をそのまま中央対称クロップすると、水面が写る下部が失われ岩壁のみに
+    # なる（元画像は上2/3が岩壁・下1/3が水面のため）。水面・ステージが見える構図を
+    # 残すよう上側を多くクロップする（vbias1=0.75、Task 4 から変更なし）。
+    # choba_lake_2: 上部は空、中間に遠景の海、下部に丁場の谷・クレーン・小屋が写る。
+    # 中央対称クロップだと空ばかり残るため、上側をやや多めにクロップして海・谷・
+    # クレーンが収まる範囲を残す（vbias2=0.78。実際にクロップ後の構図を複数の
+    # vbias で確認し、海と谷の両方が入り最下端の手前柵がほぼ切れる値として選定）。
     add_photo_pair(
-        slide, IMAGES / "fig01_lake_stage.jpg", IMAGES / "choba_lake_3.jpg",
-        vbias1=0.75, vbias2=0.75,
+        slide, IMAGES / "fig01_lake_stage.jpg", IMAGES / "choba_lake_2.jpg",
+        vbias1=0.75, vbias2=0.78,
     )
     add_slide_number(slide, n)
 

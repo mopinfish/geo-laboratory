@@ -85,7 +85,10 @@
 
 - **Central claim**: 採択タイトルの提示。
 - **Projected body**: `Noboru Otsuka — Geolonia Inc.`; `FOSS4G 2026 Hiroshima`; `2026-09-02 13:30 · Himawari`.
-- **Visual**: 桂林の岩壁写真（`fig03_keirin_cliff.jpg`）を大きく配置。タイトルは左揃え。
+- **Visual**: 丁場池の写真（`choba_lake_3.jpg`、色付き）を大きく配置。タイトルは左揃え。
+  （Fix round 2: 印刷用にグレースケール化された記事図版 `fig03_keirin_cliff.jpg`
+  から、緑がかった水面が見える色付き写真に差し替え。S7パネル(a)でも同一写真を
+  再利用する。）
 - **Notes-only boundary**: 冒頭の一言は「この崖は自然のものではない」。写真は現地撮影であり検出結果の図ではない。
 - **Claim type**: Exact proposal title.
 - **Duration**: 0:35
@@ -105,7 +108,9 @@
 
 - **Central claim**: 徒歩の縮尺で分かるのは質感である。切削面、緑の水面、深さ。だが島全体は見えない。
 - **Projected body**: `March 2026 — a drone mapping party on the island`; `Vertical granite walls, cut not weathered`; `Water in an unusual green; reported depths of a few metres to about twenty`; `A stage on the water, built from leftover stone`; `Five or six sites during the event.`
-- **Visual**: 現地写真2枚を同寸で並置（`fig03_keirin_cliff.jpg`、`fig01_lake_stage.jpg`）。**固定寸法スロット**。
+- **Visual**: 現地写真2枚を同寸で並置（`fig01_lake_stage.jpg`、`choba_lake_2.jpg`）。**固定寸法スロット**。
+  （Fix round 2: `choba_lake_3.jpg` はS1表紙に採用されたため、表紙を繰り返さない
+  方針で `choba_lake_2.jpg` に差し替え。）
 - **Notes-only boundary**: 水深は報告書由来の記述であり、著者の計測値ではない。
 - **Claim type**: Field observation（定性・質感）。
 - **Duration**: 1:30

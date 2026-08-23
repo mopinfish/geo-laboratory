@@ -429,7 +429,9 @@ def make_p07_three_scales(features: list[dict]) -> None:
     ここで新規に生成する（日本語記事側の図版・生成スクリプトは変更しない）。
 
     パネル:
-        (a) On foot — texture         : fig03_keirin_cliff.jpg（S1と同一写真、クロップなし）
+        (a) On foot — texture         : choba_lake_3.jpg（S1表紙と同一写真、クロップなし。
+                                         Fix round 2 でグレースケールの fig03_keirin_cliff.jpg
+                                         から色付きに差し替え）
         (b) From the air — boundaries : fig06_aerial_quarries.jpg を S4 と同じ縦クロップ
                                          （`P07_FIG06_VBIAS`）で動画UIの写り込みを除去
         (c) From orbit — distribution : 検出145ポリゴンの分布（p06/p08と同じ配色・
@@ -438,7 +440,7 @@ def make_p07_three_scales(features: list[dict]) -> None:
     3パネルは高さを揃えて横並びにする（各パネルの実アスペクト比を列幅の比に使うため、
     letterbox＝余白がほぼ生じない）。
     """
-    photo_a = _load_photo(OUT_DIR / "fig03_keirin_cliff.jpg")
+    photo_a = _load_photo(OUT_DIR / "choba_lake_3.jpg")
     ar_a = photo_a.size[0] / photo_a.size[1]
 
     photo_b = _crop_top_bottom_to_aspect(

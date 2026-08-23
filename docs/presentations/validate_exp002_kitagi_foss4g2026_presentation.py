@@ -31,11 +31,18 @@ FIGURES = (
     "p12_loop_diagram.png",
 )
 
-# S7 に配置すべき図版（英語ラベルのみの三スケール合成図）。日本語記事と共有される
-# `fig09_multiscale.png`（日本語キャプション焼き込み・動画UI写り込み）が英語投影面に
-# 流用される回帰を防ぐため、ファイル名一致だけでなくバイト内容の一致まで確認する
-# （Task 4 レビュー指摘の再発防止）。
-S07_EXPECTED_IMAGE = "p07_three_scales.png"
+# バイト単位で固定する写真・図版のソース。キーはスライド番号、値はそのスライドの
+# PICTURE シェイプの挿入順で期待するファイル名（`docs/presentations/images/`）。
+# S1・S3 は色付きの現地写真を意図しており、日本語記事用にグレースケール化された
+# `fig03_keirin_cliff.jpg` へ将来の編集で意図せず戻ってしまう回帰を防ぐ
+# （Fix round 2 のレビュー指摘）。S7 は英語ラベルのみの三スケール合成図
+# `p07_three_scales.png` が、日本語キャプション付きの `fig09_multiscale.png` に
+# 戻ってしまう回帰を防ぐ（Fix round 1 のレビュー指摘）。
+PINNED_PHOTO_SOURCES: dict[int, tuple[str, ...]] = {
+    1: ("choba_lake_3.jpg",),
+    3: ("fig01_lake_stage.jpg", "choba_lake_2.jpg"),
+    7: ("p07_three_scales.png",),
+}
 
 # 各スライドの画像（PICTURE シェイプ）の期待枚数。S9 は8/31撮影分（未着の間はプレースホルダ）
 # 2枚、S10 はテキスト中心のため意図的に0枚。
@@ -281,32 +288,39 @@ def check_callout_range(prs: Presentation) -> None:
                 )
 
 
-def check_s07_picture(prs: Presentation) -> None:
-    """S7 の PICTURE シェイプが `p07_three_scales.png`（英語ラベルのみの三スケール
-    合成図）そのものであることをバイト単位で確認する。
+def check_pinned_photo_sources(prs: Presentation) -> None:
+    """`PINNED_PHOTO_SOURCES` に列挙したスライドの PICTURE シェイプが、意図した
+    ファイルとバイト単位で一致することを確認する。
 
-    シェイプ名やファイル名の一致だけでは、日本語記事と共有される
-    `fig09_multiscale.png`（`(a) 徒歩 — 桂林の岩壁前` 等の日本語キャプションと
-    動画UIの写り込みを持つ）が誤って残っていても検出できない。埋め込み画像の
-    バイト列を `docs/presentations/images/p07_three_scales.png` の内容と直接比較する。
+    シェイプ名やファイル名の一致だけでは、グレースケールの記事図版
+    （`fig03_keirin_cliff.jpg` 等、日本語記事用に変換されたもの）や日本語キャプション
+    付き図版（`fig09_multiscale.png`）への意図しないフォールバック・混入を検出
+    できない（Fix round 1・Fix round 2 のレビュー指摘の再発防止）。
     """
     slides = list(prs.slides)
-    if len(slides) < 7:
-        check(False, "S7: スライドが存在しない（画像の同定不可）")
-        return
-    pics = [sh for sh in slides[6].shapes if sh.shape_type == MSO_SHAPE_TYPE.PICTURE]
-    check(len(pics) == 1, f"S7: PICTUREシェイプが1個でない: {len(pics)}個")
-    if len(pics) != 1:
-        return
-    expected_path = IMAGES / S07_EXPECTED_IMAGE
-    check(expected_path.is_file(), f"{S07_EXPECTED_IMAGE} が存在しない")
-    if not expected_path.is_file():
-        return
-    check(
-        pics[0].image.blob == expected_path.read_bytes(),
-        f"S7: 画像が {S07_EXPECTED_IMAGE} と一致しない（バイト比較。"
-        "fig09_multiscale.png 等の日本語キャプション付き図版が残っている可能性）",
-    )
+    for idx, expected_names in PINNED_PHOTO_SOURCES.items():
+        label = f"S{idx}"
+        if idx > len(slides):
+            for name in expected_names:
+                check(False, f"{label}: スライドが存在しない（画像 '{name}' を検査不可）")
+            continue
+        pics = [sh for sh in slides[idx - 1].shapes if sh.shape_type == MSO_SHAPE_TYPE.PICTURE]
+        check(
+            len(pics) == len(expected_names),
+            f"{label}: PICTUREシェイプが{len(expected_names)}個でない: {len(pics)}個",
+        )
+        if len(pics) != len(expected_names):
+            continue
+        for pic, name in zip(pics, expected_names):
+            expected_path = IMAGES / name
+            check(expected_path.is_file(), f"{name} が存在しない")
+            if not expected_path.is_file():
+                continue
+            check(
+                pic.image.blob == expected_path.read_bytes(),
+                f"{label}: 画像が {name} と一致しない（バイト比較。意図しない差し替え・"
+                "フォールバックの可能性）",
+            )
 
 
 def check_no_revisit_variant() -> None:
@@ -354,7 +368,7 @@ def main() -> None:
         check_font_floor(prs)
         check_image_counts(prs)
         check_callout_range(prs)
-        check_s07_picture(prs)
+        check_pinned_photo_sources(prs)
 
     check_no_revisit_variant()
 
