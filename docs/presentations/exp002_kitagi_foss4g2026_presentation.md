@@ -97,10 +97,10 @@
 - **Central claim**: 徒歩と上空からの観察では島の一部しか捉えられない。だから島全体を一度に覆う手段が必要になる。
 - **Projected body**: `March 2026 — I visited the island for a drone mapping party`; `On foot: five or six quarry sites`; `From the air: quarry-to-quarry boundaries left standing as thin rock walls`; `Neither view covers the whole island.`
 - **Visual**: 写真2枚を同寸で並置 — 徒歩（`fig03_keirin_cliff.jpg`）、上空（`fig06_aerial_quarries.jpg`）。**固定寸法スロット**とし、差し替え可能にする。
-- **Notes-only boundary**: 事業者間の境界が地形になっているという観察は現地での定性的観察であり、本研究の測定結果ではない。
+- **Notes-only boundary**: 事業者間の境界が地形になっているという観察は現地での定性的観察であり、本研究の測定結果ではない。ノートで述べる補足: 湖上のステージは余った採石で作られており、そこからドローンを上げて湖の測量も行った。境界の岸壁は採石権を持つ企業同士の境目にあたる。
 - **Claim type**: Field observation（定性・動機づけ）。
 - **Duration**: 1:20
-- **Evidence**: `docs/articles/2026_chiri-koryu-10/draft.md` Ⅰ・Ⅱ章、写真は著者撮影。
+- **Evidence**: `docs/articles/2026_chiri-koryu-10/draft.md` Ⅰ・Ⅱ章、写真は著者撮影。参加イベント: 「北木島ドローン・マッピングパーティ 2026」2026年3月20〜21日（岡山県笠岡市北木島）— 著者のYAMAP活動記録 `https://yamap.com/activities/46866739` および告知 `https://kryptokyoto.com/openmatomeview/?q=17724374938884`。
 
 ## Slide 4 — 4One open satellite scene covers the whole island
 
@@ -151,14 +151,14 @@
 - **Notes-only boundary**: 一致は独立した傍証であり精度検証ではない。適合率・再現率は未算出。桂林の同定は現地GPS確認待ち。
 - **Claim type**: Cross-check against an open dataset。
 - **Duration**: 1:20
-- **Evidence**: `docs/results/exp002/exp002_osm_comparison.md`、報告書 5.3。
+- **Evidence**: `docs/results/exp002/exp002_osm_comparison.md`（37件の内訳・最終編集日・名前付き地物の距離）、報告書 5.3。
 
 ## Slide 9 — 9Ninety-one of the 145 are not yet on the map
 
 - **Central claim**: 検出のうち大半は既存のオープンデータに対応地物がなく、それが次に確かめるべき候補集合になる。
-- **Projected body**: 大きな数値 `91 / 145`; `no OpenStreetMap water or quarry feature within 100 m`; `Either not yet mapped, or a false positive — fieldwork decides which.`; `This is the candidate list, not a discovery claim.`
+- **Projected body**: `OpenStreetMap has 37 water and quarry features here — most were added at community mapping sessions in March 2025 and March 2026.`; 大きな数値 `91 / 145`; `no OpenStreetMap water or quarry feature within 100 m`; `Either not yet mapped, or a false positive — fieldwork decides which.`; `This is a candidate list, not a discovery claim.`
 - **Visual**: スライド8と同じ地図で、対応地物のない91件を強調（**新規図版**、同一の視覚言語）。
-- **Notes-only boundary**: 「未登録」と「誤検出」を切り分ける手段は現地検証のみ。数値は2026-08-23時点のOSM状態に依存する。
+- **Notes-only boundary**: 「未登録」と「誤検出」を切り分ける手段は現地検証のみ。数値は2026-08-23時点のOSMの状態に依存する。編集履歴では37件のうち27件が2025-02-28〜03-02、2件が2026-03-20（著者が参加したマッピングパーティ当日）に編集されている。編集者名は述べない。
 - **Claim type**: Cross-check result（候補集合の提示）。
 - **Duration**: 1:20
 - **Evidence**: `exp002_osm_comparison.md`。

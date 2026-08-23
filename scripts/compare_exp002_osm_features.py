@@ -26,6 +26,7 @@ import argparse
 import json
 import math
 import urllib.request
+import collections
 from datetime import date
 from pathlib import Path
 
@@ -46,7 +47,7 @@ OVERPASS_QUERY = f"""[out:json][timeout:90];
   nwr["landuse"="quarry"]({KITAGI_BBOX[1]},{KITAGI_BBOX[0]},{KITAGI_BBOX[3]},{KITAGI_BBOX[2]});
   nwr["water"]({KITAGI_BBOX[1]},{KITAGI_BBOX[0]},{KITAGI_BBOX[3]},{KITAGI_BBOX[2]});
 );
-out tags center;
+out meta center;
 """
 
 MATCH_THRESHOLDS_M = (50, 100, 200)
@@ -123,6 +124,9 @@ def main() -> None:
     out("")
 
     named = [(x, y, t) for x, y, t, _, _ in osm if t.get("name")]
+    edits = collections.Counter(
+        e.get("timestamp", "")[:10] for e in archive["elements"] if "center" in e
+    )
     out("## 集計")
     out("")
     out("| 指標 | 値 |")
@@ -148,6 +152,18 @@ def main() -> None:
     out(f"| **OSM に対応地物のない検出ポリゴン（100 m 超）** | **{unmapped} / {len(detections)}** |")
     out("")
 
+    out("## OSM 地物の最終編集日")
+    out("")
+    out("| 最終編集日 | 件数 |")
+    out("|---|---:|")
+    for day, n in sorted(edits.items()):
+        out(f"| {day} | {n} |")
+    out("")
+    out("2025-02-28〜03-02 に編集された地物が集中しており、2025年3月1〜2日に島で開催された"
+        "コミュニティのマッピングイベントの時期と一致する。2026-03-20 の編集は、著者が参加した"
+        "「北木島ドローン・マッピングパーティ 2026」（2026年3月20〜21日）当日にあたる。"
+        "編集者名は記載しない。")
+    out("")
     out("## 名前付き OSM 地物と最近傍の検出ポリゴン")
     out("")
     out("| OSM 地物 | 座標 | 主なタグ | 最近傍検出との距離 | 該当ポリゴンの面積 |")
