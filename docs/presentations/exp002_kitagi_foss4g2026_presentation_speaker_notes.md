@@ -83,7 +83,7 @@ From the air, the quarries read as grey rectangles cut into a green canopy. Stra
 
 The thing I did not expect is what sits between them. Where two companies held quarrying rights next to each other, neither side cut the boundary. So a thin wall of granite is left standing between the two pits. A property line, standing as terrain. A line on a legal document became a landform.
 
-You cannot see that from the ground, because you are inside one pit or the other. And from orbit, at ten metres, the wall is too thin to notice. You can only see it from a few hundred metres up.
+You cannot see that from the ground, because you are inside one pit or the other. And from orbit, at ten metres, the wall is too thin to notice. You can only see it from the air.
 
 I should be clear that this is me looking and describing. It is a qualitative observation from that day, not a measurement from this study. We also flew a survey over one of the lakes while we were there.
 
@@ -199,7 +199,7 @@ This slide is about the return visit to the island, on the thirty-first of Augus
 
 Here is how I choose where to go. The published set of one hundred and forty-five polygons carries a coordinate and an area for every candidate, so a short list is easy to build. But area ranking is not what decides the route. On a working quarry island, safety, permission, and simply being able to walk to a place matter more than which pond is the largest. So these points are not a sample designed for accuracy. They are the candidates a person can actually reach.
 
-The photographs in these slots are illustrative field photographs. They are meant to show what the scan pointed at, seen from the ground, and nothing beyond that. No candidate here is identified as a specific quarry from the historical record, and there is no count of how many candidates were right and how many were wrong. There are no accuracy numbers on this slide, and a day of photographs would never produce any.
+The photographs in these slots are there to illustrate the candidates, not to validate accuracy. They are meant to show what the scan pointed at, seen from the ground, and nothing beyond that. No candidate here is identified as a specific quarry from the historical record, and there is no count of how many candidates were right and how many were wrong. There are no accuracy numbers on this slide, and a day of photographs would never produce any.
 
 What a visit like this changes is not a number. Walking to a place because a satellite pointed at it is a very different way of working from wandering around and finding a pond by accident. In March, the island decided what I saw. This time the list comes first, and the list comes out of open data and open-source code. That is the part of this work that travels to other islands.
 
