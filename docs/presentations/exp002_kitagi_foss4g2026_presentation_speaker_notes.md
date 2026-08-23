@@ -131,7 +131,7 @@ There are two scenes behind this. In spring, on the twenty-third of March 2025, 
 
 Now the honest part. The two reported scenes differed, but we have not isolated the cause. It is tempting to say this is the season, and I am not going to say that. The spring figure is what we reported; that run's configuration is not preserved. So please treat one hundred and thirteen as the reported value, with a reproducibility limitation.
 
-One result did surprise me. I put the vegetation index into the rule because I expected green water and green canopy to be confused. The NDVI vegetation mask removed only nine pixels. Nine. My worry was simply wrong, and I would rather say so than leave it out.
+One result did surprise me. I put the vegetation index into the rule because I expected green water and green canopy to be confused. The NDVI vegetation mask removed only nine pixels. Nine. It added little to this particular result, and I would rather say so than leave it out.
 
 Now look at where the polygons are. They cluster in the north, the south-east, the centre and the west — where the historical records put the quarrying. At the peak in 1957 the island had one hundred and twenty-seven recorded quarry sites. My scan returned one hundred and forty-five detections. Those two numbers are close, and I want to be careful here. This is a comparison of scale, and not a one-to-one match. I have not matched any detection to an individual quarry, and I am not claiming that I can.
 
@@ -139,7 +139,7 @@ The line at the bottom of the slide is the one to take away. These are detected 
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
-- 訳: 夏季シーンから島内145件（各100 m²以上）を検出。春季 2025-03-23・雲量0.0%・報告113件・最大1.28 ha、夏季 2025-08-02・雲量0.7%・145件・最大7,826 m²。両者は差があるが原因は特定できていない。春季値は当時の報告値で実行設定が保存されていない。NDVIマスクの除外は9ピクセルのみ（仮説の棄却）。分布は北・南東・中央・西の4集中帯で歴史記録と整合。145対127は規模の比較であって1対1対応ではない。検出は候補であり個別に現地確認されていない。精度指標は算出していない。
+- 訳: 夏季シーンから島内145件（各100 m²以上）を検出。春季 2025-03-23・雲量0.0%・報告113件・最大1.28 ha、夏季 2025-08-02・雲量0.7%・145件・最大7,826 m²。両者は差があるが原因は特定できていない。春季値は当時の報告値で実行設定が保存されていない。NDVIマスクの除外は9ピクセルのみ（この結果への寄与は小さかった）。分布は北・南東・中央・西の4集中帯で歴史記録と整合。145対127は規模の比較であって1対1対応ではない。検出は候補であり個別に現地確認されていない。精度指標は算出していない。
 - 春季113は当時の報告値であり、現行パイプラインで同一シーンを再計算すると180件になる（113は未再現）。この数はスライドにも英語の発話にも出さないが、再現性を問われた場合に答えられるよう把握しておく。
 - 必須発話6行（両シーンの日付・雲量・件数・最大面積、原因未特定、実行設定の非保存、NDVIの9ピクセル、候補であって現地確認済みでない旨）はこのスライドの契約事項。時間が押しても削らない。
 - 季節を原因として断定しない。「原因は特定できていない」で止める。

@@ -1,15 +1,17 @@
-# FOSS4G Hiroshima 2026 ポスター 想定問答集（英日併記）
+# FOSS4G Hiroshima 2026 口頭発表 想定問答集（英日併記）
 
-対象ポスター: `exp002_kitagi_quarry_foss4g2026_poster.pdf` — *Detecting Quarry Pond Remnants on a Japanese Island Heritage Site Using Sentinel-2 Imagery and Open-Source Remote Sensing Tools* / Noboru Otsuka (Geolonia Inc.)
+対象発表: FOSS4G 2026 Hiroshima 口頭発表（Regular Talk、2026-09-02 13:30–14:00、Himawari、発表20分＋質疑5分、英語）— *Detecting Quarry Pond Remnants on a Japanese Island Heritage Site Using Sentinel-2 Imagery and Open-Source Remote Sensing Tools* / Noboru Otsuka (Geolonia Inc.)
 
-口頭説明スクリプトは `exp002_kitagi_foss4g2026_talk_script.md`。コアタイム中はスマートフォンで本ファイルを開ける状態にしておく。
+主張境界（数値の階層・許容表現の範囲）はポスター内容契約 `exp002_kitagi_quarry_foss4g2026_poster_content.md` に定義されたものであり、本発表（口頭発表）にもそのまま適用される。以下の「根拠」欄がポスターの節番号を指す箇所は、この内容契約およびポスター本体（`exp002_kitagi_quarry_foss4g2026_poster.pdf`）への出典表示である。
+
+口頭説明スクリプトは `exp002_kitagi_foss4g2026_talk_script.md`。質疑応答中はスマートフォンで本ファイルを開ける状態にしておく。
 
 ---
 
 ## 0. 回答の原則
 
 1. **裏付けのない質問には「未検証です」と答える。** 精度指標、個別の丁場同定、経年変化はいずれも未実施。推測を数値で語らない。
-2. **数値の階層を守る。** Tier 1 は**ポスターに掲載されている値すべて**（主要値: 113 / 145 / 127 / 9 px / 100 m² / 10 m / 20 m / 2025-03-23 / 2025-08-02 / 雲量 0.0% / 0.7% / −0.2 / −0.1 / 0.3。網羅列挙ではない）で、自由に使う。Tier 2 はポスターに無く報告書のみに基づく補足値で、同一行に `[report]` / `[報告書]` を付し、口頭で出す際は「ポスターには載せていない報告書の値」と添える。Tier 3（報告書の推定）は *may / possibly* のヘッジを外さない。
+2. **数値の階層を守る。** Tier 1 は**ポスター内容契約に掲載されている値すべて**（主要値: 113 / 145 / 127 / 9 px / 100 m² / 10 m / 20 m / 2025-03-23 / 2025-08-02 / 雲量 0.0% / 0.7% / −0.2 / −0.1 / 0.3。網羅列挙ではない）で、自由に使う。Tier 2 はその内容契約に無く報告書のみに基づく補足値で、同一行に `[report]` / `[報告書]` を付し、口頭で出す際は「発表では述べていない報告書の値」と添える。Tier 3（報告書の推定）は *may / possibly* のヘッジを外さない。
 3. **「検出水域」と「現地確認済みの丁場池」を混ぜない。** 英語では *detected water polygons* / *candidates* を使う。丁場池を「確認済み」と述べてよいのは、`not (individually) field-confirmed …` のように対象句を直接否定する構文のときだけ。
 4. **145 と 127 の関係は規模比較。** 1対1対応と読める言い方をしない。
 
@@ -25,8 +27,8 @@
 
 ### Q1-2. MNDWI needs SWIR, which is 20 m. Doesn't that break your 10 m claim?
 - **JP:** MNDWIに使うSWIRは20 mですが、10 mという主張と矛盾しませんか。
-- **A (EN):** Fair point, and the poster states it: B11 is natively 20 metres and I resample it bilinearly to the 10-metre grid. So the analysis grid is 10 metres, but the MNDWI information content is 20-metre. NDWI and NDVI use only native 10-metre bands.
-- **A (JP):** 正当な指摘で、ポスターにも明記しています。B11はネイティブ20 mで、バイリニア補間により10 mグリッドへリサンプリングしています。解析グリッドは10 mですが、MNDWIの情報量は20 m相当です。NDWIとNDVIはネイティブ10 mバンドのみを使っています。
+- **A (EN):** Fair point, and I say so directly in the talk: B11 is natively 20 metres and I resample it bilinearly to the 10-metre grid. So the analysis grid is 10 metres, but the MNDWI information content is 20-metre. NDWI and NDVI use only native 10-metre bands.
+- **A (JP):** 正当な指摘で、発表の中でも明言しています。B11はネイティブ20 mで、バイリニア補間により10 mグリッドへリサンプリングしています。解析グリッドは10 mですが、MNDWIの情報量は20 m相当です。NDWIとNDVIはネイティブ10 mバンドのみを使っています。
 - 根拠: 報告書 3.2（バンド表）、ポスター §3・§4・F4キャプション
 
 ### Q1-3. Why not supervised classification, or SAR?
@@ -97,8 +99,8 @@
 
 ### Q4-1. How many of the 145 are actually natural ponds or irrigation reservoirs?
 - **JP:** 145件のうち、自然の池沼や農業用ため池はどれくらい含まれますか。
-- **A (EN):** Unknown — that's exactly the limitation on the poster. Natural ponds, reservoirs, shadows and dark rock can all pass a negative threshold. Until we check them in the field, every polygon is a candidate.
-- **A (JP):** 不明です。これはポスターに書いた限界そのものです。自然の池沼、ため池、影、暗い岩肌はいずれも負の閾値を通り得ます。現地で確認するまで、すべてのポリゴンは候補です。
+- **A (EN):** Unknown — that's exactly the limitation I state in the talk. Natural ponds, reservoirs, shadows and dark rock can all pass a negative threshold. Until we check them in the field, every polygon is a candidate.
+- **A (JP):** 不明です。これは発表で述べた限界そのものです。自然の池沼、ため池、影、暗い岩肌はいずれも負の閾値を通り得ます。現地で確認するまで、すべてのポリゴンは候補です。
 - 根拠: 報告書 5.4 第5項、ポスター §5 の注意文言
 
 ### Q4-2. What about shadows from the granite walls? Those pits are deep.
@@ -151,7 +153,7 @@
 
 ## 6. 春季結果の再現性
 
-### Q6-1. Why does the poster say the spring configuration is "not preserved"?
+### Q6-1. Why does the talk say the spring configuration is "not preserved"?
 - **JP:** 春季の設定が「保存されていない」とはどういう意味ですか。
 - **A (EN):** 113 is the figure reported from our run in March 2026, and that run's exact configuration was not preserved in the repository. Re-running the current pipeline on the same scene gives 180 intra-island polygons `[report]`. The index statistics match the original, which tells us the input scene is the same, but we have not isolated where the difference comes from — the historical code state, post-processing and environment are equally unrecorded. So: 113 is the reported figure, 180 is the current recomputation, and I'd rather state both than quietly swap the number.
 - **A (JP):** 113は2026年3月の実行で報告した値で、その実行の設定はリポジトリに保存されていませんでした。同一シーンに現行パイプラインを適用すると島内180ポリゴンになります `[報告書]`。指数統計は当初と一致しているので入力シーンは同じですが、差がどこから来ているかは特定できていません。当時のコードの状態・後処理・実行環境も同様に記録されていないためです。113は報告値、180は現行の再計算値であり、黙って差し替えるより両方を述べる方がよいと考えました。
