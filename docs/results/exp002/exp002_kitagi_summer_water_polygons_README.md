@@ -27,7 +27,7 @@ Sentinel-2 L2A の夏季シーン（2025-08-02）から検出した北木島の�
 uv run python scripts/generate_exp002_poster_figures.py
 ```
 
-- 生成コミット: **3fc6581**（`feature/foss4g-kitagi-talk-materials`）
+- 生成コミット: **5d0dca2**（`feature/foss4g-kitagi-talk-materials`。GeoJSON 出力を追加したコミット。同コミットで再実行するとバイト一致することを確認済み）
 - 生成元スクリプト: `scripts/generate_exp002_poster_figures.py` の `export_summer_geojson()`
 - 解析ロジックは `notebooks/exp002_kitagi_quarry_water_detection.ipynb` と同一。スクリプトは島内ポリゴン数145・植生マスク除外9pxがレポート確定値と一致しない場合に例外で停止する
 - 実行日時・コミットハッシュはファイルに埋め込まない（再実行でバイト一致させるため）。生成コミットは本ファイルに記録する
