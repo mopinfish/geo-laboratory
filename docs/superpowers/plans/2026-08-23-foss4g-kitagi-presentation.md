@@ -40,6 +40,61 @@
 
 ---
 
+### Task 0: 8月31日の撮影対象リスト生成（**最優先。渡航前に必要**）
+
+内容契約「8月31日の撮影に向けた事前準備」に対応する。他タスクと独立しており、**8月31日より前に完了させる**。
+
+**Files:**
+- Create: `scripts/build_exp002_field_shot_list.py`
+- Create: `docs/results/exp002/exp002_field_shot_list_2026-08-31.md`
+
+**Interfaces:**
+- Consumes: `docs/results/exp002/exp002_kitagi_summer_water_polygons_2025-08-02.geojson`、`docs/results/exp002/exp002_osm_water_features.json`
+- Produces: 撮影対象リスト（ポリゴンID・重心座標・面積・OSM近傍地物の有無と名称・徒歩起点からの概算距離）
+
+- [ ] **Step 1: 検査を先に書く**
+
+スクリプト末尾に自己検査を実装する（本リポジトリのイディオム）。
+
+```python
+assert len(rows) >= 12, f"候補が少なすぎる: {len(rows)}"
+assert any(r["class"] == "largest" for r in rows), "最大ポリゴンが含まれていない"
+assert any(r["class"] == "unmapped" for r in rows), "OSM近傍地物なしの候補が含まれていない"
+assert any(r["class"] == "confounder" for r in rows), "交絡例が含まれていない"
+assert all(133.515 <= r["lon"] <= 133.570 for r in rows), "島の範囲外の座標がある"
+print(f"OK: {len(rows)} 地点（largest / unmapped / confounder の3クラス）")
+```
+
+- [ ] **Step 2: 検査が失敗することを確認**
+
+Run: `uv run python scripts/build_exp002_field_shot_list.py`
+Expected: FAIL（スクリプト未実装）
+
+- [ ] **Step 3: 実装**
+
+3クラスを抽出する。**安全・立入許可・到達可能性を面積順位より優先**する旨をリストの冒頭に明記する。
+
+- `largest`: 検出最大ポリゴン（7,826 m²、北部）。OSM の「今岡石材丁場跡（北木の桂林）」と重なる位置。GPS・撮影方向・撮影時刻を記録する対象
+- `unmapped`: OSM 地物が 100 m 以内にない80件のうち、面積上位10件。訪問4地点（Task 1 の `VISIT_ANCHORS`）からの概算距離を併記して到達しやすい順に並べる
+- `confounder`: `water=reservoir` の OSM 地物（北木北ポンプ室）から 100 m 以内の検出ポリゴン
+
+出力 Markdown には、各地点の「ポリゴンID・緯度経度（度小数6桁）・面積・OSM近傍地物・クラス・撮影メモ欄（空欄）」の表と、地理院地図・OSM へのリンク（`https://www.openstreetmap.org/?mlat=<lat>&mlon=<lon>#map=18/<lat>/<lon>`）を含める。
+
+- [ ] **Step 4: 検査が通ることを確認**
+
+Run: `uv run python scripts/build_exp002_field_shot_list.py`
+Expected: `OK: N 地点（largest / unmapped / confounder の3クラス）`
+
+- [ ] **Step 5: コミット**
+
+```bash
+git add scripts/build_exp002_field_shot_list.py \
+        docs/results/exp002/exp002_field_shot_list_2026-08-31.md
+git commit -m "feat: 8月31日の現地確認用 撮影対象リストを生成"
+```
+
+---
+
 ### Task 1: 新規図版 P6・P8・P12 の生成
 
 **Files:**
@@ -297,6 +352,26 @@ FORBIDDEN = [
     (r"\bposter\b", None, "採択形式は口頭発表"),
     (r"one-to-one match", r"not\s+(?:a\s+)?one-to-one match", "1対1対応と読める表現"),
 ]
+```
+
+あわせて**evidence 階層**を検査する。中心メッセージ（タイトル）より補足値が大きくならないこと、S5 の式は投影本文のテキストフレームに置かず図版内にあることを確認する。
+
+```python
+# S5: 式は図版内に置く（投影本文のテキストとして存在しない）
+s5_text = texts[4]
+for formula in ("(Green − NIR)", "(Green + NIR)", "(Green − SWIR)"):
+    check(formula not in s5_text, f"S5: 式 '{formula}' が投影本文にある（図版内へ置く）")
+
+# S6: 春季タイル・雲量は主結果 145 より小さい文字サイズ
+def max_font_pt(slide, needle: str) -> float:
+    sizes = [run.font.size.pt for sh in slide.shapes if sh.has_text_frame
+             for para in sh.text_frame.paragraphs for run in para.runs
+             if needle in run.text and run.font.size is not None]
+    return max(sizes) if sizes else 0.0
+
+s6 = prs.slides[5]
+check(max_font_pt(s6, "145") > max_font_pt(s6, "113"),
+      "S6: 春季113が主結果145以上の大きさになっている")
 ```
 
 あわせて**文字サイズ下限**を検査する。
@@ -617,6 +692,8 @@ git commit -m "docs: 通し読み時間と目視確認の結果を照合記録�
 - [ ] 画像の SHA256 とコピー元が照合記録にある
 - [ ] 生成物に実行日時が埋め込まれていない（再実行でバイト一致）
 - [ ] 英語通し読みで S6 単体 2:30 以内・本編 17:30 前後
+- [ ] S5 の式が図版内にあり投影本文にない。S6 の春季タイルが主結果より小さい
+- [ ] 8月31日の撮影対象リスト（Task 0）が渡航前に完成している
 
 ## 8月31日以降の差し替え手順
 
