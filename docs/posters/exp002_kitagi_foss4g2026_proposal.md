@@ -6,7 +6,33 @@
 - **Author:** Noboru Otsuka
 - **Affiliation:** Geolonia Inc.
 - **Presentation listing:** 2026-09-02 13:30–14:00, Himawari
+- **Registered session type (official schedule):** `General session talk`, 30 minutes — **not** the poster listing
 - **Contribution license:** CC BY 4.0
+
+## 発表形式の未確定事項（2026-08-23 追記）
+
+公式スケジュール（Pretalx schedule.json、version 0.27、`https://talks.osgeo.org/foss4g-2026/schedule/export/schedule.json`、確認日 2026-08-23）を確認した結果、**本採択が口頭発表かポスター発表かが未確定である**。
+
+確認できた事実:
+
+1. 本発表（`GC3KYK`）の登録は **`type = "General session talk"`、9月2日 13:30–14:00、会場 Himawari、30分**
+2. **9月2日の Himawari は通常のトーク部屋**として運用されている。13:30 Otsuka → 14:00 Andal → 16:00 Nishio → 16:30 Matsumura → 17:00 Annoura → 17:30 Woodcock と、すべて30分の `General session talk` が連続する。本発表はこの列の中にある
+3. スケジュールには **`type = "Poster"` が別に存在するが該当は2件のみ**で、いずれも個別発表ではない
+   - Sakura、9月2日 13:00 から **2時間**、`Poster and Demonstration Presentations`（発表者名なし）
+   - Phoenix Hall Lobby、9月2日 15:30、高校生ポスター発表
+   - **個別のポスターは Pretalx に掲載されていない**
+4. 公式ポスターセッション案内（`https://2026.foss4g.org/ja/program-schedule/poster-session/`）は、掲出 Sakura Lounge・9/1〜9/3、コアタイム 9/2 13:00–15:00、コアタイム中はポスター前に在席と記載。Himawari への言及はなく、ライトニングトーク等の記載もない
+
+したがって、Issue #6 の Task 1 で記録した「Himawari 13:30–14:00 はポスターセッションの掲載枠であり別トークではない」という結論は**誤りである**。
+
+未確定である点:
+
+- 本採択が30分の口頭発表なのか、ポスター発表なのか、両方なのか
+- 両方の場合、ポスターのコアタイム（13:00–15:00）と口頭発表（13:30–14:00）が重複するため、コアタイム中の30分不在の扱い
+
+なお本アブストラクトの本文は "This poster presents the methodology..." とポスター前提で書かれている一方、プログラム上の登録種別は `General session talk` である。この食い違いは公開情報では解消できないため、主催者への確認が必要。
+
+**確認が取れるまで、ビジプリへのポスター印刷発注は保留する。**
 
 ## Abstract
 
