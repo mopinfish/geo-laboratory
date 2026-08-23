@@ -9,32 +9,44 @@
 - **Registered session type (official schedule):** `General session talk`, 30 minutes — **not** the poster listing
 - **Contribution license:** CC BY 4.0
 
-## 発表形式の未確定事項（2026-08-23 追記）
+## 発表形式（2026-08-23 確定）
 
-公式スケジュール（Pretalx schedule.json、version 0.27、`https://talks.osgeo.org/foss4g-2026/schedule/export/schedule.json`、確認日 2026-08-23）を確認した結果、**本採択が口頭発表かポスター発表かが未確定である**。
+**本採択は口頭発表（General Track）である。ポスター発表ではない。**
 
-確認できた事実:
+- **日時・会場: 2026-09-02 13:30–14:00、Himawari、30分**
+- **使用言語: 英語**（採択通知に "presentations are expected to be delivered in English"）
+- 登録種別（公式スケジュール `schedule.json` v0.27）: `General session talk`
 
-1. 本発表（`GC3KYK`）の登録は **`type = "General session talk"`、9月2日 13:30–14:00、会場 Himawari、30分**
-2. **9月2日の Himawari は通常のトーク部屋**として運用されている。13:30 Otsuka → 14:00 Andal → 16:00 Nishio → 16:30 Matsumura → 17:00 Annoura → 17:30 Woodcock と、すべて30分の `General session talk` が連続する。本発表はこの列の中にある
-3. スケジュールには **`type = "Poster"` が別に存在するが該当は2件のみ**で、いずれも個別発表ではない
-   - Sakura、9月2日 13:00 から **2時間**、`Poster and Demonstration Presentations`（発表者名なし）
-   - Phoenix Hall Lobby、9月2日 15:30、高校生ポスター発表
-   - **個別のポスターは Pretalx に掲載されていない**
-4. 公式ポスターセッション案内（`https://2026.foss4g.org/ja/program-schedule/poster-session/`）は、掲出 Sakura Lounge・9/1〜9/3、コアタイム 9/2 13:00–15:00、コアタイム中はポスター前に在席と記載。Himawari への言及はなく、ライトニングトーク等の記載もない
-5. **Pretalx の公開セッションページ（`https://talks.osgeo.org/foss4g-2026/talk/GC3KYK/`）にはセッション種別の表示がない**（HTML を直接取得して確認。表示されるのは日時と会場のみ）。したがって公開情報で種別が読めるのは schedule.json だけである
-6. **投稿受領メールの送信元は「FOSS4G 2026 general tracks」**（general tracks の CfP）。同メールに記載された投稿フォームの項目にセッション種別の欄はなく、種別は確認できない。なお採択通知メールは別便であり、そちらに採択形式が記載されている可能性がある
+### 根拠（主催者からのメール3通）
 
-したがって、Issue #6 の Task 1 で記録した「Himawari 13:30–14:00 はポスターセッションの掲載枠であり別トークではない」という結論は**誤りである**。
+1. **採択通知**: "We are pleased to inform you that your proposal ... has been **accepted for the General Track** of FOSS4G 2026 general tracks."
+   - "Your presentation has been selected based on the community vote and review by the Program Committee"
+   - "To ensure smooth communication, presentations are expected to be delivered in **English**."
+   - ポスターへの言及はない
+2. **スケジュール通知（初回）**: 「あなたの**講演** ... は Conference Management **Room4** の 09/02, **11:00** で行われます」
+3. **スケジュール通知（変更）**: 「あなたの**講演** ... は **Himawari** の 09/02, **13:30** に移動しました」
 
-未確定である点:
+### 公式スケジュールで確認した事実（2026-08-23、`https://talks.osgeo.org/foss4g-2026/schedule/export/schedule.json` v0.27）
 
-- 本採択が30分の口頭発表なのか、ポスター発表なのか、両方なのか
-- 両方の場合、ポスターのコアタイム（13:00–15:00）と口頭発表（13:30–14:00）が重複するため、コアタイム中の30分不在の扱い
+- 本発表（`GC3KYK`）は `type = "General session talk"`、9/2 13:30–14:00、Himawari、30分
+- 9/2 の Himawari は30分の `General session talk` が連続する通常のトーク部屋（13:30 Otsuka → 14:00 Andal → 16:00 Nishio → 16:30 Matsumura → 17:00 Annoura → 17:30 Woodcock）
+- `type = "Poster"` は2件のみで、いずれも個別発表ではない（Sakura 9/2 13:00 から2時間の `Poster and Demonstration Presentations`、および Phoenix Hall Lobby 15:30 の高校生ポスター）。**個別のポスターは Pretalx に掲載されていない**
+- Pretalx の公開セッションページにはセッション種別の表示がない（表示は日時と会場のみ）
 
-なお本アブストラクトの本文は "This poster presents the methodology..." とポスター前提で書かれている一方、プログラム上の登録種別は `General session talk` である。この食い違いは公開情報では解消できないため、主催者への確認が必要。
+### 経緯の記録
 
-**確認が取れるまで、ビジプリへのポスター印刷発注は保留する。**
+投稿時のアブストラクト本文は "This poster presents the methodology..." とポスター前提で書かれており、Issue #6 の Task 1 では「Himawari 13:30–14:00 はポスターセッションの掲載枠であり別トークではない」と結論していた。**この結論は誤りであった。**
+
+この誤認に基づき、A0ポスター（`exp002_kitagi_quarry_foss4g2026_poster.pdf` ほか）と当日資料（口頭スクリプト・想定問答集）を制作した。ポスターは採択形式ではないため掲出物としては使用しない。**ビジプリへの印刷発注は中止する。**
+
+制作物のうち、口頭発表へ転用できるもの:
+
+- `docs/reports/exp002_kitagi_quarry_water_detection_report.md` — 数値・考察の正本（変更なし）
+- `docs/posters/figures/exp002/` — 300dpi相当の図版（スライドへ流用可）
+- `docs/results/exp002/exp002_kitagi_summer_water_polygons_2025-08-02.geojson` — 公開済み成果データ（変更なし）
+- `docs/posters/exp002_kitagi_foss4g2026_talk_script.md` — 30秒/2〜3分/5分版。30分版の骨格として再構成が必要
+- `docs/posters/exp002_kitagi_foss4g2026_qa.md` — 33問。発表後の質疑にそのまま使用可
+- `docs/presentations/exp002_kitagi_quarry_water_detection_presentation.pptx` — 既存の日本語13枚。英語化と30分尺への拡張が必要
 
 ## Abstract
 
