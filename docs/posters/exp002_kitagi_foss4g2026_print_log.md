@@ -109,17 +109,46 @@ gs -o docs/posters/exp002_kitagi_quarry_foss4g2026_poster_cmyk.pdf \
 - M3: 図版内部文字を配置後18pt以上に調整（F1: 15–16pt×1.22、F3: 18pt×1.05、F4: 18pt×1.07、F5: 19pt×0.99。カラーバー目盛は −1/0/1 の3点に削減）
 - M4: 上記の仕様確認とCMYK変換手順を記録
 
-## Order-specific confirmation — complete before design export
+## Order-specific confirmation — 公開ページ再確認（2026-08-23、Claude）
 
-- [ ] Selected Visipri product and paper/finish:
-- [ ] Exact accepted file format and PDF/PDF-X version:
-- [ ] Finished size and bleed/trim-mark requirement:
-- [ ] CMYK/RGB policy:
-- [ ] Maximum file size:
-- [ ] Font embedding/outline requirement:
-- [ ] Image-resolution requirement:
-- [ ] Proofing option:
-- [ ] Confirmation date and source URL:
+- [x] **Selected Visipri product and paper/finish**: A0学会ポスター（仕上がり 841 × 1189 mm）。用紙は半光沢紙（半光沢フォト紙）を基本とし、フォト光沢紙・厚手マット紙・布（防炎クロス）・バックライトフィルム・透明フィルム・トレーシングペーパーも選択可。**用紙の最終選択はユーザー判断**（掲示はピン留めのため半光沢紙で問題なし）
+- [x] **Exact accepted file format**: PDF可（PowerPoint作成時は必ずPDF保存して入稿）。**PDFバージョン・PDF/X の指定は公開ページに記載なし → 発注時に直接確認が必要**
+- [x] **Finished size and bleed/trim-mark requirement**: 841 × 1189 mm。塗り足しは「背景や画像が紙端まであるデザイン」の場合に上下左右3 mm（学会ポスター入稿ガイドは3〜5 mm）。本ポスターは外周余白18 mmで紙端に何も配置しないため**該当せず**。トンボは「トンボ付きPDFの場合」のみ言及 → **付けない**
+- [x] **CMYK/RGB policy**: PDFデータガイド「可能であればCMYK、もしくはK(黒)1色で作成してください」／学会ポスター入稿ガイド「RGBではなくCMYKカラーモードで作成する必要があります」 → **CMYK版 `exp002_kitagi_quarry_foss4g2026_poster_cmyk.pdf` を入稿**
+- [x] **Maximum file size**: 入稿フォームからの直接アップロードは**200 MB以下**（200 MB超は firestorage / ギガファイル便等の外部ストレージ）。ただしデータガイドTOPには「50 MBまで」の記載もあり表現に揺れがある。本PDFは CMYK版 9.7 MB / RGB版 17.3 MB で**いずれの基準も満たす**
+- [x] **Font embedding/outline requirement**: 「フォント埋め込み済みのPDFで保存してください」（PDFガイド）／「必ずアウトライン化するか、データに埋め込む」（学会ガイド）→ **全フォント埋め込み済み**
+- [x] **Image-resolution requirement**: 300 dpi以上を目安（PDFガイド）／150〜300 dpi推奨（学会ガイド）→ **全図版 230〜313 dpi で適合**
+- [ ] **Proofing option**: データガイドTOPに「色校正（試し刷り）を推奨しております」とあるが、**費用・納期への影響・申込方法は公開ページに非掲載 → 直接確認が必要**。FAQに該当項目（faq051「色校正は出来ますか？」）はあるが本文を取得できず
+- [x] **Confirmation date and source URL**: 2026-08-23 / https://visipri.com/ 、https://visipri.com/gakkai/gakkai_poster_a0.php 、https://visipri.com/dataguide/ 、https://visipri.com/dataguide/pdf/ 、https://visipri.com/gakkai/info-2-nyukou.php 、https://visipri.com/intro06_faq.php
+
+### 納期プランと価格（A0学会ポスター、2026-08-23 確認）
+
+| プラン | 発送 | 価格（税抜 / 税込） |
+|---|---|---|
+| 激安便 | 入稿・校了から3日後発送 | 2,420円 / 2,662円 |
+| 通常便 | 16時までの入稿・校了で当日発送 | 4,200円 / 4,620円 |
+| 特急便 | 最短3時間 | 8,400円 / 9,240円 |
+
+掲出は9月1日09:00以降、内部目標は08-29までの納品検収。08-25発注なら激安便でも間に合う。
+
+### PDFデータガイドの「してはいけないこと」への適合確認（2026-08-23 実測）
+
+| 禁止事項 | 本ポスターの状態 | 確認方法 |
+|---|---|---|
+| サイズが異なる作成 | 841 × 1189 mm（2383.94 × 3370.39 pt）で一致 | `pdfinfo` |
+| 線幅0.5 mm未満の使用 | **最小 0.6 mm**（見出し罫線）— 適合 | SVG の `stroke-width` 全値: 0.6 / 0.8 / 0.9 / 1.0 / 1.2 mm |
+| フォント6 pt未満の使用 | **最小 6.526 mm ≒ 18.5 pt** — 適合（ポスター要件の18 pt下限と整合） | SVG の `font-size` 最小値 × 2.835 |
+| 塗り足しなしでの提出 | 紙端まで届くデザインではないため塗り足し不要 | 外周余白18 mm |
+| 不要な注釈・コメント・ハイライト・フォーム情報の残置 | **0件**（`/Annots`・`/AcroForm`・`/Widget`・`/Popup` いずれも不検出） | RGB版・CMYK版の両方をバイト走査 |
+| 英語以外のファイル名 | ASCII のみ | ファイル名検査 |
+
+### 未解決事項（公開ページに記載なし → 発注時に直接確認）
+
+1. **PDFバージョン（1.6 / 1.7）および PDF/X の受入可否** — 全ガイド・FAQに記載なし
+2. **Type 3 グリフの受入可否** — 記載なし。**CMYK版にも Type 3 フォントが残存している**（`pdffonts` で確認。PDF 1.6 のオブジェクトストリームに圧縮されるためバイト列検索では検出できない）。cairo が記号グリフ（−・≥ 等）に生成するもので表示は正常だが、禁止された場合は当該グリフのアウトライン化版を再出力する必要がある
+3. **色校正の費用・納期・申込方法**
+
+問い合わせ先: フリーコール 0800-91-91-910（24時間年中無休）／メール visipri@visia.co.jp／東京 03-3974-8220／大阪 06-6533-7188
 
 ## Order and inspection
 
