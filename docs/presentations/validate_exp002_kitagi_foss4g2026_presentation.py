@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """FOSS4G 2026 北木島 口頭発表の成果物を検査する。
 
-図版（P6・P8・P12）と PPTX 本体（スライド数・タイトル）の検査を実装する。後続タスク
+図版（P6・P8・P12）、PPTX 本体（スライド数・タイトル・画像数・callout の文字サイズ）、
+再訪なし版（`--no-revisit` で生成される11枚版）を検査する。後続タスク
 （スピーカーノート・数値照合等）はこのファイルに追記していく前提の構造とする。
 
 使い方: uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py
@@ -15,15 +16,28 @@ from pathlib import Path
 
 from PIL import Image
 from pptx import Presentation
+from pptx.enum.shapes import MSO_SHAPE_TYPE
 
 BASE = Path(__file__).resolve().parent
 IMAGES = BASE / "images"
 PPTX = BASE / "exp002_kitagi_foss4g2026_presentation.pptx"
+NO_REVISIT_PPTX = BASE / "exp002_kitagi_foss4g2026_presentation_no_revisit.pptx"
 
 # 配置幅 220 mm で 200 dpi を満たす最小ピクセル幅
 MIN_WIDTH_PX = int(220 / 25.4 * 200)  # 1732
 
 FIGURES = ("p06_clusters_map.png", "p08_visit_anchors_map.png", "p12_loop_diagram.png")
+
+# 各スライドの画像（PICTURE シェイプ）の期待枚数。S9 は8/31撮影分（未着の間はプレースホルダ）
+# 2枚、S10 はテキスト中心のため意図的に0枚。
+EXPECTED_IMAGES: dict[int, int] = {
+    1: 1, 2: 1, 3: 2, 4: 2, 5: 1, 6: 1, 7: 1, 8: 1, 9: 2, 11: 1, 12: 1,
+}
+
+# callout（S6 の `145`、S8 の `5–6`・`145`）が満たすべき文字サイズの範囲（pt）。
+CALLOUT_MIN_PT = 60.0
+CALLOUT_MAX_PT = 72.0
+CALLOUT_TARGETS: dict[int, list[str]] = {6: ["145"], 8: ["5–6", "145"]}
 
 # 内容契約（docs/presentations/exp002_kitagi_foss4g2026_presentation.md）の
 # `## Slide N — ` 見出しから転記した、各スライドのタイトル完全一致文字列。
@@ -218,6 +232,57 @@ def check_evidence_hierarchy(prs: Presentation) -> None:
         )
 
 
+def check_image_counts(prs: Presentation) -> None:
+    """各スライドの画像（PICTURE シェイプ）数が `EXPECTED_IMAGES` と一致することを確認する。
+
+    未記載のスライド（S10）は期待値0（意図的にテキストのみ・余白を広く取る）。
+    """
+    for i, slide in enumerate(prs.slides, start=1):
+        n_pic = sum(1 for sh in slide.shapes if sh.shape_type == MSO_SHAPE_TYPE.PICTURE)
+        expected = EXPECTED_IMAGES.get(i, 0)
+        check(n_pic == expected, f"S{i}: 画像数 {n_pic} が期待値 {expected} と不一致")
+
+
+def check_callout_range(prs: Presentation) -> None:
+    """S6 の `145`、S8 の `5–6`・`145` の callout が 60〜72pt の範囲にあることを確認する。
+
+    Task 3 レビューの Minor 指摘: この範囲を固定する検査がなく、将来の編集で
+    callout が意図せず縮小・拡大されても検査が通り続けてしまう問題への対処。
+    """
+    slides = list(prs.slides)
+    for idx, needles in CALLOUT_TARGETS.items():
+        label = f"S{idx}"
+        if idx > len(slides):
+            for needle in needles:
+                check(False, f"{label}: callout '{needle}' を検査不可（スライドが存在しない）")
+            continue
+        slide = slides[idx - 1]
+        for needle in needles:
+            sizes = [
+                run.font.size.pt
+                for sh in slide.shapes if sh.has_text_frame
+                for para in sh.text_frame.paragraphs for run in para.runs
+                if run.text.strip() == needle and run.font.size is not None
+            ]
+            check(bool(sizes), f"{label}: callout '{needle}' の文字サイズが見つからない")
+            for pt in sizes:
+                check(
+                    CALLOUT_MIN_PT <= pt <= CALLOUT_MAX_PT,
+                    f"{label}: callout '{needle}' が {pt}pt — {CALLOUT_MIN_PT:.0f}〜{CALLOUT_MAX_PT:.0f}pt の範囲外",
+                )
+
+
+def check_no_revisit_variant() -> None:
+    """`--no-revisit` で生成される11枚版が存在し、S9 が除外されていることを確認する。"""
+    if not NO_REVISIT_PPTX.is_file():
+        check(False, "再訪なし版のPPTXが存在しない")
+        return
+    prs2 = Presentation(NO_REVISIT_PPTX)
+    check(len(prs2.slides) == 11, f"再訪なし版のスライド数が11でない: {len(prs2.slides)}")
+    t2 = "\n".join(sh.text_frame.text for s in prs2.slides for sh in s.shapes if sh.has_text_frame)
+    check("2026-08-31" not in t2, "再訪なし版に再訪スライドが残っている")
+
+
 def check_font_floor(prs: Presentation) -> None:
     """本文の文字サイズが15pt未満に自動縮小されていないことを確認する。
 
@@ -250,6 +315,10 @@ def main() -> None:
         check_forbidden(prs)
         check_evidence_hierarchy(prs)
         check_font_floor(prs)
+        check_image_counts(prs)
+        check_callout_range(prs)
+
+    check_no_revisit_variant()
 
     if errors:
         print(f"FAIL ({len(errors)} / {checks} checks failed)")
