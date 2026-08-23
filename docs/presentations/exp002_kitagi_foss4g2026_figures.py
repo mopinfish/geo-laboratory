@@ -384,31 +384,35 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
 
 # ---------------------------------------------------------------- P12: 3ステップフロー図
 def make_p12_loop_diagram() -> None:
-    # キャプションは24pt(P12の床は19pt native)でも1行に収まるよう短く記述する
-    # （Finding 2: フォントを縮めるのではなく文言を短くする方針に従う）。
+    # キャプションは24pt(P12の床は19pt native)。24pt・1行のままでは各キャプションの幅が
+    # 自ボックス幅を大きく超え、隣接キャプションと衝突して1行に見えてしまう回帰が
+    # fix round 1で発生したため、フォントは縮めず、各キャプションを2行に折り返して
+    # 自ボックスの幅に収める（Finding 2: フォントを縮めるのではなく表示方法を変える方針）。
     steps = [
-        ("Satellite scan", "a finite candidate list"),
-        ("Field visit", "see it with your own eyes"),
-        ("OpenStreetMap", "publish what you confirmed"),
+        ("Satellite scan", ("a finite", "candidate list")),
+        ("Field visit", ("see it with", "your own eyes")),
+        ("OpenStreetMap", ("publish what", "you confirmed")),
     ]
 
     title_fontsize = 24.0
     caption_fontsize = 24.0
 
     box_w, box_h = 3.6, 1.5
-    gap = 1.3
+    gap = 1.4  # キャプションの折り返しに加え、ボックス間隔にも余裕を持たせる
     n = len(steps)
     total_w = n * box_w + (n - 1) * gap
-    fig, ax = plt.subplots(figsize=(12.5, 4.4), dpi=SAVE_DPI)
+    fig, ax = plt.subplots(figsize=(12.5, 4.6), dpi=SAVE_DPI)
     ax.set_xlim(0, total_w)
-    ax.set_ylim(0.5, 2.9)  # 矩形とキャプションの実際の描画範囲に合わせ、余白を詰める
+    ax.set_ylim(0.1, 2.9)  # 2行キャプション分の縦の余白を確保
     ax.axis("off")
 
     font_elements: list[tuple[str, float]] = []
     centers = []
-    for i, (title, caption) in enumerate(steps):
+    box_spans_data: list[tuple[float, float]] = []
+    caption_texts = []
+    for i, (title, caption_lines) in enumerate(steps):
         x0 = i * (box_w + gap)
-        y0 = 1.2
+        y0 = 1.3
         rect = Rectangle(
             (x0, y0), box_w, box_h,
             facecolor="white", edgecolor=COL_TEXT, linewidth=1.6,
@@ -417,15 +421,18 @@ def make_p12_loop_diagram() -> None:
         ax.add_patch(rect)
         cx, cy = x0 + box_w / 2, y0 + box_h / 2
         centers.append((x0, x0 + box_w, cy))
+        box_spans_data.append((x0, x0 + box_w))
         ax.text(
             cx, cy, title, ha="center", va="center",
             fontsize=title_fontsize, weight="bold", color=COL_TEXT, zorder=6,
         )
         font_elements.append((f"box title ({title})", title_fontsize))
-        ax.text(
-            cx, y0 - 0.22, caption, ha="center", va="top",
-            fontsize=caption_fontsize, color=COL_TEXT, style="italic", zorder=6,
+        caption_text = ax.text(
+            cx, y0 - 0.15, "\n".join(caption_lines), ha="center", va="top",
+            fontsize=caption_fontsize, color=COL_TEXT, style="italic",
+            linespacing=1.3, zorder=6,
         )
+        caption_texts.append(caption_text)
         font_elements.append((f"caption ({title})", caption_fontsize))
 
     # 細い無彩色の矢印で3つの矩形を接続する
@@ -439,6 +446,31 @@ def make_p12_loop_diagram() -> None:
             color=arrow_color, linewidth=1.4, zorder=4,
         )
         ax.add_patch(arrow)
+
+    # キャプションが自ボックスの幅を大きく超えて隣接キャプションと衝突しないことを検査する
+    # （fix round 1で24pt化した際に発生した回帰の再発防止）。
+    # レンダラで実測した各キャプションの表示幅が、自ボックス幅の110%以内であることを確認する。
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    caption_bboxes = [t.get_window_extent(renderer=renderer) for t in caption_texts]
+    caption_margin_frac = 0.10
+    for i, (bbox, (bx0, bx1)) in enumerate(zip(caption_bboxes, box_spans_data)):
+        box_disp0 = ax.transData.transform((bx0, 0.0))[0]
+        box_disp1 = ax.transData.transform((bx1, 0.0))[0]
+        box_width_px = box_disp1 - box_disp0
+        max_allowed_px = box_width_px * (1.0 + caption_margin_frac)
+        assert bbox.width <= max_allowed_px, (
+            f"P12: caption {i} の表示幅 {bbox.width:.1f}px が自ボックス幅 "
+            f"{box_width_px:.1f}px の110%（{max_allowed_px:.1f}px）を超えている"
+        )
+    min_caption_gap_px = min(
+        caption_bboxes[i + 1].x0 - caption_bboxes[i].x1 for i in range(len(caption_bboxes) - 1)
+    )
+    print(f"[P12] caption-to-caption gap (min): {min_caption_gap_px:.1f}px")
+    assert min_caption_gap_px >= 60.0, (
+        f"P12: キャプション同士の間隔が {min_caption_gap_px:.1f}px しかなく、"
+        "1本の文章に見えてしまう可能性がある（下限60px）"
+    )
 
     plt.tight_layout()
     out = OUT_DIR / "p12_loop_diagram.png"
