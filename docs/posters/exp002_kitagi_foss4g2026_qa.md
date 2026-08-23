@@ -87,9 +87,9 @@
 
 ### Q3-4. Why these two dates in 2025?
 - **JP:** なぜ2025年のこの2日を選んだのですか。
-- **A (EN):** They were selected automatically, not curated: the search window was 2023 through 2025 with a 10 percent cloud ceiling, and the pipeline picks the least-cloudy scene — 0.0 percent for spring and 0.7 percent for summer. So the dates are a consequence of cloud cover, not of anything I expected to see.
-- **A (JP):** 選定は自動で、こちらが選んだものではありません。検索期間は2023年〜2025年、雲量上限10%で、最も雲量の少ないシーンを選ぶ実装です。結果として春季0.0%、夏季0.7%になりました。日付は雲量の結果であって、何かを期待して選んだものではありません。
-- 根拠: `docs/plans/exp002_kitagi_quarry_water_detection.md`「画像選択基準」、報告書 3.2
+- **A (EN):** The study plan set the window at 2023 through 2025 with a 10 percent cloud ceiling and a preference for low-cloud scenes; the reported scenes have 0.0 percent cloud in spring and 0.7 percent in summer. For the summer scene the committed notebook reproduces that: it sorts candidates by cloud cover and takes the least-cloudy summer-month scene. For spring, the exact historical selection procedure was not preserved — the same gap as the 113 figure — so I can't tell you more than the plan and the reported cloud cover.
+- **A (JP):** 計画では検索期間を2023年〜2025年、雲量上限10%とし、雲量の少ないシーンを優先することにしています。報告しているシーンの雲量は春季0.0%、夏季0.7%です。夏季についてはコミット済みのノートブックで再現できます。候補を雲量昇順に並べ、夏季月のうち最も雲量の少ないシーンを取る実装です。春季については当時の選定手順が保存されていません（113の件と同じ欠落です）ので、計画の基準と報告した雲量以上のことは言えません。
+- 根拠: `docs/plans/exp002_kitagi_quarry_water_detection.md`「画像選択基準」、報告書 3.2、報告書 4.1 追記（春季の再現性）、`notebooks/exp002_kitagi_quarry_water_detection.ipynb`（雲量昇順ソート＋夏季月の先頭を選択）
 
 ---
 
