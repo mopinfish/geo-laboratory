@@ -5,13 +5,16 @@
 再訪なし版（`--no-revisit` で生成される11枚版）、スピーカーノート Markdown
 （構造・英語語数・S6 の required spoken content・再訪ノートの申し送り）と
 PPTX ノートペインとの同期を検査する。
-後続タスク（数値照合等）はこのファイルに追記していく前提の構造とする。
+Task 6 の照合記録（`exp002_kitagi_foss4g2026_presentation_verification.md`）についても、
+数値の出典・images/ 全ファイルのSHA256・8/31撮影テーブルの見出しを検査する
+（`check_verification_record()`）。
 
 使い方: uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py
 """
 
 from __future__ import annotations
 
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -25,6 +28,7 @@ IMAGES = BASE / "images"
 PPTX = BASE / "exp002_kitagi_foss4g2026_presentation.pptx"
 NO_REVISIT_PPTX = BASE / "exp002_kitagi_foss4g2026_presentation_no_revisit.pptx"
 NOTES_MD = BASE / "exp002_kitagi_foss4g2026_presentation_speaker_notes.md"
+VERIFICATION = BASE / "exp002_kitagi_foss4g2026_presentation_verification.md"
 
 # スピーカーノートの英語発話量の判定基準。内容契約「タイミング」節の秒数（合計1,050秒）を
 # 145 wpm で語数へ換算し、±25% の幅で判定する。
@@ -580,6 +584,76 @@ def check_notes_sync(sections: dict[int, dict[str, str]]) -> None:
             )
 
 
+HEX64 = re.compile(r"\b[0-9a-f]{64}\b")
+
+# Task 6 照合記録が出典を示す義務を負う数値。口頭・投影のどちらかで使われる値の
+# 全体集合（ブリーフ Step 1 の最小集合 + タスク本体が追加する 20 m・負の閾値等）。
+# 検出に幅を持たせるため、裸の数字（"0.3" 等）は誤検出を避けられる形にアンカーする。
+VERIFICATION_NUMBER_VALUES: tuple[str, ...] = (
+    "145", "113", "127", "9 px", "100 m²", "10 m", "20 m", "1.28 ha",
+    "7,826 m²", "2025-03-23", "2025-08-02", "0.0%", "0.7%",
+    "−0.2", "−0.1", "NDVI > 0.3",
+)
+
+# 照合記録に名前だけ残すべき、削除済み・不採用の図版（ブリーフ Step 1 が明示的に
+# 名前を要求する）。images/ には存在しないため、SHA256照合の対象からは除外する。
+VERIFICATION_RETIRED_IMAGE_NAMES: tuple[str, ...] = (
+    "fig03_keirin_cliff.jpg", "poster_f4_index_panels.png",
+)
+
+# 8/31 撮影分の空欄テーブルに必須の見出し4列。
+VERIFICATION_PHOTO_TABLE_HEADERS: tuple[str, ...] = (
+    "座標", "撮影時刻", "撮影方向", "対象ポリゴンID",
+)
+
+
+def check_verification_record() -> None:
+    """Task 6 照合記録（数値・出典・画像のSHA256・8/31写真の空欄表）を検査する。
+
+    `poster_f4_index_panels.png` は現在も `images/` に存在するため、SHA256照合
+    （`images/` 全ファイルのループ）の対象にも自然に入る。ブリーフはこれを
+    `fig03_keirin_cliff.jpg`（削除済み）と並べて名前検査の対象に挙げているため、
+    ここでは両方を独立に検査する。
+    """
+    if not VERIFICATION.is_file():
+        check(False, "照合記録が存在しない")
+        return
+    v = VERIFICATION.read_text(encoding="utf-8")
+
+    for value in VERIFICATION_NUMBER_VALUES:
+        check(value in v, f"照合記録に値の出典が無い: {value}")
+
+    check("SHA256" in v, "照合記録に SHA256 の記載が無い")
+
+    for name in VERIFICATION_RETIRED_IMAGE_NAMES:
+        check(name in v, f"照合記録に画像の記載が無い: {name}")
+
+    # images/ 配下の全ファイルが記録に載っており、記録中のSHA256がディスク上の
+    # ファイルを再計算したハッシュと一致することを確認する（スクリプトが自ら
+    # 再計算する。過去のレポートからのコピーでは古いハッシュの混入を検出できない）。
+    image_files = sorted(p for p in IMAGES.iterdir() if p.is_file())
+    check(bool(image_files), "images/ にファイルが無い（検査不可）")
+    for path in image_files:
+        name = path.name
+        check(name in v, f"照合記録に画像の記載が無い: {name}")
+        actual_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+        row_hashes = [
+            hexs
+            for line in v.splitlines()
+            if name in line
+            for hexs in HEX64.findall(line)
+        ]
+        check(bool(row_hashes), f"{name}: 照合記録にSHA256の記載行が無い")
+        check(
+            actual_hash in row_hashes,
+            f"{name}: 記録のSHA256がディスク上のファイルと一致しない"
+            f"（記録: {row_hashes}, 実際: {actual_hash}）",
+        )
+
+    for header in VERIFICATION_PHOTO_TABLE_HEADERS:
+        check(header in v, f"照合記録に8/31撮影テーブルの見出しが無い: {header}")
+
+
 def main() -> None:
     check_figures()
     check_pptx_titles()
@@ -598,6 +672,8 @@ def main() -> None:
 
     sections = check_speaker_notes()
     check_notes_sync(sections)
+
+    check_verification_record()
 
     if errors:
         print(f"FAIL ({len(errors)} / {checks} checks failed)")
