@@ -411,15 +411,14 @@ def s02(slide, n: int) -> None:
 def s03(slide, n: int) -> None:
     """徒歩スケール：質感（内容契約 Slide 3 Projected body）。
 
-    視覚: 現地写真2枚を同寸で並置。`fig01_lake_stage.jpg` と `choba_lake_2.jpg` を使う。
+    視覚: 現地写真2枚を同寸で並置。`fig01_lake_stage.jpg` と `choba_lake_1.jpg` を使う。
 
-    Fix round 2（レビュー指摘）: 元は `fig01_lake_stage.jpg` と `choba_lake_3.jpg` の
-    組だったが、`choba_lake_3.jpg` は表紙（S1）・S7パネル(a)に採用されたため、
-    表紙と同じ写真をS3で繰り返さないという担当者ルーリングにより `choba_lake_2.jpg`
-    に差し替えた。`choba_lake_2.jpg` は丁場の谷を見下ろして遠景の海まで写した構図で、
-    Task 4 時点では「水面（緑がかった池）がほぼ写っていない」ことを理由に不採用として
-    いたが、本ラウンドのルーリングはこの点を認識した上で明示的にこの写真を指定して
-    いる（水面の可視性ではなく「表紙は繰り返さない」を優先する判断）。
+    Fix round 3（レビュー指摘）: `choba_lake_2.jpg`（丁場の谷を見下ろして遠景の海まで
+    写した構図。水面がほぼ写っていない上、クレーンアーム・小屋が写り込む）は投影文
+    `Vertical granite walls, cut not weathered` / `Water in an unusual green` を
+    支持しないため不採用とし、`choba_lake_1.jpg`（垂直な花崗岩の切削面が緑がかった
+    水面へ直接落ち込む構図）に差し替えた。`choba_lake_3.jpg`（表紙・S7パネル(a)で
+    採用済み）とは画角が異なるため、表紙の反復にもならない。
     """
     add_title(slide, TITLES[2])
     add_body(
@@ -436,13 +435,14 @@ def s03(slide, n: int) -> None:
     # fig01: 縦長写真をそのまま中央対称クロップすると、水面が写る下部が失われ岩壁のみに
     # なる（元画像は上2/3が岩壁・下1/3が水面のため）。水面・ステージが見える構図を
     # 残すよう上側を多くクロップする（vbias1=0.75、Task 4 から変更なし）。
-    # choba_lake_2: 上部は空、中間に遠景の海、下部に丁場の谷・クレーン・小屋が写る。
-    # 中央対称クロップだと空ばかり残るため、上側をやや多めにクロップして海・谷・
-    # クレーンが収まる範囲を残す（vbias2=0.78。実際にクロップ後の構図を複数の
-    # vbias で確認し、海と谷の両方が入り最下端の手前柵がほぼ切れる値として選定）。
+    # choba_lake_1: 上部は空・稜線の樹木、中央から下は垂直な花崗岩壁、最下部が緑がかった
+    # 水面（元画像1500x1999で水面は下から約22%）。中央対称クロップでは空・樹木が残って
+    # しまうため、上側を大きくクロップして水面を残す（vbias2=0.85。0.70〜1.00で試作
+    # クロップを目視確認し、空・稜線の崩石が完全に外れ、垂直な壁面と水面がともに
+    # 十分な面積で残る構図として選定）。
     add_photo_pair(
-        slide, IMAGES / "fig01_lake_stage.jpg", IMAGES / "choba_lake_2.jpg",
-        vbias1=0.75, vbias2=0.78,
+        slide, IMAGES / "fig01_lake_stage.jpg", IMAGES / "choba_lake_1.jpg",
+        vbias1=0.75, vbias2=0.85,
     )
     add_slide_number(slide, n)
 

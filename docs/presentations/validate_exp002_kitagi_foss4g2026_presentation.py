@@ -40,7 +40,7 @@ FIGURES = (
 # 戻ってしまう回帰を防ぐ（Fix round 1 のレビュー指摘）。
 PINNED_PHOTO_SOURCES: dict[int, tuple[str, ...]] = {
     1: ("choba_lake_3.jpg",),
-    3: ("fig01_lake_stage.jpg", "choba_lake_2.jpg"),
+    3: ("fig01_lake_stage.jpg", "choba_lake_1.jpg"),
     7: ("p07_three_scales.png",),
 }
 
