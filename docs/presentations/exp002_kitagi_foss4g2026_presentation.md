@@ -73,7 +73,7 @@
 | 5 | 衛星スケール（手法） | 1:50 |
 | 6 | 主結果（145件・分布・季節差） | 2:30 |
 | 7 | 三つの縮尺が示すもの | 1:10 |
-| 8 | 見ていない95% | 1:30 |
+| 8 | 訪問5〜6か所と検出145件の規模の対比 | 1:30 |
 | 9 | 再訪（現地確認の開始） | 1:50 |
 | 10 | 限界と次の一手 | 1:20 |
 | 11–12 | オープンデータと地図への還元 | 2:05 |
@@ -132,7 +132,12 @@
 
 - **Central claim**: 島全体を一度に覆えるのは衛星である。使ったのは水域指数による標準的な手順で、新しい手法ではない。
 - **Projected body**: `Sentinel-2 L2A via the Microsoft Planetary Computer STAC API`; `Summer 2025-08-02 · 0.7% cloud · 10 m analysis grid`; `Water if (NDWI > −0.2 OR MNDWI > −0.1) AND NOT (NDVI > 0.3)`; `Thresholds below zero: at 10 m a narrow pond is part water, part granite, part shadow`; `A standard water-index workflow — nothing new in the method`; `Minimum reported polygon area: 100 m²`.
-- **Visual**: 4パネル（NDWI / MNDWI / NDVI / 最終マスク、`poster_f4_index_panels.png`）。式は図中に置く。
+- **Visual**: 4パネル（NDWI / MNDWI / NDVI / 最終マスク、**新規図版 P5**
+  `p05_index_panels.png`）。式は図中に置く。ポスター図版 `poster_f4_index_panels.png`
+  は native 18pt・実寸 8.82 × 8.50 in で、16:9スライドのどの配置でも図中文字が
+  実効15ptに届かない（15ptには配置高さ7.09inが必要で、スライド全高は7.5in）。
+  同図のパネル画像を切り出して英語ラベルとカラーバーを大きく描き直したものを使う
+  （ラスタは無加工。ネットワーク非依存）。
 - **Notes-only boundary**: 閾値はヒストグラムの谷から決めた値で、最適化・感度分析・現地検証はしていない。B11 は 20 m から 10 m へリサンプリングしている。
 - **Claim type**: Method（標準手順の適用）。
 - **Duration**: 1:50
@@ -162,7 +167,10 @@
 - **Projected body**: `On foot — texture: the cut face, the water, the depth`; `From the air — boundaries: property lines standing as rock walls`; `From orbit — distribution: 145 candidates across the island`; `Not better or worse. Different things become visible.`
 - **Visual**: 三スケール合成図（`p07_three_scales.png`、英語ラベルのみ。
   発表専用に生成。日本語記事と共有される `fig09_multiscale.png` は日本語キャプション
-  焼き込み・動画UI写り込みのため不採用。ソース: (a) `fig03_keirin_cliff.jpg`、
+  焼き込み・動画UI写り込みのため不採用。ソース: (a) `choba_lake_3.jpg`（S1表紙と同一の
+  色付き写真。Fix round 2 でグレースケールの記事図版 `fig03_keirin_cliff.jpg` から
+  差し替えた際に本行の更新が漏れていた。成果物・S1の注記・照合記録はいずれも
+  `choba_lake_3.jpg` である）、
   (b) `fig06_aerial_quarries.jpg`（S4と同じ縦クロップでUI除去）、
   (c) 検出145ポリゴンの分布（`exp002_kitagi_summer_water_polygons_2025-08-02.geojson`、
   ゾーンラベル・訪問地点なし）。生成: `exp002_kitagi_foss4g2026_figures.py` の
@@ -227,7 +235,9 @@
 
 | ID | 内容 | 生成元 |
 |---|---|---|
+| P5 | 指数4パネル（NDWI / MNDWI / NDVI / 最終マスク） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p05_index_panels()`（`poster_f4_index_panels.png` のパネル画像を切り出し、英語ラベルとカラーバーを再描画） |
 | P6 | 4集中地帯を注記した検出分布図 | `scripts/generate_exp002_poster_figures.py` の F3 派生 |
+| P7 | 三スケール合成図（徒歩・上空・衛星の英語ラベルのみ） | 同スクリプトの `make_p07_three_scales()`（`choba_lake_3.jpg` + `fig06_aerial_quarries.jpg` + 公開GeoJSON） |
 | P8 | 検出分布図に、座標を確認できた訪問地点4点のみを重ねた図 | 公開GeoJSON + 訪問記 図4 の4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜） |
 | P12 | 「衛星 → 現地 → 地図」の3ステップフロー | 新規作図（図形3つ・細い矢印） |
 | S3・S4・S9 | 写真スロット（固定寸法） | 訪問記の写真、8月31日撮影分 |
@@ -246,6 +256,10 @@
 
 - 本文を **15 pt 未満へ自動縮小しない**。収まらない場合は footer またはスピーカーノートへ送る（投影文字列が多い S2・S5・S6・S11 で特に注意）
 - S5 の式、S6 の補足値（春季タイル・雲量）は、中心メッセージより**小さい evidence 階層**に置く
+- **図版内に焼き込んだ文字**も、スライド上の実効サイズで 15 pt を下回らない。実効サイズは
+  `native_pt × (配置幅 ÷ 画像実寸幅)` であり、判定は生成済みPPTXの `shape.width` と
+  画像実寸（px ÷ dpi）から復元して行う（`validate_..._presentation.py` の
+  `check_placed_font_sizes()`）。図版生成側の「配置幅を仮定した自己申告」では判定しない
 - 英語の通し読みで **S6 単体 2:30 以内・本編 17:30 前後**に収まることを確認する。語数計測は英語部分のみを対象とする
 - S6 の required spoken content と、各スライドのヘッジは英語の発話本文に置く（内部注記に留めない）
 
@@ -296,3 +310,14 @@
 | 季節差 | 独立スライドを廃止し S6 に統合 |
 | 配分 | 物語（S3・S4・S7・S9）370秒（35%）、手法＋結果（S5・S6）260秒（26%） |
 | 結論 | 「まだ地図にない」という欠落の指摘で終わらせない。**衛星で候補を絞る → 現地で確かめる → OSM に還す**というループの提案で閉じる（S12） |
+
+### 2026-08-24 全体レビュー（1回の修正ウェーブ）の反映
+
+| 指摘 | 対応 |
+|---|---|
+| Critical: 図版内文字の実効サイズ | 図版の自己検査が「配置幅220mm」というデッキが使っていない値を測っていた。実配置での実効サイズは 9.2〜14.7 pt で下限15pt未達。判定を validator へ移し（生成済みPPTXの `shape.width` と画像実寸から復元）、自前図版は native を引き上げ（P6・P8 20→32 pt、P12 24→27 pt）、S6・S8 の図版配置高さを 4.4/4.3 in → 4.8 in にした。実効は 16.0〜21.6 pt |
+| Critical: 流用図版 F1（S2） | 地理院タイルをネットワーク取得して描くため再生成せず、**配置を実寸の1.04倍**に拡大して native 15pt を実効 15.6pt にした。本文列が約3.8inに狭まるため S2 本文のみ 16pt（下限15ptは維持） |
+| Critical: 流用図版 F4（S5） | 配置拡大では下限を満たせない（実効15ptに配置高さ7.09inが必要でスライド全高7.5in）。同図のパネル画像を切り出し英語ラベルとカラーバーを大きく描き直した **P5** に差し替えた（ラスタは無加工・ネットワーク非依存） |
+| Important: 11枚版の検査不足 | タイトル・必須文字列・禁止表現・15pt下限・画像数・callout・pin画像・実効フォントサイズの検査群を、12枚版と再訪なし版の**両方**に走らせるようパラメータ化した（466 → 949 checks） |
+| Important: S7 Visual の不整合 | パネル(a)のソース名を成果物と一致させた（`fig03_keirin_cliff.jpg` → `choba_lake_3.jpg`）。新規図版一覧に P5・P7 を追加 |
+| Minor: S8 の呼称 | タイミング表の「見ていない95%」を規模の対比の表現に改めた（採用タイトルは変更なし） |

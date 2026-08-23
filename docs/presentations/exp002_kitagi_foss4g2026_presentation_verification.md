@@ -32,7 +32,7 @@
 ### 1.1 式についての注記（ルーリング）
 
 - **投影されるのは合成条件（閾値付きの規則）である。** `"Water if (NDWI > −0.2 OR MNDWI > −0.1) AND NOT (NDVI > 0.3)"` は S5 の投影本文のテキストフレームに文字列として置かれている（生成スクリプト `exp002_kitagi_foss4g2026_presentation.py` の `s05()`、508行目付近）。
-- **投影されないのは各指数の個別定義式である。** `NDWI = (Green − NIR) / (Green + NIR)` 等（報告書 §3.3）は、投影本文には置かず、図版 `poster_f4_index_panels.png` のパネル内注記としてのみ存在する。この切り分けは検査済み（`validate_..._presentation.py` の `check_evidence_hierarchy()` が `"(Green − NIR)"` 等が投影本文に無いことを確認する）。個別定義式は S5 の発話本文で「NDWI is built from the green band and the near-infrared band」のように言葉で説明する（内容契約 Slide 5・スピーカーノート S5参照）。
+- **投影されないのは各指数の個別定義式である。** `NDWI = (Green − NIR) / (Green + NIR)` 等（報告書 §3.3）は、投影本文には置かず、図版 `p05_index_panels.png`（ポスター図版 `poster_f4_index_panels.png` のパネル画像から再構成）のパネル内注記としてのみ存在する。この切り分けは検査済み（`validate_..._presentation.py` の `check_evidence_hierarchy()` が `"(Green − NIR)"` 等が投影本文に無いことを確認する）。個別定義式は S5 の発話本文で「NDWI is built from the green band and the near-infrared band」のように言葉で説明する（内容契約 Slide 5・スピーカーノート S5参照）。
 
 ### 1.2 最大水域ポリゴンの同一性検証（座標による、Task 7で追加）
 
@@ -77,19 +77,20 @@ SHA256 は `docs/presentations/images/` 内のファイルから本書執筆時�
 | `fig01_lake_stage.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig01_lake_stage.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `02da83402c64be3ed06acfefdb5f324c204428350e82b9534bfe4ad4303761ae` | S3（左） |
 | `fig05_drone_takeoff.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig05_drone_takeoff.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `f4ec2d10e0729a867af58f5cad32040a40f9be56eb24c6432e90ada6573353a3` | S4（右） |
 | `fig06_aerial_quarries.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig06_aerial_quarries.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `086a3714fee9792edbf29e60057fff10452028a584338f65bf0784582c4e29b2` | S4（左）・S7パネル(b)の原画像（`vbias=0.2768` で上寄りクロップ） |
-| `p06_clusters_map.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（入力: 公開GeoJSON、SHA256は下記2.1参照） | `48c608006ac2e041e3dbdbbd5683cf6e95398aedc514c068f4be086e281a4baf` | S6 |
-| `p07_three_scales.png` | 生成元: 同スクリプトの `make_p07_three_scales()`（入力: `choba_lake_3.jpg`・`fig06_aerial_quarries.jpg`・公開GeoJSON。英語ラベルのみの発表専用合成図） | `9f174e3f0712f76b872d56d83528439ffaa193582db555e011231032bbcc8ac3` | S7 |
-| `p08_visit_anchors_map.png` | 生成元: 同スクリプトの `make_p08_visit_anchors_map()`（入力: 公開GeoJSON＋訪問記図4の座標確認済み4地点） | `ce87b9685c60555ba4ec4ffb0dfb6ba56356462ff7276a59e57d69750b775cf7` | S8 |
-| `p12_loop_diagram.png` | 生成元: 同スクリプトの `make_p12_loop_diagram()`（新規作図、外部入力なし） | `eb389c37cbe8252eef7b6171144a62756a7b548e8f1614fefc353084c150d5ba` | S12 |
+| `p05_index_panels.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p05_index_panels()`（入力: `poster_f4_index_panels.png` のパネル画像4枚の切り出し。ラスタは無加工で、英語ラベルとカラーバーのみ大きく再描画。下記2.3参照） | `0baee6fe35ec978d91567fe8688d43272ded0304400c8713addff3469faab4c7` | S5 |
+| `p06_clusters_map.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（入力: 公開GeoJSON、SHA256は下記2.1参照） | `09aa8638622bb442dc078c3e722928cbd135f530f89555aa69d64b0be546a5b4` | S6 |
+| `p07_three_scales.png` | 生成元: 同スクリプトの `make_p07_three_scales()`（入力: `choba_lake_3.jpg`・`fig06_aerial_quarries.jpg`・公開GeoJSON。英語ラベルのみの発表専用合成図） | `1c3e8b52a1a322eb89236a0218565ccd48fd96f4891f7a9be3c08b2da07d3fb7` | S7 |
+| `p08_visit_anchors_map.png` | 生成元: 同スクリプトの `make_p08_visit_anchors_map()`（入力: 公開GeoJSON＋訪問記図4の座標確認済み4地点） | `add61bb21d7a7339c20ae8f31bce11b5c3d42fef016b651593222ccd564e26a0` | S8 |
+| `p12_loop_diagram.png` | 生成元: 同スクリプトの `make_p12_loop_diagram()`（新規作図、外部入力なし） | `d7d389b2fdc97829f427cdd29b25339ab16c9bf2113dce8cf9c7da9ad21ea45e` | S12 |
 | `placeholder_revisit_1.png` | 生成元: 記録なし（一回性の生成物。生成スクリプトは保存されていない）。8/31撮影分の実写に差し替えるまでの仮画像 | `f9a9175dd22b98cb607f5f67e1f0d1c84aa77b675aea26e96e35d6bccdd4ea33` | S9（左、実写未着手のため使用中） |
 | `placeholder_revisit_2.png` | 生成元: 同上。`placeholder_revisit_1.png` とバイト単位で同一（同一手順で生成された仮画像） | `f9a9175dd22b98cb607f5f67e1f0d1c84aa77b675aea26e96e35d6bccdd4ea33` | S9（右、実写未着手のため使用中） |
 | `poster_f1_study_area.png` | コピー元: `docs/posters/figures/exp002/poster_f1_study_area.png`（バイト一致確認済み） | `05880cde6a1cf2362a36d266d1fa8af0942fb0e92c269cb33fa50a2dab29230e` | S2 |
-| `poster_f4_index_panels.png` | コピー元: `docs/posters/figures/exp002/poster_f4_index_panels.png`（バイト一致確認済み） | `81b9b5dc9f1dffc38369606f3e2a5c91d21e75c63839972be577f761d57fc16a` | S5 |
+| `poster_f4_index_panels.png` | コピー元: `docs/posters/figures/exp002/poster_f4_index_panels.png`（バイト一致確認済み） | `81b9b5dc9f1dffc38369606f3e2a5c91d21e75c63839972be577f761d57fc16a` | （直接配置せず）`p05_index_panels.png` の入力 |
 | `poster_qr_repo.png` | コピー元: `docs/posters/figures/exp002/poster_qr_repo.png`（バイト一致確認済み） | `ff635ba17127bfca3ca228350a3b4b15b28c1925c1d640891aee1595b75880ee` | S11 |
 
 ### 2.1 P6・P7・P8・P12 の入力データ
 
-新規図版4点（P6・P7・P8・P12）は `docs/presentations/exp002_kitagi_foss4g2026_figures.py` が公開GeoJSONのみを入力として生成する（`tmp/`・ネットワークアクセスに依存しない）。
+新規図版4点（P6・P7・P8・P12）は `docs/presentations/exp002_kitagi_foss4g2026_figures.py` が公開GeoJSON（および P7 は既にリポジトリにある写真2点）を入力として生成する（`tmp/`・ネットワークアクセスに依存しない）。
 
 - 入力: `docs/results/exp002/exp002_kitagi_summer_water_polygons_2025-08-02.geojson`
 - SHA256: `c0b63dbdff47377731ef1fa9103e31df0414692c87aec73a9779c9dfd2121de8`
@@ -101,6 +102,24 @@ SHA256 は `docs/presentations/images/` 内のファイルから本書執筆時�
 
 - **`fig03_keirin_cliff.jpg`**（日本語記事用にグレースケール化された図版）: S1表紙・S7パネル(a)の初期案として使われていたが、色付きの現地写真であるべきという判断（本書「4. 意図的に境界を引いた主張」参照）により `choba_lake_3.jpg`（色付き）へ差し替え、参照が無くなったコピーを `images/` から削除した（コミット `031cfef`「fix: S1表紙・S3写真をグレースケール記事図版から色付き原本に差し替え」）。記事側の原本（`docs/articles/2026_chiri-koryu-10/figures/fig03_keirin_cliff.jpg`）は無変更で存在する
 - **`fig09_multiscale.png`**（日本語記事と共有される三スケール合成図。日本語キャプション焼き込み・動画UI写り込みあり）: S7の英語専用面という契約に抵触するため不採用とし、発表専用の `p07_three_scales.png`（英語ラベルのみ）に差し替え、参照が無くなったコピーを削除した（コミット `2fe3ba0`「fix: S7の英語のみ違反を解消（fig09_multiscale→p07_three_scales差し替え）」）
+
+### 2.3 P5（指数4パネル）の由来と、ポスター図版を直接使わない理由
+
+S5 の指数4パネルは、ポスター図版 `poster_f4_index_panels.png` を**そのまま配置していない**。
+
+- 理由: この図版の図中フォントは native 18 pt、実寸 8.82 × 8.50 in である。図中文字が
+  スライド上で15 pt に見えるには配置高さ 7.09 in が必要で、16:9スライドの全高 7.5 in から
+  タイトル帯を引いた領域には収まらない。**配置をどう拡大しても下限を満たせない**
+- 元データ（Sentinel-2 バンドのラスタ）はリポジトリに無く、生成元
+  `scripts/generate_exp002_poster_figures.py` の `make_f4_index_panels(res)` は
+  ネットワーク取得したラスタを必要とするため、より小さい実寸での再生成もできない
+- そこで `make_p05_index_panels()` が、既にリポジトリにある PNG から4枚のパネルの
+  **ラスタ部分のみを切り出し**、英語ラベル（文字列・カラーマップ・値域・目盛りは
+  ポスター側と同一）とカラーバーを大きく描き直す。ラスタは切り出しと表示時の縮小のみで、
+  描かれているデータはポスターと同一である
+- 切り出し座標が別のファイルに適用されないよう、生成関数は入力PNGの SHA256
+  （`81b9b5dc9f1dffc38369606f3e2a5c91d21e75c63839972be577f761d57fc16a`）を検査してから
+  切り出す。切り出し箱の各辺が白い帯を含まないことも実測で検査する
 
 ## 3. 2026-08-31 撮影記録（現地確認後に追記）
 
@@ -129,7 +148,7 @@ S9（"Two days ago I went back — a first look, not validation"）の2枚の写
 | 精度指標は算出していない | 適合率・再現率は算出していない。「no precision or recall yet」を明言する | 内容契約「主張境界」節、S6・S8・S10投影本文、報告書 §5.4-6・§6.3 |
 | 春季値は再現できない | 春季113件は当時の報告値であり、実行設定が保存されておらず現行パイプラインでは再現できない（再計算は180件）。差の原因は特定できていないため、季節を原因として断定しない | 内容契約 S6 required spoken content、報告書 §4.1 追記（2026-08-14）・§5.4-7 |
 | OSMは参考値 | OpenStreetMap照合は参考値であり正解データではない。距離は地物形状をEPSG:32653へ投影した形状間距離（重なる場合は0m）。投影面には件数・距離・感度を出さず、S8の1行のみに集約する | 内容契約「本発表の性格」節・S8 Notes-only boundary、`exp002_osm_comparison.md`（距離定義・集計表・「これは精度検証ではない」の明記） |
-| 指数の合成条件は投影、個別定義式は発話・図版内 | S5投影本文には閾値付きの合成条件（`Water if (NDWI > −0.2 OR MNDWI > −0.1) AND NOT (NDVI > 0.3)`）を置くが、`NDWI = (Green − NIR) / (Green + NIR)` 等の個別定義式は投影本文に置かず、発話とfigure内注記（`poster_f4_index_panels.png`）に限る | 本書1.1節、`exp002_kitagi_foss4g2026_presentation.py` の `s05()` コメント、validator `check_evidence_hierarchy()` |
+| 指数の合成条件は投影、個別定義式は発話・図版内 | S5投影本文には閾値付きの合成条件（`Water if (NDWI > −0.2 OR MNDWI > −0.1) AND NOT (NDVI > 0.3)`）を置くが、`NDWI = (Green − NIR) / (Green + NIR)` 等の個別定義式は投影本文に置かず、発話とfigure内注記（`p05_index_panels.png`）に限る | 本書1.1節、`exp002_kitagi_foss4g2026_presentation.py` の `s05()` コメント、validator `check_evidence_hierarchy()` |
 | S1・S3は色付き原本、上空写真はグレースケール | S1表紙・S3の2枚の写真は色付きの現地写真原本を使う。上空写真（`fig05_drone_takeoff.jpg`・`fig06_aerial_quarries.jpg`）は日本語記事用に変換されたグレースケール版のままで、色付き原本が存在しないため差し替えていない（本書執筆時にPillowで画素サンプリングして確認: `choba_lake_1.jpg`/`choba_lake_3.jpg`/`fig01_lake_stage.jpg` は mode RGB でチャンネル間に差があり、`fig05_drone_takeoff.jpg`/`fig06_aerial_quarries.jpg` は mode L で無彩色） | 内容契約 S1・S3の Visual 注記（Fix round 2・3）、本書2章の画像表 |
 | S7は英語専用の三スケール合成図 | S7には発表専用に新規生成した `p07_three_scales.png`（英語ラベルのみ）を使い、日本語記事と共有される `fig09_multiscale.png`（日本語キャプション焼き込み・動画UI写り込み）は使わない | 内容契約 S7 Visual 注記、本書2.2節 |
 | 再訪は現地確認の開始であり検証ではない | 8月31日の再訪は"a first look, not validation"であり、サンプリング設計されたaccuracy validationではない。写真は候補地点の存在を示すのみで、正誤の集計や丁場の同定は行わない | 内容契約 S9 Notes-only boundary・「8月31日の撮影に向けた事前準備」節、本書3章 |
@@ -140,7 +159,7 @@ S9（"Two days ago I went back — a first look, not validation"）の2枚の写
 以下はすべて `uv run python` 経由で実行する（リポジトリ規約）。図版・PPTX・検査スクリプトはこの順に再実行すればバイト単位で再現される決定的な出力を生成する（各スクリプトのdocstringに再現性の明記あり）。
 
 ```bash
-# 1. 新規図版（P6・P7・P8・P12）を images/ に生成
+# 1. 新規図版（P5・P6・P7・P8・P12）を images/ に生成
 uv run python docs/presentations/exp002_kitagi_foss4g2026_figures.py
 
 # 2. 口頭発表 PPTX を生成（12枚版）
@@ -183,21 +202,21 @@ pdftoppm -r 100 -png /tmp/t7/exp002_kitagi_foss4g2026_presentation_no_revisit.pd
 | S | 内容 | 所見 |
 |---|---|---|
 | 1 | 表紙 | 問題なし。左のタイトル・発表者情報と右の縦長写真が重ならず収まっている |
-| 2 | 島と遺産 | 問題なし。本文6行と2枚の地図（(a)(b)）がスライド内に収まり、地図同士も重ならない |
+| 2 | 島と遺産 | 問題なし（2026-08-24 再確認）。位置図を実寸の1.04倍まで拡大したため本文列は約3.8in・16ptになったが、本文7行（折り返し後14行）は下端に余裕を残して収まり、地図の島名ラベルは投影サイズで判読できる。地図同士・本文との重なりなし |
 | 3 | 徒歩スケール | 問題なし。左右2枚の写真が等幅で並び、下端・右端ともにスライド内 |
 | 4 | 上空スケール | 問題なし。左右2枚のグレースケール写真がスライド内に収まる |
-| 5 | 衛星スケール（手法） | 問題なし。右側2×2パネル（NDWI/MNDWI/NDVI/Final mask）とカラーバーが重ならず、本文と干渉しない |
-| 6 | 主結果（145） | 問題なし。左の "145" コールアウトと本文、右の分布図・4地区ラベル（north/west/centre/south-east）がいずれもスライド内。図の脚注（Copernicusクレジット）も左下に収まる |
+| 5 | 衛星スケール（手法） | 問題なし（2026-08-24 再確認）。図版を `p05_index_panels.png` に差し替え。右側2×2パネル（NDWI/MNDWI/NDVI/Final mask）のタイトルとカラーバー目盛りが投影サイズで判読でき、パネル同士・本文とも重ならない |
+| 6 | 主結果（145） | 問題なし（2026-08-24 再確認）。図版配置高さを4.8inへ拡大し図中文字を32ptへ引き上げた。4地区ラベル（north/west/centre/south-east）は互いに重ならず軸内に収まり、投影サイズで判読できる。左の "145" コールアウト・本文・脚注（Copernicusクレジット）との干渉なし |
 | 7 | 三スケール合成 | 問題なし。(a)(b)(c) 3パネルと "1 km" スケールバーがスライド内、パネル同士の重なりなし |
-| 8 | 見ていない95% | 問題なし。左の "5–6" "145" コールアウト、右の訪問地点地図（4ラベル＋凡例2種）がスライド内。凡例（▲ Georeferenced visit anchors / ■ Detected water polygons）がグラフ下端に収まる |
+| 8 | 訪問5〜6か所と検出145件の規模の対比 | 問題なし（2026-08-24 再確認）。図中文字を32ptへ引き上げ、4地点のラベルは2行折り返しで島東側の海域に縦に積み、リーダー線で標定した（互いに重ならず軸内。交差もしない）。凡例は1列2行にしてグラフ下端に収まる。左の "5–6" "145" コールアウト・本文との干渉なし |
 | 9 | 再訪（プレースホルダー） | 問題なし。2枚の "Placeholder — 2026-08-31 photograph" 枠が左右対称にスライド内。プレースホルダーであることが明示されている |
 | 10 | 限界と次の一手 | 問題なし。本文4行のみ、テキストがスライド幅に収まる |
 | 11 | オープンデータ | 問題なし。本文4行とQRコードが重ならず、下部の使用ライブラリ・データクレジット行もスライド内 |
-| 12 | ループ図 | 問題なし。本文6行と3ボックスのループ図（Satellite scan → Field visit → OpenStreetMap）がスライド内、矢印もボックス間に収まる |
+| 12 | ループ図 | 問題なし（2026-08-24 再確認）。図中文字を27ptへ引き上げても、本文6行と3ボックスのループ図（Satellite scan → Field visit → OpenStreetMap）はスライド内、キャプション同士の間隔・矢印の収まりに変化なし |
 
 **再訪なし版（`exp002_kitagi_foss4g2026_presentation_no_revisit.pptx`、11枚）**
 
-S1–S8 は `shasum -a 256` で12枚版のS1–S8とSHA256が完全一致し、バイト単位で同一の描画であることを確認した。S9（旧S10「限界と次の一手」）・S10（旧S11「オープンデータ」）・S11（旧S12「ループ図」）は、SHA256はページ番号の描画差分により完全一致しないが、目視で本文・図が12枚版の対応スライド（旧S10・S11・S12）と同一であり、ページ番号のみが繰り上がっていることを確認した（元のS9「再訪」が削除され後続が1つ前にずれている）。両版とも文字切れ・重なり・スライド外への逸脱は見つからなかった。
+S1–S8 は `shasum -a 256` で12枚版のS1–S8とSHA256が完全一致し、バイト単位で同一の描画であることを確認した（2026-08-24 の修正ウェーブ後に再確認済み。8ページすべて一致）。S9（旧S10「限界と次の一手」）・S10（旧S11「オープンデータ」）・S11（旧S12「ループ図」）は、SHA256はページ番号の描画差分により完全一致しないが、目視で本文・図が12枚版の対応スライド（旧S10・S11・S12）と同一であり、ページ番号のみが繰り上がっていることを確認した（元のS9「再訪」が削除され後続が1つ前にずれている）。両版とも文字切れ・重なり・スライド外への逸脱は見つからなかった。
 
 ### 6.2 グレースケール確認
 
@@ -266,10 +285,33 @@ uv run python docs/presentations/exp002_kitagi_foss4g2026_presentation.py --no-r
 uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py
 ```
 
-結果: `OK: 466 checks passed`。上記4コマンドの実行後に `git status --short` を確認したところ、差分は無かった（生成物は実行時刻に依存せずバイト単位で再現される）。すなわち `docs/presentations/` 配下の全生成物（PPTX 2種・図版4点）は再実行前と再実行後でバイト単位で一致した。
+結果: `OK: 949 checks passed`（2026-08-24 の修正ウェーブで検査群を両デッキへパラメータ化し、図中文字の実効サイズ検査を追加したため 466 → 949）。上記4コマンドの実行後に `git status --short` を確認したところ、差分は無かった（生成物は実行時刻に依存せずバイト単位で再現される）。すなわち `docs/presentations/` 配下の全生成物（PPTX 2種・図版4点）は再実行前と再実行後でバイト単位で一致した。
 
 ### 6.5 登壇前に残っている作業
 
 - **S9の2枚の写真は依然プレースホルダーである。** 差し替え手順は「8月31日以降の差し替え手順」節（ブリーフ）どおり: (1) 撮影した写真を `docs/presentations/images/revisit_1.jpg` / `revisit_2.jpg` として配置する（固定寸法スロットに合わせて中央クロップされる）、(2) `uv run python docs/presentations/exp002_kitagi_foss4g2026_presentation.py` を再実行する、(3) 本書 3章の8/31撮影記録テーブル（座標・撮影時刻・撮影方向・対象ポリゴンID）を実測値で埋め、スピーカーノート・内容契約に残る `[UPDATE AFTER 2026-08-31]` の申し送りを除去する
 - **現地確認（8月31日の再訪）が実施できなかった場合は、11枚版（`exp002_kitagi_foss4g2026_presentation_no_revisit.pptx`、S9を除く）を本番として使用する**
 - **英語通し読みの時間は未実測である。** 6.3節の秒数はすべて145wpmからの算出値であり、発表者本人が声に出して計測するまでは実測値として扱わない
+
+## 7. 2026-08-24 修正ウェーブの検証（図中文字の実効サイズ）
+
+全体レビューの Critical 指摘（図版の自己検査が実配置と異なる幅を測っていた）への対応として、
+図中文字の**スライド上の実効サイズ**を生成済みPPTXから実測した。実効サイズ =
+`native_pt × (配置幅 ÷ 画像実寸幅)`、実寸幅 = `ピクセル幅 ÷ 画像に記録された dpi`。
+
+| 図版 / スライド | native pt | 修正前 配置倍率 | 修正前 実効pt | 修正後 配置倍率 | 修正後 実効pt |
+|---|---:|---:|---:|---:|---:|
+| `poster_f1_study_area.png` / S2 | 15（最小） | 0.764 | 11.46 | 1.040 | **15.60** |
+| `poster_f4_index_panels.png` → `p05_index_panels.png` / S5 | 18 | 0.564 | 10.15 | 0.889 | **16.00** |
+| `p06_clusters_map.png` / S6 | 20 → 32 | 0.473 | 9.46 | 0.516 | **16.52** |
+| `p07_three_scales.png` / S7 | 21 | 1.026 | 21.55 | 1.026 | **21.55** |
+| `p08_visit_anchors_map.png` / S8 | 20 → 32 | 0.461 | 9.22 | 0.518 | **16.57** |
+| `p12_loop_diagram.png` / S12 | 24 → 27 | 0.612 | 14.69 | 0.612 | **16.51** |
+
+検査の実効性（mutation test、いずれも確認後に復旧してバイト一致を再確認）:
+
+- native を下げる経路: P6 の宣言と実装を 32pt → 24pt にすると
+  `12枚版/再訪なし版 S6 ... 実効サイズ 12.41pt が 下限 15pt 未満（native 24pt × 配置倍率 0.517）` で失敗した
+- 配置を縮める経路: native を触らず S6 の図版配置高さを 4.8in → 4.0in にすると
+  `実効サイズ 13.77pt ...（native 32pt × 配置倍率 0.430）` で失敗した
+  （4.4in では 15.2pt で合格する。設計に余裕を持たせているため）

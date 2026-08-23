@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 """FOSS4G 2026 北木島 口頭発表の成果物を検査する。
 
-図版（P6・P8・P12）、PPTX 本体（スライド数・タイトル・画像数・callout の文字サイズ）、
-再訪なし版（`--no-revisit` で生成される11枚版）、スピーカーノート Markdown
-（構造・英語語数・S6 の required spoken content・再訪ノートの申し送り）と
-PPTX ノートペインとの同期を検査する。
-Task 6 の照合記録（`exp002_kitagi_foss4g2026_presentation_verification.md`）についても、
-数値の出典・images/ 全ファイルのSHA256・8/31撮影テーブルの見出しを検査する
-（`check_verification_record()`）。
+投影面に関する検査群（スライド数・スライド寸法・タイトル文字列と28pt・必須文字列・
+禁止表現・CJK混入・evidence階層・本文15pt下限・footer 11〜12pt・画像数・callout の
+文字サイズ・pin した画像のバイト一致・**図中文字の実効サイズ**・実効解像度・
+装飾効果の不使用）は、**12枚版と再訪なし版（11枚）の両方**に対して同じものを走らせる
+（`main()` の `DECKS`）。以前は再訪なし版がスライド数と1文字列しか検査されていなかった。
+
+図中文字の実効サイズは、生成済みPPTXの `shape.width` と画像実寸（px ÷ dpi）から
+配置倍率を復元し、図版生成スクリプトが宣言した native サイズ（`NATIVE_FONT_SIZES`）に
+掛けて求める（`check_placed_font_sizes()`）。配置幅を仮定した自己申告は使わない。
+
+このほか、スピーカーノート Markdown（構造・英語語数・S6 の required spoken content・
+再訪ノートの申し送り）と PPTX ノートペインとの同期、Task 6 の照合記録
+（`exp002_kitagi_foss4g2026_presentation_verification.md`）の数値の出典・
+images/ 全ファイルのSHA256・8/31撮影テーブルの見出しを検査する。
 
 使い方: uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py
 """
@@ -17,11 +24,16 @@ from __future__ import annotations
 import hashlib
 import re
 import sys
+import zipfile
 from pathlib import Path
 
 from PIL import Image
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
+
+# 図版の native フォントサイズ宣言と 15pt 下限は図版生成スクリプトを正本とする
+# （検査側に数表を複製すると、複製の方が古くなっても検査が通ってしまう）。
+from exp002_kitagi_foss4g2026_figures import NATIVE_FONT_SIZES, SLIDE_PT_FLOOR
 
 BASE = Path(__file__).resolve().parent
 IMAGES = BASE / "images"
@@ -79,12 +91,16 @@ REVISIT_UPDATE_MARKER = "[UPDATE AFTER 2026-08-31]"
 # S9（再訪）が抜けるため、位置9以降は内容契約の番号とずれる。
 NO_REVISIT_CONTRACT_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12]
 
-# 配置幅 220 mm で 200 dpi を満たす最小ピクセル幅
-MIN_WIDTH_PX = int(220 / 25.4 * 200)  # 1732
+# 投影時の実効解像度の下限（dpi）。「配置幅あたりのピクセル数」で判定する。
+# 以前はここに「配置幅220mmで200dpiを満たす最小ピクセル幅（1732px）」という定数が
+# あったが、220mm はデッキが実際には使っていない配置幅であり、図中フォントの
+# 自己申告と同じ誤りだった（Final review の Critical 指摘）。実配置は
+# 生成済みPPTXの `shape.width` から読む（`check_placed_resolution`）。
+MIN_PLACED_DPI = 200.0
 
 FIGURES = (
-    "p06_clusters_map.png", "p07_three_scales.png", "p08_visit_anchors_map.png",
-    "p12_loop_diagram.png",
+    "p05_index_panels.png", "p06_clusters_map.png", "p07_three_scales.png",
+    "p08_visit_anchors_map.png", "p12_loop_diagram.png",
 )
 
 # バイト単位で固定する写真・図版のソース。キーはスライド番号、値はそのスライドの
@@ -170,6 +186,33 @@ FORBIDDEN: list[tuple[str, str | None, str]] = [
 
 BODY_MIN_PT = 15  # 生成スクリプト側の下限（exp002_kitagi_foss4g2026_presentation.py と同値）
 
+# 16:9 スライドの EMU 寸法（生成スクリプトの SLIDE_W / SLIDE_H と同値）。
+SLIDE_W_EMU = 12192000
+SLIDE_H_EMU = 6858000
+
+# タイトルと footer / スライド番号の文字サイズ（生成スクリプトの SZ_TITLE・SZ_FOOTER・SZ_NUM）。
+TITLE_PT = 28.0
+FOOTER_PT_RANGE = (11.0, 12.0)
+
+# 投影面は英語のみ（内容契約）。日本語が焼き込まれた図版・訳文の混入を検出する。
+# `·` `–` `—` `−` `≥` `²` などの非ASCII約物は既に投影面で使われているため、
+# 「非ASCII禁止」ではなく CJK ブロック（漢字・かな・全角約物・全角英数）を禁止する。
+CJK_PATTERN = re.compile(
+    "["
+    "\u3000-\u303f"  # CJK 約物（、。「」等）
+    "\u3040-\u309f"  # ひらがな
+    "\u30a0-\u30ff"  # カタカナ
+    "\u4e00-\u9fff"  # CJK 統合漢字
+    "\uff00-\uffef"  # 全角英数・半角カナ
+    "]"
+)
+
+# 装飾効果の禁止（DESIGN_GUIDE: 影・グラデーションを使わない）。
+# 検査対象は作図した内容そのもの（`ppt/slides/*.xml`）に限る。python-pptx の既定
+# テーマ `ppt/theme/theme1.xml` は fmtScheme に gradFill / outerShdw を含むため、
+# パッケージ全体を対象にすると常に失敗してしまう。
+FORBIDDEN_XML_EFFECTS = ("outerShdw", "gradFill")
+
 errors: list[str] = []
 checks = 0
 
@@ -182,49 +225,112 @@ def check(cond: bool, msg: str) -> None:
 
 
 def check_figures() -> None:
-    """P6・P8・P12 の図版が存在し、配置幅220mm・200dpiの下限を満たすことを確認する。"""
+    """自前生成の図版が存在し、実寸計算に必要な dpi が記録されていることを確認する。
+
+    投影時の精細さ（実効dpi）は配置幅に依存するため、ここではなく
+    `check_placed_resolution()` が生成済みPPTXの配置幅から判定する。
+    """
     for name in FIGURES:
         path = IMAGES / name
         check(path.is_file(), f"図版が存在しない: {name}")
-        if path.is_file():
-            width, height = Image.open(path).size
-            check(width >= MIN_WIDTH_PX, f"{name}: 幅 {width}px が下限 {MIN_WIDTH_PX}px 未満")
-            check(height > 0, f"{name}: 高さが不正")
+        if not path.is_file():
+            continue
+        with Image.open(path) as img:
+            width, height = img.size
+            dpi = img.info.get("dpi")
+        check(width > 0 and height > 0, f"{name}: 画像寸法が不正")
+        check(
+            dpi is not None and dpi[0] > 0,
+            f"{name}: PNG に dpi が記録されていない（実寸が計算できない）",
+        )
 
 
-def check_pptx_titles() -> None:
-    """PPTX が12枚のスライドを持ち、各スライドのタイトル用シェイプ（name="Title"）が
-    内容契約のタイトル文字列と完全一致し、数字で始まっていないことを確認する。
+def deck_slides(label: str, path: Path, contract_numbers: list[int]) -> dict[int, object] | None:
+    """デッキを開き、内容契約のスライド番号 → スライドの対応表を返す。
+
+    12枚版は「位置 = 契約番号」だが、再訪なし版（11枚）は S9 が抜けるため位置が
+    ずれる。以降の検査はすべてこの対応表を通して契約番号で参照する
+    （位置で素朴に添字を取ると、S10 の位置に S9 の内容が載っていても気づけない）。
+    スライド数とスライド寸法もここで確認する。
+    """
+    check(path.is_file(), f"{label}: PPTX が存在しない")
+    if not path.is_file():
+        return None
+    prs = Presentation(path)
+    slides = list(prs.slides)
+    check(
+        len(slides) == len(contract_numbers),
+        f"{label}: スライド数が {len(contract_numbers)} でない: {len(slides)}",
+    )
+    check(
+        prs.slide_width == SLIDE_W_EMU and prs.slide_height == SLIDE_H_EMU,
+        f"{label}: スライド寸法が {SLIDE_W_EMU}x{SLIDE_H_EMU} EMU (16:9) でない: "
+        f"{prs.slide_width}x{prs.slide_height}",
+    )
+    return {cn: slides[i] for i, cn in enumerate(contract_numbers) if i < len(slides)}
+
+
+def check_titles(label: str, by_contract: dict[int, object]) -> None:
+    """各スライドのタイトル用シェイプ（name="Title"）が内容契約のタイトル文字列と
+    完全一致し、数字で始まっておらず、28pt であることを確認する。
 
     ブリーフの原案（`title in texts[i]` による部分一致＋番号プレフィックスの雑な検出）は
     誤検出・見逃しの両方向で信頼できないため採用しない。代わりにタイトル用シェイプを
     name="Title" で明示的に識別し、テキストの完全一致と先頭文字が数字でないことを
     それぞれ独立に検査する。
     """
-    check(PPTX.is_file(), "PPTX が存在しない")
-    if not PPTX.is_file():
-        return
-
-    prs = Presentation(PPTX)
-    check(len(prs.slides) == 12, f"スライド数が12でない: {len(prs.slides)}")
-
-    slides = list(prs.slides)
-    for i, expected in enumerate(TITLES):
-        label = f"S{i + 1}"
-        if i >= len(slides):
-            check(False, f"{label}: スライドが存在しない")
-            continue
+    for n, expected in enumerate(TITLES, start=1):
+        slide = by_contract.get(n)
+        if slide is None:
+            continue  # このデッキに含まれないスライド（再訪なし版の S9）
+        tag = f"{label} S{n}"
         title_shapes = [
-            sh for sh in slides[i].shapes
+            sh for sh in slide.shapes
             if sh.has_text_frame and sh.name == "Title"
         ]
         check(
             len(title_shapes) == 1,
-            f"{label}: タイトル用シェイプ(name='Title')が1つでない: {len(title_shapes)}個",
+            f"{tag}: タイトル用シェイプ(name='Title')が1つでない: {len(title_shapes)}個",
         )
-        text = title_shapes[0].text_frame.text if len(title_shapes) == 1 else ""
-        check(text == expected, f"{label}: タイトルが完全一致しない — 期待 '{expected[:40]}...'")
-        check(not text[:1].isdigit(), f"{label}: タイトル先頭が数字で始まっている")
+        if len(title_shapes) != 1:
+            continue
+        text = title_shapes[0].text_frame.text
+        check(text == expected, f"{tag}: タイトルが完全一致しない — 期待 '{expected[:40]}...'")
+        check(not text[:1].isdigit(), f"{tag}: タイトル先頭が数字で始まっている")
+        sizes = [
+            run.font.size.pt
+            for para in title_shapes[0].text_frame.paragraphs
+            for run in para.runs
+            if run.font.size is not None
+        ]
+        check(bool(sizes), f"{tag}: タイトルの文字サイズが設定されていない")
+        for pt in sizes:
+            check(pt == TITLE_PT, f"{tag}: タイトルが {pt}pt — {TITLE_PT:g}pt でない")
+
+
+def check_footer_sizes(label: str, by_contract: dict[int, object]) -> None:
+    """footer とスライド番号のランが 11〜12pt の範囲にあることを確認する。
+
+    本文下限（15pt）の例外として `check_font_floor` が 12pt 以下を許容しているのは
+    「footer とスライド番号として意図されたもの」だけである。その意図が本当に
+    守られているか（例: 本文が誤って footer 用シェイプへ流れ込んでいないか）を、
+    シェイプ名で識別して独立に検査する。
+    """
+    lo, hi = FOOTER_PT_RANGE
+    for cn, slide in sorted(by_contract.items()):
+        for shape in slide.shapes:
+            if not shape.has_text_frame or shape.name not in ("Footer", "SlideNumber"):
+                continue
+            for para in shape.text_frame.paragraphs:
+                for run in para.runs:
+                    if run.font.size is None or not run.text.strip():
+                        continue
+                    pt = run.font.size.pt
+                    check(
+                        lo <= pt <= hi,
+                        f"{label} S{cn}: {shape.name} が {pt}pt — "
+                        f"{lo:g}〜{hi:g}pt の範囲外 '{run.text[:30]}'",
+                    )
 
 
 def _slide_text(slide) -> str:
@@ -234,23 +340,20 @@ def _slide_text(slide) -> str:
     )
 
 
-def check_required_strings(prs: Presentation) -> None:
+def check_required_strings(label: str, by_contract: dict[int, object]) -> None:
     """各スライドの投影文字列が、内容契約の `Projected body` から転記した
     `REQUIRED_STRINGS` の全文字列を部分文字列として含むことを確認する。
     """
-    slides = list(prs.slides)
-    for i, needles in REQUIRED_STRINGS.items():
-        label = f"S{i}"
-        if i > len(slides):
-            for needle in needles:
-                check(False, f"{label}: スライドが存在しない（必須文字列 '{needle}' を検査不可）")
-            continue
-        text = _slide_text(slides[i - 1])
+    for cn, needles in REQUIRED_STRINGS.items():
+        slide = by_contract.get(cn)
+        if slide is None:
+            continue  # このデッキに含まれないスライド（再訪なし版の S9）
+        text = _slide_text(slide)
         for needle in needles:
-            check(needle in text, f"{label}: 必須文字列が見つからない — '{needle}'")
+            check(needle in text, f"{label} S{cn}: 必須文字列が見つからない — '{needle}'")
 
 
-def check_forbidden(prs: Presentation) -> None:
+def check_forbidden(label: str, by_contract: dict[int, object]) -> None:
     """`FORBIDDEN` の禁止表現が、許容される否定形（例: 'not ... confirmed quarry
     ponds'）の範囲外で裸に使われていないことを確認する。
 
@@ -259,7 +362,7 @@ def check_forbidden(prs: Presentation) -> None:
     'not individually field-confirmed quarry ponds'）。それ以外の一致は禁止表現の
     使用として検査失敗にする。
     """
-    for i, slide in enumerate(prs.slides, start=1):
+    for cn, slide in sorted(by_contract.items()):
         text = _slide_text(slide)
         for positive, allowed, desc in FORBIDDEN:
             allowed_spans = [m.span() for m in re.finditer(allowed, text)] if allowed else []
@@ -269,11 +372,27 @@ def check_forbidden(prs: Presentation) -> None:
             ]
             check(
                 not bad,
-                f"S{i}: 禁止表現 '{bad[0].group(0) if bad else ''}' — {desc}",
+                f"{label} S{cn}: 禁止表現 '{bad[0].group(0) if bad else ''}' — {desc}",
             )
 
 
-def check_evidence_hierarchy(prs: Presentation) -> None:
+def check_english_only(label: str, by_contract: dict[int, object]) -> None:
+    """投影面のテキストに CJK（漢字・かな・全角約物）が混入していないことを確認する。
+
+    投影面は英語のみという内容契約の制約は、これまで機械検査されていなかった
+    （日本語キャプションが焼き込まれた図版の混入は過去に実際に起きている）。
+    ノートペインは英日併記が正であるため検査対象にしない。
+    """
+    for cn, slide in sorted(by_contract.items()):
+        text = _slide_text(slide)
+        found = CJK_PATTERN.findall(text)
+        check(
+            not found,
+            f"{label} S{cn}: 投影テキストに CJK 文字がある — {''.join(sorted(set(found)))!r}",
+        )
+
+
+def check_evidence_hierarchy(label: str, by_contract: dict[int, object]) -> None:
     """evidence 階層を検査する。
 
     - S5: 式（`(Green − NIR)` 等）は投影本文のテキストフレームに置かず、図版内に
@@ -281,11 +400,14 @@ def check_evidence_hierarchy(prs: Presentation) -> None:
     - S6: 春季タイル（`113`）は主結果（`145`）より小さい文字サイズであることを
       確認する。
     """
-    slides = list(prs.slides)
-    if len(slides) >= 5:
-        s5_text = _slide_text(slides[4])
+    s5 = by_contract.get(5)
+    if s5 is not None:
+        s5_text = _slide_text(s5)
         for formula in ("(Green − NIR)", "(Green + NIR)", "(Green − SWIR)"):
-            check(formula not in s5_text, f"S5: 式 '{formula}' が投影本文にある（図版内へ置く）")
+            check(
+                formula not in s5_text,
+                f"{label} S5: 式 '{formula}' が投影本文にある（図版内へ置く）",
+            )
 
     def max_font_pt(slide, needle: str) -> float:
         sizes = [
@@ -296,39 +418,35 @@ def check_evidence_hierarchy(prs: Presentation) -> None:
         ]
         return max(sizes) if sizes else 0.0
 
-    if len(slides) >= 6:
-        s6 = slides[5]
+    s6 = by_contract.get(6)
+    if s6 is not None:
         check(
             max_font_pt(s6, "145") > max_font_pt(s6, "113"),
-            "S6: 春季113が主結果145以上の大きさになっている",
+            f"{label} S6: 春季113が主結果145以上の大きさになっている",
         )
 
 
-def check_image_counts(prs: Presentation) -> None:
+def check_image_counts(label: str, by_contract: dict[int, object]) -> None:
     """各スライドの画像（PICTURE シェイプ）数が `EXPECTED_IMAGES` と一致することを確認する。
 
     未記載のスライド（S10）は期待値0（意図的にテキストのみ・余白を広く取る）。
     """
-    for i, slide in enumerate(prs.slides, start=1):
+    for cn, slide in sorted(by_contract.items()):
         n_pic = sum(1 for sh in slide.shapes if sh.shape_type == MSO_SHAPE_TYPE.PICTURE)
-        expected = EXPECTED_IMAGES.get(i, 0)
-        check(n_pic == expected, f"S{i}: 画像数 {n_pic} が期待値 {expected} と不一致")
+        expected = EXPECTED_IMAGES.get(cn, 0)
+        check(n_pic == expected, f"{label} S{cn}: 画像数 {n_pic} が期待値 {expected} と不一致")
 
 
-def check_callout_range(prs: Presentation) -> None:
+def check_callout_range(label: str, by_contract: dict[int, object]) -> None:
     """S6 の `145`、S8 の `5–6`・`145` の callout が 60〜72pt の範囲にあることを確認する。
 
     Task 3 レビューの Minor 指摘: この範囲を固定する検査がなく、将来の編集で
     callout が意図せず縮小・拡大されても検査が通り続けてしまう問題への対処。
     """
-    slides = list(prs.slides)
-    for idx, needles in CALLOUT_TARGETS.items():
-        label = f"S{idx}"
-        if idx > len(slides):
-            for needle in needles:
-                check(False, f"{label}: callout '{needle}' を検査不可（スライドが存在しない）")
+    for cn, needles in CALLOUT_TARGETS.items():
+        slide = by_contract.get(cn)
+        if slide is None:
             continue
-        slide = slides[idx - 1]
         for needle in needles:
             sizes = [
                 run.font.size.pt
@@ -336,15 +454,16 @@ def check_callout_range(prs: Presentation) -> None:
                 for para in sh.text_frame.paragraphs for run in para.runs
                 if run.text.strip() == needle and run.font.size is not None
             ]
-            check(bool(sizes), f"{label}: callout '{needle}' の文字サイズが見つからない")
+            check(bool(sizes), f"{label} S{cn}: callout '{needle}' の文字サイズが見つからない")
             for pt in sizes:
                 check(
                     CALLOUT_MIN_PT <= pt <= CALLOUT_MAX_PT,
-                    f"{label}: callout '{needle}' が {pt}pt — {CALLOUT_MIN_PT:.0f}〜{CALLOUT_MAX_PT:.0f}pt の範囲外",
+                    f"{label} S{cn}: callout '{needle}' が {pt}pt — "
+                    f"{CALLOUT_MIN_PT:.0f}〜{CALLOUT_MAX_PT:.0f}pt の範囲外",
                 )
 
 
-def check_pinned_photo_sources(prs: Presentation) -> None:
+def check_pinned_photo_sources(label: str, by_contract: dict[int, object]) -> None:
     """`PINNED_PHOTO_SOURCES` に列挙したスライドの PICTURE シェイプが、意図した
     ファイルとバイト単位で一致することを確認する。
 
@@ -353,17 +472,14 @@ def check_pinned_photo_sources(prs: Presentation) -> None:
     付き図版（`fig09_multiscale.png`）への意図しないフォールバック・混入を検出
     できない（Fix round 1・Fix round 2 のレビュー指摘の再発防止）。
     """
-    slides = list(prs.slides)
-    for idx, expected_names in PINNED_PHOTO_SOURCES.items():
-        label = f"S{idx}"
-        if idx > len(slides):
-            for name in expected_names:
-                check(False, f"{label}: スライドが存在しない（画像 '{name}' を検査不可）")
+    for cn, expected_names in PINNED_PHOTO_SOURCES.items():
+        slide = by_contract.get(cn)
+        if slide is None:
             continue
-        pics = [sh for sh in slides[idx - 1].shapes if sh.shape_type == MSO_SHAPE_TYPE.PICTURE]
+        pics = [sh for sh in slide.shapes if sh.shape_type == MSO_SHAPE_TYPE.PICTURE]
         check(
             len(pics) == len(expected_names),
-            f"{label}: PICTUREシェイプが{len(expected_names)}個でない: {len(pics)}個",
+            f"{label} S{cn}: PICTUREシェイプが{len(expected_names)}個でない: {len(pics)}個",
         )
         if len(pics) != len(expected_names):
             continue
@@ -374,29 +490,122 @@ def check_pinned_photo_sources(prs: Presentation) -> None:
                 continue
             check(
                 pic.image.blob == expected_path.read_bytes(),
-                f"{label}: 画像が {name} と一致しない（バイト比較。意図しない差し替え・"
+                f"{label} S{cn}: 画像が {name} と一致しない（バイト比較。意図しない差し替え・"
                 "フォールバックの可能性）",
             )
 
 
-def check_no_revisit_variant() -> None:
-    """`--no-revisit` で生成される11枚版が存在し、S9 が除外されていることを確認する。"""
-    if not NO_REVISIT_PPTX.is_file():
-        check(False, "再訪なし版のPPTXが存在しない")
+def _images_by_blob() -> dict[bytes, str]:
+    """`images/` 配下のファイル内容 → ファイル名の対応表。
+
+    PPTX 内の画像パートはファイル名を保持しない（`image1.png` 等に付け替えられる）ため、
+    配置画像がどの図版なのかはバイト比較でしか特定できない
+    （`check_pinned_photo_sources` と同じ手法）。
+    """
+    return {p.read_bytes(): p.name for p in sorted(IMAGES.iterdir()) if p.is_file()}
+
+
+def check_placed_font_sizes(label: str, by_contract: dict[int, object]) -> None:
+    """図版内に焼き込まれた文字の**スライド上の実効サイズ**が15pt下限を満たすことを確認する。
+
+    実効サイズ = native_pt × 配置倍率、配置倍率 = 配置幅 ÷ 画像実寸幅
+    （実寸幅 = ピクセル幅 ÷ 画像に記録された dpi）。配置幅は生成済みPPTXの
+    `shape.width` から読むので、レイアウトを変えた瞬間に検査値が追随する。
+
+    以前は図版生成スクリプトが「配置幅220mm」という**デッキが実際には使っていない値**で
+    自己申告していたため、実効 9.2〜14.7pt の図版が下限を満たしていると誤って報告して
+    いた（Final review の Critical 指摘）。native サイズの正本は図版生成スクリプトの
+    `NATIVE_FONT_SIZES` で、ここには複製しない。
+    """
+    blob_to_name = _images_by_blob()
+    exercised: set[str] = set()
+    for cn, slide in sorted(by_contract.items()):
+        for sh in slide.shapes:
+            if sh.shape_type != MSO_SHAPE_TYPE.PICTURE:
+                continue
+            name = blob_to_name.get(sh.image.blob)
+            check(
+                name is not None,
+                f"{label} S{cn}: 配置画像が images/ のどのファイルとも一致しない",
+            )
+            if name is None or name not in NATIVE_FONT_SIZES:
+                continue  # 写真は焼き込み文字を持たないため対象外
+            exercised.add(name)
+            px_w = sh.image.size[0]
+            dpi_x = sh.image.dpi[0]
+            check(dpi_x > 0, f"{label} S{cn} {name}: dpi が取得できない")
+            if not dpi_x:
+                continue
+            scale = sh.width.inches / (px_w / dpi_x)
+            for element, native_pt in sorted(NATIVE_FONT_SIZES[name].items()):
+                slide_pt = native_pt * scale
+                check(
+                    slide_pt >= SLIDE_PT_FLOOR,
+                    f"{label} S{cn} {name}: '{element}' の実効サイズ {slide_pt:.2f}pt が "
+                    f"下限 {SLIDE_PT_FLOOR:g}pt 未満（native {native_pt:g}pt × "
+                    f"配置倍率 {scale:.3f}）",
+                )
+
+    check(
+        exercised == set(NATIVE_FONT_SIZES),
+        f"{label}: native フォントサイズを宣言した図版のうち "
+        f"{sorted(set(NATIVE_FONT_SIZES) - exercised)} がデッキに配置されていない",
+    )
+
+
+def check_placed_resolution(label: str, by_contract: dict[int, object]) -> None:
+    """配置された図版の実効解像度（配置幅あたりのピクセル数）が下限を満たすことを確認する。
+
+    実効dpi = ピクセル幅 ÷ 配置幅(インチ)。図版を小さく置けば実効dpiは上がり、
+    大きく置けば下がる。`MIN_PLACED_DPI` は投影・印刷で粗さが見えない目安。
+    """
+    blob_to_name = _images_by_blob()
+    for cn, slide in sorted(by_contract.items()):
+        for sh in slide.shapes:
+            if sh.shape_type != MSO_SHAPE_TYPE.PICTURE:
+                continue
+            name = blob_to_name.get(sh.image.blob)
+            if name is None or name not in NATIVE_FONT_SIZES:
+                continue  # 写真スロットは元写真の画素数で決まるため対象外
+            placed_in = sh.width.inches
+            placed_dpi = sh.image.size[0] / placed_in if placed_in else 0.0
+            check(
+                placed_dpi >= MIN_PLACED_DPI,
+                f"{label} S{cn} {name}: 実効解像度 {placed_dpi:.0f}dpi が "
+                f"下限 {MIN_PLACED_DPI:.0f}dpi 未満（{sh.image.size[0]}px / {placed_in:.2f}in）",
+            )
+
+
+def check_no_decoration_effects(label: str, path: Path) -> None:
+    """作図したスライドXMLに影・グラデーション（`outerShdw` / `gradFill`）が無いことを確認する。
+
+    検査対象は `ppt/slides/*.xml` のみ。python-pptx の既定テーマ
+    （`ppt/theme/theme1.xml`）は fmtScheme にこれらを含むため、パッケージ全体を
+    対象にすると「作図していない装飾」で失敗してしまう。
+    """
+    if not path.is_file():
+        check(False, f"{label}: PPTX が存在しない（装飾効果を検査不可）")
         return
-    prs2 = Presentation(NO_REVISIT_PPTX)
-    check(len(prs2.slides) == 11, f"再訪なし版のスライド数が11でない: {len(prs2.slides)}")
-    t2 = "\n".join(sh.text_frame.text for s in prs2.slides for sh in s.shapes if sh.has_text_frame)
-    check("2026-08-31" not in t2, "再訪なし版に再訪スライドが残っている")
+    with zipfile.ZipFile(path) as z:
+        names = [n for n in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)]
+        check(bool(names), f"{label}: ppt/slides/*.xml が見つからない")
+        for member in sorted(names):
+            xml = z.read(member).decode("utf-8")
+            for effect in FORBIDDEN_XML_EFFECTS:
+                check(
+                    effect not in xml,
+                    f"{label} {member}: 装飾効果 '{effect}' が使われている",
+                )
 
 
-def check_font_floor(prs: Presentation) -> None:
+def check_font_floor(label: str, by_contract: dict[int, object]) -> None:
     """本文の文字サイズが15pt未満に自動縮小されていないことを確認する。
 
     数字のみのラン（スライド番号や callout の裸の数値）と 12pt 以下のラン
-    （footer・スライド番号として意図されたもの）は例外として許容する。
+    （footer・スライド番号として意図されたもの。範囲は `check_footer_sizes` が
+    シェイプ名で独立に確認する）は例外として許容する。
     """
-    for i, slide in enumerate(prs.slides, start=1):
+    for cn, slide in sorted(by_contract.items()):
         for shape in slide.shapes:
             if not shape.has_text_frame:
                 continue
@@ -408,8 +617,24 @@ def check_font_floor(prs: Presentation) -> None:
                     is_number_or_footer = run.text.strip().isdigit() or pt <= 12
                     check(
                         pt >= BODY_MIN_PT or is_number_or_footer,
-                        f"S{i}: 本文 {pt}pt が {BODY_MIN_PT}pt 未満 — '{run.text[:30]}'",
+                        f"{label} S{cn}: 本文 {pt}pt が {BODY_MIN_PT}pt 未満 — '{run.text[:30]}'",
                     )
+
+
+def check_no_revisit_variant() -> None:
+    """再訪なし版（11枚）から S9 が確実に抜けていることを確認する。
+
+    スライド数・タイトル・必須文字列・禁止表現・15pt下限・画像数・callout・
+    pin した画像・実効フォントサイズは、12枚版と同じ検査群を両デッキに対して
+    走らせている（`main()` の `DECKS`）。ここでは「再訪スライド固有の文字列が
+    残っていない」という、再訪なし版にしか意味のない不変条件だけを見る。
+    """
+    if not NO_REVISIT_PPTX.is_file():
+        check(False, "再訪なし版のPPTXが存在しない")
+        return
+    prs2 = Presentation(NO_REVISIT_PPTX)
+    t2 = "\n".join(sh.text_frame.text for s in prs2.slides for sh in s.shapes if sh.has_text_frame)
+    check("2026-08-31" not in t2, "再訪なし版に再訪スライドが残っている")
 
 
 def parse_notes(md: str) -> dict[int, dict[str, str]]:
@@ -654,19 +879,37 @@ def check_verification_record() -> None:
         check(header in v, f"照合記録に8/31撮影テーブルの見出しが無い: {header}")
 
 
+# 検査を走らせる2つのデッキ。値は「デッキ内の各位置に対応する内容契約のスライド番号」。
+# 12枚版は位置＝契約番号、再訪なし版は S9 が抜けて位置9以降がずれる。
+DECKS: list[tuple[str, Path, list[int]]] = [
+    ("12枚版", PPTX, list(range(1, 13))),
+    ("再訪なし版", NO_REVISIT_PPTX, NO_REVISIT_CONTRACT_NUMBERS),
+]
+
+
 def main() -> None:
     check_figures()
-    check_pptx_titles()
 
-    if PPTX.is_file():
-        prs = Presentation(PPTX)
-        check_required_strings(prs)
-        check_forbidden(prs)
-        check_evidence_hierarchy(prs)
-        check_font_floor(prs)
-        check_image_counts(prs)
-        check_callout_range(prs)
-        check_pinned_photo_sources(prs)
+    # 投影面に関する検査群は両デッキに同じものを走らせる。以前はタイトル・必須文字列・
+    # 禁止表現・15pt下限・画像数・callout・pin した画像がすべて12枚版だけを見ており、
+    # 再訪なし版はスライド数と1文字列しか検査されていなかった（Final review の指摘）。
+    for label, path, contract_numbers in DECKS:
+        by_contract = deck_slides(label, path, contract_numbers)
+        if by_contract is None:
+            continue
+        check_titles(label, by_contract)
+        check_required_strings(label, by_contract)
+        check_forbidden(label, by_contract)
+        check_english_only(label, by_contract)
+        check_evidence_hierarchy(label, by_contract)
+        check_font_floor(label, by_contract)
+        check_footer_sizes(label, by_contract)
+        check_image_counts(label, by_contract)
+        check_callout_range(label, by_contract)
+        check_pinned_photo_sources(label, by_contract)
+        check_placed_font_sizes(label, by_contract)
+        check_placed_resolution(label, by_contract)
+        check_no_decoration_effects(label, path)
 
     check_no_revisit_variant()
 

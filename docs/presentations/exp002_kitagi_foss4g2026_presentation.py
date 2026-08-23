@@ -66,6 +66,7 @@ NUM_H = Inches(0.35)
 # --- タイプスケール ---
 SZ_TITLE = 28
 SZ_BODY = 17
+SZ_BODY_NARROW = 16  # 図版を実寸近くまで拡大して本文列が狭くなるスライド（S2）用。下限15ptは維持
 SZ_CALLOUT = 66  # evidence 階層の主結果（S6 の 145 等）60〜72pt の中央値
 SZ_NOTE = 14
 SZ_FOOTER = 11  # 帰属・ライセンス・ライブラリ名（11〜12pt）
@@ -97,6 +98,12 @@ PHOTO_ROW_LEFT = USABLE_LEFT + (USABLE_WIDTH - 2 * PHOTO_SLOT_W_IN - PHOTO_ROW_G
 # 写真スロットの上に置く本文（S3・S4・S9 共通）の高さ。
 PHOTO_TEXT_HEIGHT = PHOTO_ROW_TOP - GRAPHIC_TOP - Inches(0.15)
 
+# S2 の位置図（`poster_f1_study_area.png`）の配置倍率。
+# この図版の最小 native フォントは 15pt（パネル(b)の島名ラベル）なので、
+# 実効 15pt 以上には 倍率 ≧ 1.0 が必要。丸め・tight bbox の余白ぶんの余裕を取り 1.04。
+# 実寸 7.85 x 4.50 in なので配置は 8.16 x 4.68 in となり、図版帯（高さ4.8in）に収まる。
+S02_MAP_SCALE = 1.04
+
 
 def _image_size(path: Path) -> tuple[int, int]:
     with Image.open(path) as im:
@@ -116,6 +123,38 @@ def add_picture_contain(slide, path: Path, left, top, max_width, max_height, nam
     pic_left = int(left + (max_width - width) / 2)
     pic_top = int(top + (max_height - height) / 2)
     pic = slide.shapes.add_picture(str(path), pic_left, pic_top, width=width, height=height)
+    pic.name = name
+    return pic
+
+
+def picture_native_size_in(path: Path) -> tuple[float, float]:
+    """画像の実寸（インチ）を返す。ピクセル数 ÷ PNG/JPEG に記録された dpi。
+
+    図中に焼き込まれた文字がスライド上で何ptに見えるかは
+    `native_pt × (配置幅 ÷ 実寸幅)` で決まるため、実寸は配置設計の基礎量である。
+    """
+    with Image.open(path) as im:
+        px_w, px_h = im.size
+        dpi_x, dpi_y = im.info.get("dpi", (72.0, 72.0))
+    return px_w / dpi_x, px_h / dpi_y
+
+
+def add_picture_at_scale(slide, path: Path, left, top, scale: float, name: str):
+    """画像を「実寸 × scale」で配置する（矩形に収める contain とは別の指定方法）。
+
+    図中の焼き込み文字の実効ptを直接指定したい図版に使う。実効pt は
+    `native_pt × scale` になるので、`scale` を決めれば下限（15pt）の充足が
+    レイアウトの偶然に左右されない。
+
+    ポスターから流用した `poster_f1_study_area.png`（S2）はネットワーク取得した
+    地理院タイルを含み再生成できないため、native 15pt を実効15pt以上にするには
+    ほぼ実寸で置く必要がある（`scale ≥ 1.0`）。その意図をコードに残すため、
+    「幅5.4inの箱に収める」ではなく「実寸の1.04倍で置く」と書く。
+    """
+    w_in, h_in = picture_native_size_in(path)
+    width = Emu(int(round(914400 * w_in * scale)))
+    height = Emu(int(round(914400 * h_in * scale)))
+    pic = slide.shapes.add_picture(str(path), left, top, width=width, height=height)
     pic.name = name
     return pic
 
@@ -391,12 +430,24 @@ def s02(slide, n: int) -> None:
     """島と遺産、そして残された池（内容契約 Slide 2 Projected body）。
 
     視覚: 位置図（`poster_f1_study_area.png`）を右側に配置。
+
+    Final review の Critical 指摘（図中文字の実効サイズ）への対応:
+    この図版はポスターからの流用で、パネル(b)の島名ラベルが native 15pt しかない。
+    従来は幅6.0inの箱に収めており実効 11.5pt で投影時に読めなかった。
+    地理院タイルをネットワーク取得して描く図版であり再生成できないため、
+    **配置をほぼ実寸まで拡大**して実効 15pt 以上を満たす（`S02_MAP_SCALE`）。
+    その結果テキスト列が約3.8inに狭まるので、本文は 16pt（下限15ptは維持）にする。
     """
     add_title(slide, TITLES[1])
-    img_max_w = Inches(6.0)
-    img = add_picture_contain(
-        slide, IMAGES / "poster_f1_study_area.png",
-        SLIDE_W - MARGIN - img_max_w, GRAPHIC_TOP, img_max_w, GRAPHIC_HEIGHT, "Picture1",
+    img_path = IMAGES / "poster_f1_study_area.png"
+    img_w_in, img_h_in = picture_native_size_in(img_path)
+    img_w = Emu(int(round(914400 * img_w_in * S02_MAP_SCALE)))
+    img_h = Emu(int(round(914400 * img_h_in * S02_MAP_SCALE)))
+    assert img_h <= GRAPHIC_HEIGHT, "S2: 位置図の高さが図版帯に収まらない"
+    img = add_picture_at_scale(
+        slide, img_path,
+        SLIDE_W - MARGIN - img_w, GRAPHIC_TOP + (GRAPHIC_HEIGHT - img_h) // 2,
+        S02_MAP_SCALE, "Picture1",
     )
     text_width = img.left - MARGIN - IMAGE_TEXT_GAP
     add_body(
@@ -410,6 +461,7 @@ def s02(slide, n: int) -> None:
             'National heritage since 2019 — "Stone Islands of Setouchi"',
             "I found no island-wide record of the ponds themselves.",
         ],
+        SZ_BODY_NARROW,
         top=GRAPHIC_TOP, width=text_width, height=GRAPHIC_HEIGHT,
     )
     add_slide_number(slide, n)
@@ -486,12 +538,19 @@ def s05(slide, n: int) -> None:
 
     ルーリング（NDWI・MNDWI・NDVI の式定義そのものはノートと図版内へ）に従い、
     投影本文には合成条件（`Water if ...`）のみを置き、`(Green − NIR)` 等の個別式は
-    ここに書かない（図版 P5/F4 のパネル内に別途配置される）。
+    ここに書かない（図版 P5 のパネル内注記が指数名と閾値を示す）。
+
+    Final review の Critical 指摘への対応: 従来置いていた `poster_f4_index_panels.png`
+    は native 18pt・実寸 8.82 x 8.50 in で、16:9スライドのどんな配置でも実効 15pt に
+    届かない（15pt には配置高さ 7.09in が必要で、スライド全高は 7.5in）。
+    そのため、同じパネル画像を切り出して英語ラベルを大きく描き直した
+    `p05_index_panels.png`（`exp002_kitagi_foss4g2026_figures.py` の
+    `make_p05_index_panels()` が生成。ネットワーク非依存）に差し替えた。
     """
     add_title(slide, TITLES[4])
     img_max_w = Inches(5.4)
     img = add_picture_contain(
-        slide, IMAGES / "poster_f4_index_panels.png",
+        slide, IMAGES / "p05_index_panels.png",
         SLIDE_W - MARGIN - img_max_w, GRAPHIC_TOP, img_max_w, GRAPHIC_HEIGHT, "Picture1",
     )
     text_width = img.left - MARGIN - IMAGE_TEXT_GAP
@@ -519,7 +578,9 @@ def s06(slide, n: int) -> None:
     """
     add_title(slide, TITLES[5])
     img_max_w = Inches(5.2)
-    img_height = Inches(4.4)
+    # 図版帯の高さいっぱいに置く（4.4in → 4.8in）。P6 は縦横比がほぼ1で高さ拘束のため、
+    # 実効ptを稼げるのは高さ方向だけである（Final review の Critical 指摘への対応）。
+    img_height = GRAPHIC_HEIGHT
     img = add_picture_contain(
         slide, IMAGES / "p06_clusters_map.png",
         SLIDE_W - MARGIN - img_max_w, GRAPHIC_TOP, img_max_w, img_height, "Picture1",
@@ -583,14 +644,15 @@ def s07(slide, n: int) -> None:
 
 
 def s08(slide, n: int) -> None:
-    """見ていない95%：規模の対比（内容契約 Slide 8 Projected body）。
+    """5〜6か所 対 145件：規模の対比（内容契約 Slide 8 Projected body）。
 
     「5〜6か所訪問」対「145件検出」という規模の対比を、2つの callout（60〜72pt）
     として並置する。
     """
     add_title(slide, TITLES[7])
     img_max_w = Inches(4.6)
-    img_height = Inches(4.3)
+    # 図版帯の高さいっぱいに置く（4.3in → 4.8in）。理由は S6 と同じ（高さ拘束）。
+    img_height = GRAPHIC_HEIGHT
     img = add_picture_contain(
         slide, IMAGES / "p08_visit_anchors_map.png",
         SLIDE_W - MARGIN - img_max_w, GRAPHIC_TOP, img_max_w, img_height, "Picture1",
