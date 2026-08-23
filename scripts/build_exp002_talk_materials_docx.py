@@ -233,14 +233,26 @@ def verify() -> dict:
     results = {}
     with zipfile.ZipFile(OUT_DOCX) as z:
         assert z.testzip() is None, "zip が壊れている"
-        for name in ("word/document.xml", "word/styles.xml", "[Content_Types].xml"):
+        # 全 XML パーツの整形式性を走査する
+        xml_parts = [n for n in z.namelist() if n.endswith((".xml", ".rels"))]
+        for name in xml_parts:
             ET.fromstring(z.read(name))  # 整形式でなければ例外
         doc = z.read("word/document.xml").decode("utf-8")
+        styles = z.read("word/styles.xml").decode("utf-8")
 
     assert f'<w:pgSz w:w="{PAGE_W}" w:h="{PAGE_H}"/>' in doc, "ページサイズが A4 でない"
-    assert f'w:left="{MARGIN_LR}"' in doc, "左余白が設定されていない"
+    # 4辺すべての余白を検査する
+    for attr, expected in (("top", MARGIN_TB), ("right", MARGIN_LR),
+                           ("bottom", MARGIN_TB), ("left", MARGIN_LR)):
+        assert f'w:{attr}="{expected}"' in doc, f"{attr} 余白が {expected} twips でない"
     assert '<w:tblLayout w:type="fixed"/>' not in doc, "fixed レイアウトが残っている"
     assert "<w:tblInd" not in doc, "tblInd が残っている"
+
+    # 既定フォント（docDefaults）が設定されているか
+    m = re.search(r"<w:docDefaults>.*?</w:docDefaults>", styles, re.DOTALL)
+    assert m, "styles.xml に docDefaults がない"
+    assert f'w:ascii="{FONT_ASCII}"' in m.group(0), "既定の欧文フォントが設定されていない"
+    assert f'w:eastAsia="{FONT_EASTASIA}"' in m.group(0), "既定の日本語フォントが設定されていない"
 
     with zipfile.ZipFile(OUT_DOCX) as z:
         core = z.read("docProps/core.xml").decode("utf-8")
@@ -250,6 +262,7 @@ def verify() -> dict:
     n_tbl = doc.count("<w:tbl>")
     assert doc.count("<w:tblBorders>") == n_tbl, "罫線のない表がある"
     assert doc.count('<w:tblW w:w="5000" w:type="pct"/>') == n_tbl, "幅100%でない表がある"
+    assert doc.count('<w:tblLayout w:type="autofit"/>') == n_tbl, "autofit でない表がある"
     assert doc.count("<w:tblHeader") == n_tbl, "ヘッダー繰り返しが残っている（先頭行のみ想定）"
     for grid in re.findall(r"<w:tblGrid>(.*?)</w:tblGrid>", doc, re.DOTALL):
         widths = [int(w) for w in re.findall(r'w:w="(\d+)"', grid)]
@@ -272,6 +285,7 @@ def verify() -> dict:
     results["page_breaks"] = doc.count('w:type="page"')
     results["questions"] = n_q
     results["text_chars"] = len(text)
+    results["xml_parts"] = len(xml_parts)
     return results
 
 
@@ -287,8 +301,9 @@ def main() -> None:
     print(f"  tables patched: {n_tables} (autofit / 100% width / borders / header repeat removed)")
     print(f"  fonts: ascii={FONT_ASCII}, eastAsia={FONT_EASTASIA}")
     r = verify()
-    print(f"verified: XML well-formed, tables={r['tables']}, page breaks={r['page_breaks']}, "
-          f"questions={r['questions']}, extracted text={r['text_chars']:,} chars")
+    print(f"verified: {r['xml_parts']} XML parts well-formed, tables={r['tables']}, "
+          f"page breaks={r['page_breaks']}, questions={r['questions']}, "
+          f"extracted text={r['text_chars']:,} chars")
 
 
 if __name__ == "__main__":
