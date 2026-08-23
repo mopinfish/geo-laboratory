@@ -2,8 +2,9 @@
 """FOSS4G 2026 北木島 口頭発表の成果物を検査する。
 
 図版（P6・P8・P12）、PPTX 本体（スライド数・タイトル・画像数・callout の文字サイズ）、
-再訪なし版（`--no-revisit` で生成される11枚版）を検査する。後続タスク
-（スピーカーノート・数値照合等）はこのファイルに追記していく前提の構造とする。
+再訪なし版（`--no-revisit` で生成される11枚版）、スピーカーノート Markdown
+（構造・英語語数・S6 の required spoken content）と PPTX ノートペインとの同期を検査する。
+後続タスク（数値照合等）はこのファイルに追記していく前提の構造とする。
 
 使い方: uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py
 """
@@ -22,6 +23,35 @@ BASE = Path(__file__).resolve().parent
 IMAGES = BASE / "images"
 PPTX = BASE / "exp002_kitagi_foss4g2026_presentation.pptx"
 NO_REVISIT_PPTX = BASE / "exp002_kitagi_foss4g2026_presentation_no_revisit.pptx"
+NOTES_MD = BASE / "exp002_kitagi_foss4g2026_presentation_speaker_notes.md"
+
+# スピーカーノートの英語発話量の判定基準。内容契約「タイミング」節の秒数（合計1,050秒）を
+# 145 wpm で語数へ換算し、±25% の幅で判定する。
+WPM = 145
+DURATIONS_S = [35, 100, 90, 90, 110, 150, 70, 90, 110, 80, 70, 55]
+WORD_TOLERANCE = 0.25
+
+# ノート Markdown 内の構造マーカー。英語（発話対象）と日本語（非発話）の境界。
+EN_MARKER = "**EN (spoken)**"
+JA_MARKER = "**JA (not spoken)**"
+
+# 内容契約 Slide 6 の `Required spoken content`。内部注記ではなく英語の発話本文に
+# 置くことが契約上の要件であるため、S6 の EN 部分に対する部分文字列一致で検査する。
+S6_REQUIRED = [
+    "Spring: 2025-03-23, 0.0% cloud",
+    "113 reported polygons",
+    "largest 1.28 hectares",
+    "Summer: 2025-08-02, 0.7% cloud",
+    "145 polygons",
+    "we have not isolated the cause",
+    "that run's configuration is not preserved",
+    "removed only nine pixels",
+    "not individually field-confirmed quarry ponds",
+]
+
+# 再訪なし版（11枚）の各スライド位置に対応する内容契約のスライド番号。
+# S9（再訪）が抜けるため、位置9以降は内容契約の番号とずれる。
+NO_REVISIT_CONTRACT_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12]
 
 # 配置幅 220 mm で 200 dpi を満たす最小ピクセル幅
 MIN_WIDTH_PX = int(220 / 25.4 * 200)  # 1732
@@ -356,6 +386,135 @@ def check_font_floor(prs: Presentation) -> None:
                     )
 
 
+def parse_notes(md: str) -> dict[int, dict[str, str]]:
+    """スピーカーノート Markdown を `### Slide N — <title>` 単位に分解する。
+
+    返り値は内容契約のスライド番号をキーとし、`title`（見出しのタイトル文字列）、
+    `en`（英語の発話本文。`**EN (spoken)**` から `**JA (not spoken)**` の直前まで）、
+    `ja`（`**JA (not spoken)**` の行から節末まで。節区切りの水平線 `---` は除く）を
+    持つ辞書。
+
+    生成スクリプト側にも同等の分解処理があるが、検査側は独立実装で持つ
+    （生成スクリプトの読み取り結果をそのまま信じると、PPTX ノートペインとの
+    同期検査が「自分が書いたものを読み直した」だけの検査になってしまう）。
+    """
+    parts = re.split(r"(?m)^### Slide (\d+) — (.*)$", md)[1:]
+    sections: dict[int, dict[str, str]] = {}
+    for i in range(0, len(parts), 3):
+        number = int(parts[i])
+        title = parts[i + 1].strip()
+        body = parts[i + 2]
+        en, ja = "", ""
+        if EN_MARKER in body and JA_MARKER in body:
+            after_en = body.split(EN_MARKER, 1)[1]
+            en = after_en.split(JA_MARKER, 1)[0].strip()
+            ja = re.sub(
+                r"\n+-{3,}\s*$",
+                "",
+                (JA_MARKER + after_en.split(JA_MARKER, 1)[1]).strip(),
+            ).strip()
+        sections[number] = {"title": title, "en": en, "ja": ja}
+    return sections
+
+
+def notes_pane_text(section: dict[str, str]) -> str:
+    """ノート Markdown の1節から、PPTX ノートペインに入るべき文字列を組み立てる。
+
+    英語の発話本文を先頭に置き、空行を挟んで日本語（非発話）の塊を続ける
+    （生成スクリプトの `build_notes_text()` と同一の正規形）。
+    """
+    return f"{section['en']}\n\n{section['ja']}"
+
+
+def count_en_words(en: str) -> int:
+    """英語発話本文の語数を数える。
+
+    数字のみのトークン（`145` 等）は語として数えない。初出を綴り字
+    （`one hundred and forty-five`）にする方針と整合させるため、綴られた語のみを
+    通し読み時間の見積り対象とする。
+    """
+    return len(re.findall(r"[A-Za-z][A-Za-z'’-]*", en))
+
+
+def check_speaker_notes() -> dict[int, dict[str, str]]:
+    """スピーカーノート Markdown の構造・語数・S6 必須発話内容を検査する。"""
+    if not NOTES_MD.is_file():
+        check(False, "スピーカーノート Markdown が存在しない")
+        return {}
+
+    sections = parse_notes(NOTES_MD.read_text(encoding="utf-8"))
+    check(len(sections) == 12, f"ノートのスライド数が12でない: {len(sections)}")
+
+    for n, expected_title in enumerate(TITLES, start=1):
+        label = f"S{n}"
+        if n not in sections:
+            check(False, f"{label}: ノートの節が存在しない")
+            continue
+        section = sections[n]
+        check(
+            section["title"] == expected_title,
+            f"{label}: ノートの見出しタイトルが内容契約と完全一致しない",
+        )
+        check(bool(section["en"]), f"{label}: EN 発話本文が無い（{EN_MARKER}）")
+        check(bool(section["ja"]), f"{label}: JA 非発話部分が無い（{JA_MARKER}）")
+        check(
+            EN_MARKER not in section["en"] and JA_MARKER not in section["en"],
+            f"{label}: EN 部分に構造マーカーが混入している",
+        )
+        words = count_en_words(section["en"])
+        budget = round(DURATIONS_S[n - 1] / 60 * WPM)
+        check(
+            abs(words - budget) <= budget * WORD_TOLERANCE,
+            f"{label}: EN 語数 {words} が想定 {budget} 語から "
+            f"{WORD_TOLERANCE:.0%} 超乖離",
+        )
+
+    en6 = sections.get(6, {}).get("en", "")
+    for line in S6_REQUIRED:
+        check(line in en6, f"S6: required spoken content が EN 本文に無い — '{line}'")
+
+    return sections
+
+
+def check_notes_sync(sections: dict[int, dict[str, str]]) -> None:
+    """両版の PPTX ノートペインが、ノート Markdown の正規形と一致することを確認する。
+
+    12枚版はスライド位置＝内容契約の番号だが、再訪なし版（11枚）は S9 が抜けるため
+    `NO_REVISIT_CONTRACT_NUMBERS` で対応付ける（位置で素朴に添字を取ると、
+    位置9以降に S10・S11・S12 ではなく1つ前のノートが載っていても検査が通ってしまう）。
+    """
+    if not sections:
+        return
+    decks = [
+        ("12枚版", PPTX, list(range(1, 13))),
+        ("再訪なし版", NO_REVISIT_PPTX, NO_REVISIT_CONTRACT_NUMBERS),
+    ]
+    for deck_label, path, contract_numbers in decks:
+        if not path.is_file():
+            check(False, f"{deck_label}: PPTX が存在しない（ノート同期を検査不可）")
+            continue
+        slides = list(Presentation(path).slides)
+        check(
+            len(slides) == len(contract_numbers),
+            f"{deck_label}: スライド数 {len(slides)} が期待値 {len(contract_numbers)} と不一致",
+        )
+        for position, contract_n in enumerate(contract_numbers, start=1):
+            label = f"{deck_label} 位置{position}（契約 S{contract_n}）"
+            if position > len(slides):
+                check(False, f"{label}: スライドが存在しない")
+                continue
+            slide = slides[position - 1]
+            check(slide.has_notes_slide, f"{label}: ノートペインが無い")
+            if not slide.has_notes_slide:
+                continue
+            actual = slide.notes_slide.notes_text_frame.text
+            expected = notes_pane_text(sections[contract_n])
+            check(
+                actual == expected,
+                f"{label}: PPTX ノートペインが Markdown と一致しない",
+            )
+
+
 def main() -> None:
     check_figures()
     check_pptx_titles()
@@ -371,6 +530,9 @@ def main() -> None:
         check_pinned_photo_sources(prs)
 
     check_no_revisit_variant()
+
+    sections = check_speaker_notes()
+    check_notes_sync(sections)
 
     if errors:
         print(f"FAIL ({len(errors)} / {checks} checks failed)")

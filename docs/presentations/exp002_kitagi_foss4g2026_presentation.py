@@ -12,9 +12,10 @@
 `exp002_kitagi_foss4g2026_presentation_no_revisit.pptx` として出力する
 （現地訪問が未実施の場合の切替。`build(revisit=False)` が11枚を返す）。
 
-スピーカーノートは本スクリプトでは扱わない
-（`exp002_kitagi_foss4g2026_presentation_speaker_notes.md` を正本とし、別タスクで
-ノートペインへ反映する）。
+スピーカーノートは `exp002_kitagi_foss4g2026_presentation_speaker_notes.md` を正本とし、
+ビルド時に読み込んで各スライドのノートペインへ書き込む（英語の発話本文を先頭に、
+空行を挟んで日本語の非発話部分を続ける）。再訪なし版では S9 の節を使わないだけで、
+残りのスライドは内容契約のスライド番号で対応付ける。
 
 決定性（determinism）: 生成される .pptx はコミット対象であり、再生成しても
 バイト単位で同一になる必要がある。python-pptx が自動的にスタンプしうる
@@ -31,6 +32,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import io
+import re
 import zipfile
 from pathlib import Path
 
@@ -44,6 +46,11 @@ BASE = Path(__file__).resolve().parent
 IMAGES = BASE / "images"
 OUTPUT = BASE / "exp002_kitagi_foss4g2026_presentation.pptx"
 NO_REVISIT_OUTPUT = BASE / "exp002_kitagi_foss4g2026_presentation_no_revisit.pptx"
+NOTES_MD = BASE / "exp002_kitagi_foss4g2026_presentation_speaker_notes.md"
+
+# スピーカーノート Markdown の構造マーカー（英語＝発話対象、日本語＝非発話）。
+EN_MARKER = "**EN (spoken)**"
+JA_MARKER = "**JA (not spoken)**"
 
 # --- 16:9 スライドサイズ ---
 SLIDE_W = Emu(12192000)
@@ -710,21 +717,72 @@ def s12(slide, n: int) -> None:
     add_slide_number(slide, n)
 
 
+def _strip_section_rule(text: str) -> str:
+    """節末の水平線（Markdown の `---`）を落とす。
+
+    節の区切りは Markdown の可読性のためのもので、ノートペインに載せる内容ではない。
+    """
+    return re.sub(r"\n+-{3,}\s*$", "", text.strip()).strip()
+
+
+def parse_speaker_notes() -> dict[int, dict[str, str]]:
+    """スピーカーノート Markdown を内容契約のスライド番号ごとに読み取る。
+
+    `### Slide N — <title>` 見出しで節に分け、`**EN (spoken)**` から
+    `**JA (not spoken)**` の直前までを英語の発話本文、`**JA (not spoken)**` の行から
+    節末までを日本語の非発話部分として取り出す。
+    """
+    md = NOTES_MD.read_text(encoding="utf-8")
+    parts = re.split(r"(?m)^### Slide (\d+) — (.*)$", md)[1:]
+    sections: dict[int, dict[str, str]] = {}
+    for i in range(0, len(parts), 3):
+        number = int(parts[i])
+        body = parts[i + 2]
+        if EN_MARKER not in body or JA_MARKER not in body:
+            raise ValueError(f"ノートの Slide {number} に EN / JA の区切りが無い")
+        after_en = body.split(EN_MARKER, 1)[1]
+        en = after_en.split(JA_MARKER, 1)[0].strip()
+        ja = _strip_section_rule(JA_MARKER + after_en.split(JA_MARKER, 1)[1])
+        sections[number] = {"title": parts[i + 1].strip(), "en": en, "ja": ja}
+    return sections
+
+
+def build_notes_text(section: dict[str, str]) -> str:
+    """ノートペインに書き込む文字列を組み立てる（英語→空行→日本語）。
+
+    日本語側は見出し行（`**JA (not spoken)**` 以下）を含めたまま入れる。発表者が
+    ノートペインだけを見た状態でも「ここから先は読み上げない」境界が分かるようにする。
+    """
+    return f"{section['en']}\n\n{section['ja']}"
+
+
 def build(revisit: bool = True) -> Presentation:
     """12枚（`revisit=False` の場合は S9 を除いた11枚）の Presentation を組み立てる。
 
     `revisit` は CLI の `--no-revisit`（`main()` 参照）から渡される。
+
+    スライド番号（投影面の右下）はデッキ内の連番だが、スピーカーノートは内容契約の
+    スライド番号で引く。再訪なし版では S9 が抜けて両者がずれるため、
+    `(契約番号, 生成関数)` の組で持ち、番号の用途を分離する。
     """
     prs = Presentation()
     prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
 
-    slides = [s01, s02, s03, s04, s05, s06, s07, s08]
+    builders: list[tuple[int, object]] = [
+        (1, s01), (2, s02), (3, s03), (4, s04), (5, s05), (6, s06), (7, s07), (8, s08),
+    ]
     if revisit:
-        slides.append(s09)
-    slides += [s10, s11, s12]
+        builders.append((9, s09))
+    builders += [(10, s10), (11, s11), (12, s12)]
 
-    for n, fn in enumerate(slides, start=1):
-        fn(prs.slides.add_slide(prs.slide_layouts[6]), n)
+    notes = parse_speaker_notes()
+
+    for position, (contract_n, fn) in enumerate(builders, start=1):
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        fn(slide, position)
+        if contract_n not in notes:
+            raise ValueError(f"ノートに Slide {contract_n} の節が無い")
+        slide.notes_slide.notes_text_frame.text = build_notes_text(notes[contract_n])
 
     cp = prs.core_properties
     cp.created = FIXED_DATETIME
