@@ -29,7 +29,7 @@ Good afternoon. Before anything else, please look at the wall in this picture. T
 
 **EN (spoken)**
 
-So, where are we? Kitagi Island sits in the Seto Inland Sea, in Kasaoka City, Okayama Prefecture. It is a small island. You can walk across it in a morning.
+So, where are we? Kitagi Island sits in the Seto Inland Sea, in Kasaoka City, Okayama Prefecture. It is a small island.
 
 People have been cutting granite there since the early seventeenth century. At the peak, in 1957, the island had one hundred and twenty-seven active quarry sites, and up to twelve thousand people lived there. Today there are two working quarries, and about six to seven hundred residents.
 
@@ -60,13 +60,13 @@ Walking around, the first thing you notice is the walls. They are vertical, and 
 
 The second thing you notice is the water. It is green. Not the green of a dirty pond — a strange, mineral, glowing green. The published descriptions give depths from a few metres to about twenty metres. That figure comes from the record, not from anything I measured. Standing at the edge, you believe it.
 
-And then there is the stage. One of the flooded quarries has a stage built out on the water, made from the stone that was left behind. People hold concerts there.
+And then there is the stage. One of the flooded quarries has a stage built out on the water, made from the stone that was left behind. In front of it, blocks of stone are laid out as seats. The island sometimes uses the place as a venue for events.
 
 Now, the important number on this slide is a small one. Five or six sites during the event. That is how many quarry ponds I stood in front of, in two days, on foot. It felt like a lot at the time. Please remember that number, because it comes back later, and it is really the reason this talk exists.
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
-- 訳: 2026年3月のドローン・マッピングパーティ参加が出発点。垂直で平らな切削面、緑がかった水面、数メートル〜約20メートルとされる水深、余った石材で作られた湖上ステージ。イベント中に立ったのは5〜6か所。
+- 訳: 2026年3月のドローン・マッピングパーティ参加が出発点。垂直で平らな切削面、緑がかった水面、数メートル〜約20メートルとされる水深、余った石材で作られた湖上ステージと、座席代わりに並べられた石（湖上イベントの会場として使われることがある）。イベント中に立ったのは5〜6か所。
 - 水深は報告書由来の記述であり著者の計測値ではない。英語でも "from the record, not from anything I measured" と必ず言う。
 - 徒歩スケールで分かるのは**質感**だけ。島全体は見えないという流れをS7へつなぐ。
 - 「5〜6か所」はS8の規模対比の伏線。ここで数字を印象づける。
@@ -157,7 +157,7 @@ On foot I got texture. The cut face, the green water, the sense of depth. I coul
 
 From the air I got boundaries. I could see that the line between two companies is a wall of rock, left standing. That is invisible from the ground, and it is too thin to matter from orbit.
 
-From orbit I got distribution. One hundred and forty-five candidates, across the whole island, in one frame, from one afternoon of processing. But at ten metres I cannot tell you whether a wall was cut or weathered.
+From orbit I got distribution. One hundred and forty-five candidates, across the whole island, from a single frame. But at ten metres I cannot tell you whether a wall was cut or weathered.
 
 None of these three is better than the others. Not better or worse — different things become visible. And if you only ever work at one scale, you will be very confident about the wrong shape of the problem.
 
@@ -241,7 +241,7 @@ The 145 polygons are open data now. They are published as GeoJSON, in EPSG 4326,
 
 Let me be precise about what is public. The detected polygons are public. The pipeline also writes raster output for fieldwork and heritage documentation, and that is an output format rather than something I have published.
 
-The whole pipeline is open-source Python: rasterio, numpy, shapely, pystac-client, planetary-computer and folium. No licence fee. No imagery purchase. It runs on a laptop.
+The whole pipeline is open-source Python: rasterio, numpy, shapely, pystac-client, planetary-computer and folium. No licence fee. No imagery purchase.
 
 Which means the same workflow could be extended to other quarried islands in the Seto Inland Sea, and there are several of them. One warning if you try it. Do not carry my thresholds across unchanged. They came out of the histogram of this island, in this season, in this water. Derive your own.
 
