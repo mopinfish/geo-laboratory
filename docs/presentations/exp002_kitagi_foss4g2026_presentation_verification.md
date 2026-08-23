@@ -90,7 +90,7 @@ SHA256 は `docs/presentations/images/` 内のファイルから本書執筆時�
 
 ### 2.1 P6・P7・P8・P12 の入力データ
 
-新規図版4点（P6・P7・P8・P12）は `docs/presentations/exp002_kitagi_foss4g2026_figures.py` が公開GeoJSON（および P7 は既にリポジトリにある写真2点）を入力として生成する（`tmp/`・ネットワークアクセスに依存しない）。
+新規図版5点（P5・P6・P7・P8・P12）は `docs/presentations/exp002_kitagi_foss4g2026_figures.py` が公開GeoJSON（および P7 は既にリポジトリにある写真2点）を入力として生成する（`tmp/`・ネットワークアクセスに依存しない）。
 
 - 入力: `docs/results/exp002/exp002_kitagi_summer_water_polygons_2025-08-02.geojson`
 - SHA256: `c0b63dbdff47377731ef1fa9103e31df0414692c87aec73a9779c9dfd2121de8`
@@ -285,7 +285,7 @@ uv run python docs/presentations/exp002_kitagi_foss4g2026_presentation.py --no-r
 uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py
 ```
 
-結果: `OK: 949 checks passed`（2026-08-24 の修正ウェーブで検査群を両デッキへパラメータ化し、図中文字の実効サイズ検査を追加したため 466 → 949）。上記4コマンドの実行後に `git status --short` を確認したところ、差分は無かった（生成物は実行時刻に依存せずバイト単位で再現される）。すなわち `docs/presentations/` 配下の全生成物（PPTX 2種・図版4点）は再実行前と再実行後でバイト単位で一致した。
+結果: `OK: 949 checks passed`（2026-08-24 の修正ウェーブで検査群を両デッキへパラメータ化し、図中文字の実効サイズ検査を追加したため 466 → 949）。上記4コマンドの実行後に `git status --short` を確認したところ、差分は無かった（生成物は実行時刻に依存せずバイト単位で再現される）。すなわち `docs/presentations/` 配下の全生成物（PPTX 2種・図版5点）は再実行前と再実行後でバイト単位で一致した。
 
 ### 6.5 登壇前に残っている作業
 
