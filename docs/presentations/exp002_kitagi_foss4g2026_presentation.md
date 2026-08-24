@@ -160,7 +160,8 @@
 - **Projected body**: 大きな数値 `145`; `intra-island water polygons ≥ 100 m², summer 2025-08-02`; `Clustered in the north, south-east, centre and west — consistent with historical quarrying records`; `145 detections vs 127 recorded quarry sites — a comparison of scale, not a one-to-one match`; 小タイル `Spring 2025-03-23 — 113 polygons reported`; `These are detected water polygons, not individually field-confirmed quarry ponds.`; `Contains modified Copernicus Sentinel data [2025].`
 - **Visual**: 検出分布図（4集中地帯を注記した**新規図版 P6**）。春季113は小さな数値タイルで併記。
   検出ポリゴンの下に**追跡済みの背景地図**（CARTO Positron ラベルなし `light_nolabels` z17、`basemap_kitagi_carto_positron.png`）を減光して敷き、海岸線との関係で位置が読めるようにする。**航空写真は使わない**（実写の池の上に検出結果を載せると ground truth と読まれるため。照合記録 2.4 節）。
-  図版内左上に `Basemap: © OpenStreetMap contributors, © CARTO` を焼き込む。
+  地図の描画範囲は **P6・S7パネル(c)・P8 で共通**（`133.5135/34.3645/133.5630/34.4045`。島の陸域の実測 bbox に約 230 m の余白）で、3枚のスライドで島の輪郭が同じ形に見えるようにする。
+  `Basemap: © OpenStreetMap contributors, © CARTO` は**地図枠の下**に1行のキャプションとして焼き込む（地図面には重ねない）。
 - **Notes-only boundary**: 145は検出数であって丁場数ではない。春季113は当時の報告値で、実行設定が保存されておらず差の原因は特定できていない（現行パイプラインの再計算は180）。夏季のNDVIマスクで除外されたのは9ピクセルのみで、候補マスクへの追加効果は限定的だった。精度への効果は未評価である。
 - **Required spoken content（英語ノートで必須。投影面に全て載せる必要はない）**:
   - `Spring: 2025-03-23, 0.0% cloud — 113 reported polygons, largest 1.28 hectares`
@@ -184,10 +185,11 @@
   色付き写真。Fix round 2 でグレースケールの記事図版 `fig03_keirin_cliff.jpg` から
   差し替えた際に本行の更新が漏れていた。成果物・S1の注記・照合記録はいずれも
   `choba_lake_3.jpg` である）、
-  (b) `aerial_quarry_pond.jpg`（S4左と同じ色付き原本。16:9 へ `vbias=0.25` で縦クロップ。
-  画面UIは追跡ファイルの時点で除去済み）、
+  (b) `aerial_quarry_pond.jpg`（S4左と同じ色付き原本。画面UIは追跡ファイルの時点で除去済み）、
   (c) 検出145ポリゴンの分布（`exp002_kitagi_summer_water_polygons_2025-08-02.geojson`、
-  ゾーンラベル・訪問地点なし。P6・P8 と同じ背景地図を減光して敷き、帰属表示を焼き込む）。
+  ゾーンラベル・訪問地点なし。P6・P8 と同じ背景地図・同じ描画範囲。帰属表示は地図枠の下）。
+  **3パネルは表示寸法を完全に同一**にする（共通の縦横比 = パネル(c) の地図範囲の比 ≈ 1.02。
+  写真は上下クロップのみで合わせ、引き伸ばしはしない。`vbias` は (a) 0.40 / (b) 0.25）。
   生成: `exp002_kitagi_foss4g2026_figures.py` の `make_p07_three_scales()`）。
 - **Notes-only boundary**: なし（解釈の提示）。
 - **Claim type**: Framing（論旨）。
@@ -199,7 +201,8 @@
 - **Central claim**: 現地で訪れたのは5〜6か所、衛星が返したのは145件の候補である。両者は規模が違う。候補は有限の現地確認リストになる。
 - **Projected body**: `Five or six quarry sites visited during the event`; `145 water polygons detected from one scene`; `Individual ponds are not field-confirmed — no precision or recall yet`; `Every quarry feature already mapped in OpenStreetMap overlaps one of the detections (retrieved 2026-08-23, for reference)`; `The candidates form a finite field-check list.`
 - **Visual**: 検出分布図の上に、**座標を確認できた訪問地点のみ**を控えめに重ねる（**新規図版 P8**）。訪問記の図4で座標が特定できているのは4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜）であり、この4地点だけを表示する。
-  背景地図・帰属表示は P6 と同一（CARTO Positron ラベルなし `light_nolabels` z17、減光）。
+  背景地図・描画範囲・帰属表示の置き方は P6 と同一（CARTO Positron ラベルなし `light_nolabels` z17、減光、帰属表示は地図枠の下）。
+  4地点は**地図面に通し番号 1〜4**（北→南）を短いリーダー線で置き、**番号と地名の対応表を地図の下に2行×2列**で示す。32 pt のラベル箱は地図の縮尺で 1.2〜2.3 km に相当し、互いに 145〜470 m しか離れていない4地点の近くに地名を並べることは幾何学的に不可能なため（照合記録 4 章の裁定）。
 - **Notes-only boundary**: 訪問した5〜6か所を145ポリゴンの個別IDへ照合した記録はない。ここで述べているのは**規模の対比**であり、訪問地点が検出集合の部分集合であるという主張ではない。到達可能性は安全・立入許可に依存し、すべてが徒歩で到達できるとは限らない。OSM は参考値であって正解データではなく、重なりは同一地物の同定や精度を意味しない。件数の内訳・距離の定義は投影しない。
 - **Claim type**: Scale contrast ＋ acknowledged gap ＋ OSM を参考値として1行。
 - **Duration**: 1:30
@@ -257,7 +260,7 @@
 | P12 | 「衛星 → 現地 → 地図」の3ステップフロー | 新規作図（図形3つ・細い矢印） |
 | S3・S9 | 写真スロット（16:9固定寸法） | 訪問記の写真、8月31日撮影分 |
 | S4 | 写真スロット（縦長・固定寸法。縦横比 0.878） | 発表者提供の色付き原本 `docs/results/exp002/photos/01.jpg`（画面UIを除去して `aerial_quarry_pond.jpg`）・`02.jpg`（`drone_lake_stage.jpg`） |
-| BM | 背景地図ラスタ（CARTO Positron ラベルなし `light_nolabels` z17、範囲 133.514/34.367/133.562/34.402、取得日 2026-08-24、0.95 MB） | `exp002_kitagi_foss4g2026_figures.py --fetch-basemap`（ネットワークを使う唯一の経路。取得後は追跡ファイルを読むのみ） |
+| BM | 背景地図ラスタ（CARTO Positron ラベルなし `light_nolabels` z17、範囲 133.5135/34.3645/133.5630/34.4045、取得日 2026-08-24、1.00 MB） | `exp002_kitagi_foss4g2026_figures.py --fetch-basemap`（ネットワークを使う唯一の経路。取得後は追跡ファイルを読むのみ） |
 
 ## 8月31日の撮影に向けた事前準備
 
@@ -273,7 +276,7 @@
 
 - 本文を **15 pt 未満へ自動縮小しない**。収まらない場合は footer またはスピーカーノートへ送る（投影文字列が多い S2・S5・S6・S11 で特に注意）
 - S5 の式、S6 の補足値（春季タイル・雲量）は、中心メッセージより**小さい evidence 階層**に置く
-- 図版内の**背景地図の帰属表示**（`Basemap: © OpenStreetMap contributors, © CARTO`）は本文でも主題ラベルでもないため、15 pt 下限ではなく**フッター階層（11〜12 pt）**に従う（S11 のフッターが基図の帰属表示を 11 pt で置いている前例に合わせる）。この行は図版生成スクリプトの`NATIVE_FONT_SIZES` に宣言せず、validator の 15 pt 検査の対象外とする（意図的な除外であることを本節で明記する）
+- 図版内の**背景地図の帰属表示**（`Basemap: © OpenStreetMap contributors, © CARTO`）は**地図枠の下**に置き、地図面（島・検出ポリゴン・スケールバー・ラベル）には重ねない。本文でも主題ラベルでもないため、15 pt 下限ではなく**フッター階層（11〜12 pt）**に従う（S11 のフッターが基図の帰属表示を 11 pt で置いている前例に合わせる）。この行は図版生成スクリプトの`NATIVE_FONT_SIZES` に宣言せず、validator の 15 pt 検査の対象外とする（意図的な除外であることを本節で明記する）
 - **図版内に焼き込んだ文字**も、スライド上の実効サイズで 15 pt を下回らない。実効サイズは
   `native_pt × (配置幅 ÷ 画像実寸幅)` であり、判定は生成済みPPTXの `shape.width` と
   画像実寸（px ÷ dpi）から復元して行う（`validate_..._presentation.py` の
@@ -373,3 +376,17 @@
 | 減光率の再調整 | Positron は元から淡いため（海 = 輝度 216、陸 = 241）、写真基図向けの `KEEP = 0.30` では全画素が 243 に潰れて海岸線が消える。`KEEP = 0.80` に緩め、検出ポリゴン（輝度 64）との差 158階調と海陸差 20階調を両立させた |
 | 帰属表示 | 図版内の焼き込みを `Basemap: © OpenStreetMap contributors, © CARTO` に差し替えた。S11 フッターはデッキが実際に使う2種類の基図を挙げる（S2 の位置図 = GSI Tiles、S6・S7パネル(c)・S8 = CARTO/OSM） |
 | 容量 | ベクタ由来のフラットなラスタは PNG が圧縮されるため、追跡ラスタ 18.3 MB → 0.95 MB、PPTX 各 13.0 MB → 8.9 MB に戻った |
+
+### 2026-08-24 発表者からのレイアウト指摘（S6・S7・S8 の図版）
+
+背景地図を敷いたあとのレンダリングを見た発表者から、図版の見えの不具合を4件指摘された。
+**投影文字列・スピーカーノート・主張境界は変更していない**（図版の描き方だけを直した）。
+
+| 指摘 | 対応 |
+|---|---|
+| 帰属表示の白い箱が地図の内側（左上）に置かれ、島の北西部を覆っていた | 地図枠の**下**に1行のキャプションとして出した。文言は変更なし。フッター階層（実効 11.1〜11.4 pt）と 15 pt 下限からの除外もそのまま。軸の内側へ戻る回帰は `assert_credit_outside_map()` が実測検査する |
+| S8 の訪問地点ラベル4枚が地図の右端に縦積みされ、枠からはみ出し、`Sen-no-` / `hama` のように語中で折れていた | 地図面には**通し番号 1〜4**（北→南）だけを短いリーダー線で置き、番号と地名の対応表を地図の下に2行×2列で示す形に改めた。32 pt のラベル箱は地図の縮尺で 1.2〜2.3 km 相当で、互いに 145〜470 m しか離れていない4地点の近くに地名を置くことは幾何学的に不可能である（照合記録 4 章の裁定） |
+| S6 と S7(c)・S8 で島の形が違って見え、島が枠で切れていた | 3図版が共有する描画範囲を**島の陸域の実測 bbox + 約 230 m の余白**へ広げた（`133.5135/34.3645/133.5630/34.4045`）。従来の範囲は実測 bbox との差が 20〜40 m しかない余白ゼロの枠で、海岸線が四辺すべてで枠に接していた。背景地図ラスタも同じ範囲で取り直した（`--fetch-basemap` は1回のみ、図版生成は従来どおりネットワーク非依存） |
+| S7 の3パネルの幅が不揃い（(a) 狭い / (b) 広い / (c) 中間） | 共通の縦横比（= パネル(c) の地図範囲の比 ≈ 1.02）を決め、写真2枚を上下クロップだけで合わせた（引き伸ばしなし）。3パネルの表示寸法が同一であることを実測 assert で固定した |
+| S6 の図版タイトルが2行目で図の右端に達していた | 末尾の `— 145 polygons` を外した（件数はスライドのタイトルと 66 pt コールアウトが既に述べており重複） |
+

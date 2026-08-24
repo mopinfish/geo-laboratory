@@ -89,9 +89,25 @@ COL_STONE = "#b0a999"
 COL_BG_NEUTRAL = "#f4f2ee"
 COL_WATER_EDGE = "#062a52"
 
-# 地図の描画範囲（検出ポリゴン145件の実際の分布に、訪問4地点を含む余白を付けた範囲）
-MAP_BBOX = [133.514, 34.367, 133.562, 34.402]  # [west, south, east, north]
-MAP_CENTER_LAT = 34.384
+# 地図の描画範囲。**P6・P7パネル(c)・P8 の3図版すべてがこの1つの範囲を使う**ので、
+# 聴衆は3枚のスライドで同じ島の輪郭を見る（DESIGN_GUIDE §4.3「並置する図版は表示寸法・
+# 表現を揃える」）。
+#
+# 導出: 北木島の陸域の実測バウンディングボックスに、およそ 230〜260 m の余白を付けた。
+# 陸域の bbox は CARTO Positron の z14 タイル（陸 = 輝度 241、海 = 輝度 216）を
+# 二値化し、島内の点 (133.5369, 34.3900) を含む連結成分の範囲として実測した:
+#     133.51616 〜 133.56019 °E, 34.36661 〜 34.40224 °N
+# 以前の範囲 [133.514, 34.367, 133.562, 34.402] は、この実測 bbox と 20〜40 m しか
+# 違わない**余白ゼロ**の枠だった。そのため島の海岸線が四辺すべてで枠に接し、
+# 図版ごとに島が切れて別の形に見えるという指摘を受けた（余白を付けて解消した）。
+# 解析側の `KITAGI_BBOX = [133.515, 34.350, 133.570, 34.400]` は採らない。
+# 南に約 1.8 km の空虚な海が入り、かつ北端（34.40224）を依然として切り落とすためである。
+MAP_BBOX = [133.5135, 34.3645, 133.5630, 34.4045]  # [west, south, east, north]
+MAP_CENTER_LAT = 34.3845  # 描画範囲の中央緯度（スケールバーのメルカトル補正に使う）
+# 実測した陸域 bbox（上記の導出。`assert_map_bbox_frames_island()` が余白を機械検査する）
+ISLAND_BBOX_MEASURED = [133.51616, 34.36661, 133.56019, 34.40224]
+# 陸域 bbox の各辺に確保する最小余白（度）。経度 0.002° ≒ 184 m、緯度 0.0018° ≒ 200 m。
+ISLAND_MARGIN_MIN_DEG = 0.0018
 
 # ---------------------------------------------------------------- 背景地図（CARTO Positron）
 # 検出ポリゴンが「島のどこにあるのか」が分かるよう、検出地図（P6・P8・P7 パネル(c)）の
@@ -100,7 +116,7 @@ MAP_CENTER_LAT = 34.384
 # タイルの選定（検討した候補と却下理由）:
 #   (1) 地理院タイル英語版（`xyz/english/`）は **ズーム 5〜11 しか存在しない**
 #       （z12 以上は 404。実測で確認）。z11 の地上分解能は約 76 m/px で、地図範囲
-#       (MAP_BBOX) の幅 5,343 m はわずか 70 px にしかならない。出力図版の地図軸は
+#       (MAP_BBOX) の幅 5,510 m はわずか 72 px にしかならない。出力図版の地図軸は
 #       約 1,850 px 幅であり、「出力1pxあたり2px以上」（＝3,700 px 以上）に対して
 #       1/50 以下で、拡大すれば著しくぼやける。使えない。
 #   (2) 地理院タイルの淡色地図・標準地図（z18まで）・白地図（z14まで）は
@@ -114,7 +130,7 @@ MAP_CENTER_LAT = 34.384
 #       ground truth も精度指標も持たない」ことなので、これは許容できない
 #       （「池が見えるなら指数は要らないのでは」という誤解も招く）。
 #   (5) **採用: CARTO Positron（`light_nolabels`、z20まで）**。ラベルを一切含まないため
-#       投影面が英語のみという要件を満たし、z17 で 4,474 px（出力1pxあたり2.4px）と
+#       投影面が英語のみという要件を満たし、z17 で 4,614 px（出力1pxあたり2.5px）と
 #       解像度も満たす。海岸線と道路が読めるので発表者の依頼（島のどこにあるか）に直接応え、
 #       ベクタ由来のフラットなラスタなので実写と違い PNG が十分に圧縮される。
 #       出典表示は `© OpenStreetMap contributors, © CARTO`（下記 BASEMAP_CREDIT）。
@@ -132,7 +148,7 @@ BASEMAP_BBOX = MAP_BBOX  # [west, south, east, north] = 取得・保存した範
 BASEMAP_RETRIEVED = "2026-08-24"  # 取得日（この日に一度だけ取得し、リポジトリに追跡）
 # 保存された背景地図の画素数。取得スクリプトが書き出した値であり、読み込み時に
 # 検査することで「別の範囲・別のズームのラスタが置かれた」事故を検出する。
-BASEMAP_EXPECTED_PX = (4474, 3953)
+BASEMAP_EXPECTED_PX = (4614, 4518)
 # 背景地図の減光率（DESIGN_GUIDE §7.3「背景地図を薄くし、主題データとの視覚的競合を
 # 避ける」）。出力 = 255 - (255 - 入力) × KEEP。
 # Positron は元から淡い（実測: 海 ≈ 輝度 219、陸 ≈ 250、道路・海岸線 ≈ 200 前後）ため、
@@ -143,17 +159,15 @@ BASEMAP_LIGHTEN_KEEP = 0.80
 # 背景地図の帰属表示。CARTO Positron は OpenStreetMap データを CARTO がレンダリングした
 # タイルなので、両者を表示する（contextily のプロバイダ定義の attribution と同一内容）。
 BASEMAP_CREDIT = "Basemap: © OpenStreetMap contributors, © CARTO"
-# 帰属表示は2行に折り返して図版内に置く（1行では帰属表示の箱が図の左上域からはみ出す）。
-BASEMAP_CREDIT_WRAPPED = "Basemap: © OpenStreetMap\ncontributors, © CARTO"
 # 帰属表示の native フォントサイズ。デッキのフッター階層（実効 11〜12pt）に合わせる。
-#   P6: 実寸 9.49 in、S6 の配置倍率 0.516 → 22pt × 0.516 = 11.4pt
-#   P8: 実寸 7.51 in、S8 の配置倍率 0.518 → 22pt × 0.518 = 11.4pt
-#   P7: 実寸 9.27 in、S7 の配置倍率 1.028 → 11pt × 1.028 = 11.3pt
+#   P6: 実寸 8.21 in、S6 の配置倍率 0.516 → 22pt × 0.516 = 11.4pt
+#   P8: 実寸 8.26 in、S8 の配置倍率 0.504 → 22pt × 0.504 = 11.1pt
+#   P7: 実寸 8.97 in、S7 の配置倍率 0.977 → 11.5pt × 0.977 = 11.2pt
 # 帰属表示は本文でも図中の主題ラベルでもないため、15pt 下限（`NATIVE_FONT_SIZES` の
 # 検査対象）には含めない。この扱いは内容契約の「実装時のハードゲート」に明記してある
 # （S11 フッターが基図の帰属表示を 11pt で置いている前例に合わせる）。
 BASEMAP_CREDIT_PT_MAP = 22.0
-P07_BASEMAP_CREDIT_PT = 11.0
+P07_BASEMAP_CREDIT_PT = 11.5
 
 # 訪問4地点（Task 0 の踏査地点と同一の座標。scripts/build_chiri_koryu_figures.py の
 # waypoints と一致させること。Task 1 の preflight ruling により verbatim で固定）
@@ -162,6 +176,23 @@ VISIT_ANCHORS = [
     ("Toyoura hall", 133.5364, 34.3943),
     ("Lake stage (Keirin)", 133.5329, 34.3912),
     ("Sen-no-hama", 133.5309, 34.3930),
+]
+# 訪問4地点の通し番号（北→南の緯度順）。地図面には番号だけを置き、地名は地図の下の
+# 対応表（key）に出す。理由: 4地点は互いに 145〜470 m しか離れていないのに対し、
+# 32pt のラベル箱は地図の縮尺で 1.2〜2.3 km に相当する。地名を地点の近くに置くことは
+# 幾何学的に不可能で、以前は島の東側の海域に4枚を縦積みしてリーダー線を地図の上に
+# 長く走らせていた（発表者からの指摘）。番号なら箱が小さく、各地点のすぐ隣に短い
+# リーダー線で置ける。
+VISIT_ANCHOR_NUMBERS = {
+    "Toyoura Port": "1",
+    "Toyoura hall": "2",
+    "Sen-no-hama": "3",
+    "Lake stage (Keirin)": "4",
+}
+# 地図の下に置く対応表の並び（行 → 列）。番号順に左上→右上→左下→右下と読む。
+VISIT_KEY_ROWS = [
+    ("1  Toyoura Port", "2  Toyoura hall"),
+    ("3  Sen-no-hama", "4  Lake stage (Keirin)"),
 ]
 
 # 4地区の緯度・経度範囲。
@@ -211,7 +242,8 @@ NATIVE_FONT_SIZES: dict[str, dict[str, float]] = {
         "scale bar label": 21.0,
     },
     "p08_visit_anchors_map.png": {
-        "visit label": 32.0,
+        "visit number": 32.0,
+        "anchor key": 32.0,
         "title": 32.0,
         "scale bar label": 32.0,
         "legend": 32.0,
@@ -388,6 +420,12 @@ def _bbox_3857(bbox=MAP_BBOX) -> tuple[float, float, float, float]:
     return xmin, xmax, ymin, ymax
 
 
+def map_axes_ar() -> float:
+    """共有する地図描画範囲（MAP_BBOX）の縦横比。P7 の3パネル共通比と P8 の軸寸法に使う。"""
+    xmin, xmax, ymin, ymax = _bbox_3857(MAP_BBOX)
+    return (xmax - xmin) / (ymax - ymin)
+
+
 def fetch_basemap() -> None:
     """CARTO Positron タイルを**一度だけ**取得して `BASEMAP_PATH` に保存する（ネットワーク使用）。
 
@@ -509,24 +547,140 @@ def draw_basemap(ax, bbox=MAP_BBOX) -> None:
     )
 
 
-def add_basemap_credit(ax, fontsize: float, *, text: str = BASEMAP_CREDIT_WRAPPED):
-    """背景地図の帰属表示を地図軸の内側（右下）に置き、その Text を返す。
+def add_basemap_credit(ax, fontsize: float, *, text: str = BASEMAP_CREDIT):
+    """背景地図の帰属表示を地図軸の**下端の外側**に1行のキャプションとして置き、その Text を返す。
 
-    軸の**外側**には置かない。外側に置くと図版全体の実寸が伸びてスライド上の配置倍率が
-    下がり、図中文字の実効ptが目減りする（15pt下限の余裕は数%しかない）。
+    以前は軸の内側・左上（地図範囲の北西隅）に白枠付きの2行の箱として焼き込んでいたが、
+    32pt 級の図版内では箱が大きく、島の北西部を覆って地図の内容を隠していた
+    （発表者からの指摘）。地図の下に置く一般的な出典表記に改め、地図面には一切
+    重ねない。文言（`BASEMAP_CREDIT`）は変更していない。1行に戻せるのは、軸幅
+    いっぱいを使えるようになり折り返しが不要になったためである。
+
+    軸の外側に置いても図中文字の実効ptは目減りしない。図版の実寸高さは figsize の
+    高さで決まっており（`bbox_inches="tight"` は figsize より小さく刈り込むだけ）、
+    `tight_layout()` が帰属表示ぶんだけ地図軸を縮めて吸収するからである
+    （実効ptは validator が生成済みPPTXの `shape.width` から実測検査する）。
     フォントサイズはデッキのフッター階層（実効 11〜12pt）に合わせる。内容契約の
     「実装時のハードゲート」に、帰属表示行はフッター階層に従うことを明記してある。
     """
-    # 置き場所は軸の左上（地図範囲の北西隅）。この一帯は海で、検出ポリゴンもゾーン
-    # ラベルも訪問地点ラベルも無いため、3つの図版すべてで衝突しない（P6・P8 では
-    # `assert_labels_inside_and_disjoint()` が実測で検査する）。右下・左下は
-    # スケールバーと south-east / 訪問地点のラベルに近く、実測で衝突した。
     return ax.text(
-        0.022, 0.978, text,
+        0.0, -0.012, text,
         transform=ax.transAxes, ha="left", va="top",
-        fontsize=fontsize, color=COL_TEXT, linespacing=1.25, zorder=30,
-        bbox=dict(boxstyle="square,pad=0.3", fc="white", ec=COL_TEXT, alpha=0.9),
+        fontsize=fontsize, color=COL_TEXT, zorder=30,
     )
+
+
+def assert_credit_outside_map(fig, ax, credit, others: list, figure_label: str) -> None:
+    """帰属表示が (1) 地図軸の下側の外にあり (2) 他の注記と重ならないことを実測で検査する。
+
+    `assert_labels_inside_and_disjoint()` の逆向きの検査である。帰属表示を軸の内側から
+    外へ移した意図（地図面を覆わない）が、将来の編集で静かに戻らないようにする。
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    ax_bb = ax.get_window_extent(renderer=renderer)
+    bb = credit.get_window_extent(renderer=renderer)
+    assert bb.y1 <= ax_bb.y0 + 1, (
+        f"{figure_label}: 帰属表示の箱 y1={bb.y1:.0f} が地図軸の下端 "
+        f"y0={ax_bb.y0:.0f} より上にある（地図面に重なっている）"
+    )
+    assert bb.x0 >= ax_bb.x0 - 1, (
+        f"{figure_label}: 帰属表示の左端 x0={bb.x0:.0f} が地図軸の左端 "
+        f"x0={ax_bb.x0:.0f} より外に出ている"
+    )
+    for other in others:
+        ob = other.get_window_extent(renderer=renderer)
+        overlap_x = min(bb.x1, ob.x1) - max(bb.x0, ob.x0)
+        overlap_y = min(bb.y1, ob.y1) - max(bb.y0, ob.y0)
+        assert not (overlap_x > 0 and overlap_y > 0), (
+            f"{figure_label}: 帰属表示が他の注記と重なっている"
+            f"（重なり x={overlap_x:.1f}px, y={overlap_y:.1f}px）"
+        )
+
+
+def assert_labels_clear_of_polygons(
+    fig, ax, annotations: list, features: list[dict], figure_label: str
+) -> None:
+    """注記の箱が検出ポリゴンを覆っていないことを実測で検査する。
+
+    注記が主題データ（検出した水域）を隠してしまうと、図版が示すはずのものが見えなくなる。
+    ポリゴンは外接矩形（display座標）で近似する（矩形は実形状を含むので、この検査は
+    安全側に働く）。
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    poly_boxes = []
+    for feature in features:
+        poly = shapely_transform(_to_3857, shapely_shape(feature["geometry"]))
+        x0, y0, x1, y1 = poly.bounds
+        (dx0, dy0), (dx1, dy1) = ax.transData.transform([(x0, y0), (x1, y1)])
+        poly_boxes.append((dx0, dy0, dx1, dy1))
+    for ann in annotations:
+        patch = ann.get_bbox_patch()
+        bb = (
+            patch.get_window_extent(renderer=renderer)
+            if patch is not None
+            else ann.get_window_extent(renderer=renderer)
+        )
+        for dx0, dy0, dx1, dy1 in poly_boxes:
+            overlap_x = min(bb.x1, dx1) - max(bb.x0, dx0)
+            overlap_y = min(bb.y1, dy1) - max(bb.y0, dy0)
+            assert not (overlap_x > 0 and overlap_y > 0), (
+                f"{figure_label}: 注記 '{ann.get_text()}' の箱が検出ポリゴンを覆っている"
+                f"（重なり x={overlap_x:.1f}px, y={overlap_y:.1f}px）"
+            )
+
+
+def assert_key_below_map(fig, ax, key_texts: list, others: list, figure_label: str) -> None:
+    """番号と地名の対応表が (1) 地図軸の下側の外にあり (2) 互いにも他の注記にも
+    重ならないことを実測で検査する。
+
+    対応表は地図面を覆ってはならず（番号を地図に置いた理由が失われる）、行間・列間が
+    足りずに1文に見えてもいけない。列位置はレンダラ計測から決めているが、
+    フォントの差異でその計算が崩れても検出できるよう機械検査する。
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    ax_bb = ax.get_window_extent(renderer=renderer)
+    boxes = [(t.get_text(), t.get_window_extent(renderer=renderer)) for t in key_texts]
+    for text, bb in boxes:
+        assert bb.y1 <= ax_bb.y0 + 1, (
+            f"{figure_label}: 対応表 '{text}' の箱 y1={bb.y1:.0f} が地図軸の下端 "
+            f"y0={ax_bb.y0:.0f} より上にある（地図面に重なっている）"
+        )
+    other_boxes = [
+        (
+            getattr(o, "get_text", lambda: "legend")(),
+            o.get_window_extent(renderer=renderer),
+        )
+        for o in others
+    ]
+    for i, (t1, b1) in enumerate(boxes):
+        for t2, b2 in boxes[i + 1:] + other_boxes:
+            overlap_x = min(b1.x1, b2.x1) - max(b1.x0, b2.x0)
+            overlap_y = min(b1.y1, b2.y1) - max(b1.y0, b2.y0)
+            assert not (overlap_x > -8.0 and overlap_y > -4.0), (
+                f"{figure_label}: 対応表 '{t1}' と '{t2}' の間隔が足りない"
+                f"（余白 x={-overlap_x:.1f}px, y={-overlap_y:.1f}px）"
+            )
+
+
+def assert_map_bbox_frames_island() -> None:
+    """地図の描画範囲が、実測した陸域 bbox を最小余白つきで完全に含むことを検査する。
+
+    3図版が共有する `MAP_BBOX` を将来縮めてしまうと、島の海岸線が枠に接して
+    「図版ごとに島の形が違う」という指摘が再発する。実測値との差を機械検査する。
+    """
+    west, south, east, north = MAP_BBOX
+    i_west, i_south, i_east, i_north = ISLAND_BBOX_MEASURED
+    for name, margin in (
+        ("west", i_west - west), ("south", i_south - south),
+        ("east", east - i_east), ("north", north - i_north),
+    ):
+        assert margin >= ISLAND_MARGIN_MIN_DEG, (
+            f"MAP_BBOX の{name}側の余白が {margin:.5f}° しかない"
+            f"（下限 {ISLAND_MARGIN_MIN_DEG:.4f}°）。島の海岸線が枠に接してしまう"
+        )
 
 
 def report_size(path: Path) -> int:
@@ -715,21 +869,23 @@ def make_p06_clusters_map(features: list[dict]) -> None:
     title_fontsize = 32.0
     # 32pt では元の1行タイトルは図の幅を大きく超えるため2行に折り返す
     # （フォントを縮めるのではなく表示方法を変える方針。P7・P12 と同じ）。
+    # 末尾の「— 145 polygons」は外した。2行目が図の右端まで達して窮屈に見えるうえ、
+    # 件数はスライド側のタイトルと 66pt コールアウトが既に述べており重複である。
     ax.set_title(
-        f"Detected water polygons and the four\n"
-        f"documented quarrying zones — {len(features)} polygons",
+        "Detected water polygons and the four\ndocumented quarrying zones",
         fontsize=title_fontsize,
     )
 
     scalebar_fontsize = 32.0
     add_scalebar(ax, fontsize=scalebar_fontsize)
 
-    # 帰属表示はゾーンラベルと同じ衝突検査にかける（オフセットの手調整が将来崩れても
-    # 機械的に検出できるようにする）。
+    # 帰属表示は地図軸の下（外側）に置く。地図面に重ならないことと、ゾーンラベルとの
+    # 非重複を実測で検査する（将来の編集で軸内へ戻ってしまう回帰の防止）。
     credit = add_basemap_credit(ax, BASEMAP_CREDIT_PT_MAP)
 
     plt.tight_layout()
-    assert_labels_inside_and_disjoint(fig, ax, [*zone_annotations, credit], "P6")
+    assert_labels_inside_and_disjoint(fig, ax, zone_annotations, "P6")
+    assert_credit_outside_map(fig, ax, credit, zone_annotations, "P6")
     out = OUT_DIR / "p06_clusters_map.png"
     plt.savefig(out, dpi=SAVE_DPI, bbox_inches="tight", facecolor="white")
     plt.close()
@@ -746,8 +902,48 @@ def make_p06_clusters_map(features: list[dict]) -> None:
 
 
 # ---------------------------------------------------------------- P8: 検出分布図 + 訪問4地点
+# P8 は地図の下に「帰属表示 1行 → 番号と地名の対応表 2行 → 凡例 2行」を積むため、
+# 軸の位置を `tight_layout()` に任せず**明示的に確保**する（tight_layout は軸の外に
+# 手で置いたテキストや凡例を知らないので、放っておくと図版の下辺が伸びて配置倍率＝
+# 図中文字の実効ptが落ちる）。数値はすべて 32pt / 22pt の実測行高から積算した inch。
+P08_MAP_H_IN = 5.30  # 地図軸の高さ（下の注記帯と 15pt 下限が許す最大値）
+P08_TITLE_RESERVE_IN = 1.25  # 2行タイトル（32pt）
+P08_CREDIT_RESERVE_IN = 0.52  # 帰属表示1行（22pt）
+P08_KEY_RESERVE_IN = 1.10  # 対応表2行（32pt）
+P08_LEGEND_RESERVE_IN = 1.55  # 凡例2行（32pt、枠つき）
+P08_BOTTOM_MARGIN_IN = 0.10
+P08_LEFT_IN = 0.45  # タイトルが地図軸より横に広いため左に余白を取る
+P08_BELOW_MAP_IN = (
+    P08_CREDIT_RESERVE_IN + P08_KEY_RESERVE_IN
+    + P08_LEGEND_RESERVE_IN + P08_BOTTOM_MARGIN_IN
+)
+P08_FIG_H_IN = P08_MAP_H_IN + P08_BELOW_MAP_IN + P08_TITLE_RESERVE_IN
+P08_FIG_W_IN = 8.5
+# 図版の実寸高さの上限。S8 の配置箱は 4.6 x 4.8 in で高さ拘束なので、
+# 配置倍率 = 4.8 / 実寸高さ。32pt の主題文字が 16pt 以上に見える上限を機械検査する。
+P08_MAX_H_IN = 4.8 / (16.0 / 32.0)
+# 番号の置き位置（単位: メートル、3857座標系。地点からのオフセット）。
+# 互いに 145 m しか離れていない Toyoura Port / Toyoura hall は反対方向へ振り分ける。
+# 値は「軸の内側」「番号どうしが重ならない」「検出ポリゴンを覆わない」の3条件を
+# 満たす候補を機械探索して決めた（3条件はいずれも生成時に assert で検査する）。
+P08_NUMBER_OFFSETS_M = {
+    "Toyoura Port": (-190, 329),
+    "Toyoura hall": (520, 0),
+    "Sen-no-hama": (-116, 435),
+    "Lake stage (Keirin)": (-520, 0),
+}
+
+
 def make_p08_visit_anchors_map(features: list[dict]) -> None:
-    fig, ax = plt.subplots(figsize=(11.0, 9.4), dpi=SAVE_DPI)
+    fig = plt.figure(figsize=(P08_FIG_W_IN, P08_FIG_H_IN), dpi=SAVE_DPI)
+    map_h = P08_MAP_H_IN
+    map_w = map_h * map_axes_ar()
+    ax = fig.add_axes([
+        P08_LEFT_IN / P08_FIG_W_IN,
+        P08_BELOW_MAP_IN / P08_FIG_H_IN,
+        map_w / P08_FIG_W_IN,
+        map_h / P08_FIG_H_IN,
+    ])
     setup_map_axes(ax)
     draw_basemap(ax)  # P6 と同じ背景地図（減光済み）
     draw_water_polygons(ax, features)
@@ -758,28 +954,11 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
 
     # 訪問4地点: 検出ポリゴンとは明確に異なる記号（黒い三角＋白縁）で重ねる。
     # これらは行程上の訪問地点であり、確認済みの丁場池ではない（凡例で明示する）。
-    # 4地点は互いに150〜470mしか離れていないため、ラベルは重心から放射状に
-    # オフセットし、リーダー線（細線）でマーカーと結んで重なりを避ける。
-    # 32pt 化でラベル箱が約1.6倍に広がったため、(1) ラベルを2行に折り返して幅を半分に
-    # 抑え、(2) オフセットを大きく取り直した。折り返しは文言を削らずに幅を詰める手段
-    # （P7・P12 と同じ方針）。衝突と軸外への逸脱は
-    # `assert_labels_inside_and_disjoint()` が実測で検査する。
-    label_texts = {
-        "Toyoura Port": "Toyoura\nPort",
-        "Toyoura hall": "Toyoura\nhall",
-        "Lake stage (Keirin)": "Lake stage\n(Keirin)",
-        "Sen-no-hama": "Sen-no-\nhama",
-    }
-    # 32pt のラベル箱（幅約1,000〜1,400 m、高さ約600 m 相当）は4地点の相互距離
-    # （150〜470 m）より大きいため、地点の周囲に放射状に置くと必ず衝突する。
-    # 島の東側の海域（地図内で最も空いている領域）にラベルを縦に積み、リーダー線で
-    # マーカーへ結ぶ。積む順序は地点の緯度順にして、リーダー線が交差しないようにした。
-    label_offsets_m = {
-        "Toyoura Port": (1751, 442),
-        "Toyoura hall": (1806, -282),
-        "Sen-no-hama": (2419, -1007),
-        "Lake stage (Keirin)": (2196, -1664),
-    }
+    # 地図面に置くのは**通し番号だけ**で、地名は地図の下の対応表に出す
+    # （理由は `VISIT_ANCHOR_NUMBERS` のコメント）。番号の箱は 32pt でも
+    # 地図の縮尺で約 300 m 相当なので、各地点のすぐ隣に短いリーダー線で置ける。
+    label_texts = dict(VISIT_ANCHOR_NUMBERS)
+    label_offsets_m = P08_NUMBER_OFFSETS_M
     # マーカーを先に全て描き、ラベル（リーダー線付き）は後で重ねる。
     marker_xy = {}
     for name, lon, lat in VISIT_ANCHORS:
@@ -818,6 +997,40 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
     scalebar_fontsize = 32.0
     add_scalebar(ax, fontsize=scalebar_fontsize)
 
+    # 地図の下に積む注記（帰属表示 → 番号の対応表 → 凡例）の縦位置は、軸の実寸から
+    # 算出する。軸位置は add_axes で固定してあるので実行ごとに同じ値になる（バイト一致の要件）。
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    ax_bb = ax.get_window_extent(renderer=renderer)
+    ax_h_in = ax_bb.height / fig.dpi
+    ax_w_in = ax_bb.width / fig.dpi
+
+    credit = add_basemap_credit(ax, BASEMAP_CREDIT_PT_MAP)
+    credit_h_frac = (BASEMAP_CREDIT_PT_MAP * 1.7) / 72.0 / ax_h_in
+
+    # 番号と地名の対応表。2行 × 2列に置く。1列（4行）にすると縦に 2.6 in 使い、
+    # 地図軸をその分だけ縮めることになるため、横に2列へ畳んだ。
+    key_fontsize = 32.0
+    key_row_h_frac = (key_fontsize * 1.45) / 72.0 / ax_h_in
+    key_top = -0.012 - credit_h_frac
+    key_texts = []
+    for row_index, (left_entry, _) in enumerate(VISIT_KEY_ROWS):
+        key_texts.append(ax.text(
+            0.0, key_top - row_index * key_row_h_frac, left_entry,
+            transform=ax.transAxes, ha="left", va="top",
+            fontsize=key_fontsize, color=COL_TEXT,
+        ))
+    # 2列目の x は、1列目の実測幅（レンダラ計測）に一定の間隔を足して決める。
+    fig.canvas.draw()
+    col1_right_px = max(t.get_window_extent(renderer=renderer).x1 for t in key_texts)
+    col2_x_frac = (col1_right_px - ax_bb.x0) / ax_bb.width + 0.45 / ax_w_in
+    for row_index, (_, right_entry) in enumerate(VISIT_KEY_ROWS):
+        key_texts.append(ax.text(
+            col2_x_frac, key_top - row_index * key_row_h_frac, right_entry,
+            transform=ax.transAxes, ha="left", va="top",
+            fontsize=key_fontsize, color=COL_TEXT,
+        ))
+
     legend_fontsize = 32.0
     legend_handles = [
         Line2D(
@@ -833,31 +1046,39 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
     # 凡例フォントを18pt以上に拡大すると地図内(lower right)には収まらないため、
     # 地図の外（下側）に配置する。32pt では2列に並べると図の幅を超えて図版全体が
     # 横に伸び、配置倍率（＝実効pt）が下がるため、1列2行に積む。
+    # 対応表の下に来るよう、その行数ぶん下げる。
     legend = ax.legend(
         handles=legend_handles,
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.02),
+        loc="upper left",
+        bbox_to_anchor=(0.0, key_top - len(VISIT_KEY_ROWS) * key_row_h_frac + 0.06),
         ncol=1,
         fontsize=legend_fontsize,
         framealpha=0.92,
         edgecolor=COL_TEXT,
     )
 
-    credit = add_basemap_credit(ax, BASEMAP_CREDIT_PT_MAP)
-
-    plt.tight_layout()
-    assert_labels_inside_and_disjoint(fig, ax, [*visit_annotations, credit], "P8")
+    assert_labels_inside_and_disjoint(fig, ax, visit_annotations, "P8")
+    assert_labels_clear_of_polygons(fig, ax, visit_annotations, features, "P8")
+    assert_credit_outside_map(fig, ax, credit, visit_annotations, "P8")
+    assert_key_below_map(fig, ax, key_texts, [credit, legend], "P8")
     out = OUT_DIR / "p08_visit_anchors_map.png"
     plt.savefig(
         out, dpi=SAVE_DPI, bbox_inches="tight", facecolor="white",
-        bbox_extra_artists=[legend],
+        bbox_extra_artists=[legend, *key_texts],
     )
     plt.close()
+    with Image.open(out) as img:
+        out_h_in = img.size[1] / SAVE_DPI
+    assert out_h_in <= P08_MAX_H_IN, (
+        f"P8: 図版の実寸高さ {out_h_in:.2f} in が上限 {P08_MAX_H_IN:.2f} in を超えている"
+        f"（S8 は高さ拘束のため 32pt の主題文字が実効16pt を割る）"
+    )
     report_size(out)
     declare_font_sizes(
         "p08_visit_anchors_map.png",
         {
-            "visit label": label_fontsize,
+            "visit number": label_fontsize,
+            "anchor key": key_fontsize,
             "title": title_fontsize,
             "scale bar label": scalebar_fontsize,
             "legend": legend_fontsize,
@@ -867,22 +1088,29 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
 
 
 # ---------------------------------------------------------------- P7: 三スケール合成図（英語ラベルのみ）
-# P7 は3パネルを同じ高さで横並びにする図版なので、パネル(b) は**横長**のクロップになる
-# （S4 は 2026-08-24 の調整で縦長スロットへ変更したが、P7 のパネル比とは無関係である。
-# 以前はここで S4 の 16:9 スロット比を複製していた）。16:9 を採用するのは、パネル(a) の
-# 縦長写真・パネル(c) の地図（縦横比 1.13）と並べたときに1パネルが極端に広くならず、
-# 丁場池とその周囲の切削面が横方向に収まる比だからである。
-P07_PANEL_B_AR = 16 / 9
+# 3パネルは**表示寸法を完全に揃える**（DESIGN_GUIDE §4.3「並置する図版は表示寸法を
+# 揃える」）。以前は各ソースの実比をそのまま列幅に使っていたため、(a) 縦長写真 =
+# 狭い / (b) 16:9 = 広い / (c) 地図 = 中間 と3枚の幅が大きく違っていた（発表者からの指摘）。
+#
+# 共通のパネル比は**パネル(c) の地図範囲（MAP_BBOX）の比**とする。地図の比は島の形と
+# 共有描画範囲（P6・P8 と同一）で決まっており縮めようがないのに対し、写真は上下を
+# 切ればどの比にも合わせられるためである。引き伸ばしは一切しない（クロップのみ）。
 # P7 は S7 でほぼ実寸（倍率≈1.03）で置かれるため、SAVE_DPI(200) のままでは配置後の
 # 実効解像度が 195dpi となり下限 200dpi をわずかに割る。dpi は figure の実寸
 # （インチ）とレイアウトを変えず画素数だけを増やすので、この図版だけ引き上げる。
 P07_DPI = 240
-# パネル(b) の縦クロップ位置。`aerial_quarry_pond.jpg`（1080 x 1230 px）を 16:9 に
-# するには縦 622 px を落とす必要があり、そのうち上から取る割合をこの値で決める。
-# 0.10 / 0.25 / 0.40 / 0.55 の試作を目視比較し、丁場池の水面が中央に、左右の切削面
-# （灰色の岩壁と傾いた花崗岩のスラブ）がともに入る 0.25（画像の 156〜763 行）を選んだ。
+# パネル(a)(b) の縦クロップ位置（上から取る割合）。共通比（約1.02）は縦長写真より
+# 横長なので、2枚とも上下を切る。
+#   (a) `choba_lake_3.jpg`（1500 x 1999 px、比 0.75）: 縦 531 px を落とす。
+#       0.10 / 0.25 / 0.40 / 0.55 を並べて目視比較し、切削面の頂部と水面がともに残る
+#       0.40（画像の 212〜1680 行）を選んだ。0.10 では水面が切れ、0.55 では岩壁の
+#       上端（空との境）が失われる。
+#   (b) `aerial_quarry_pond.jpg`（1080 x 1230 px、比 0.878）: 縦 172 px を落とす。
+#       16:9 時代の 0.25 をそのまま用いる（クロップ量が 622 → 172 px に減ったため、
+#       丁場池の水面と左右の切削面はいずれも余裕をもって残る）。
 # 元画像は macOS の Dock と「Pages」ツールチップを切り落としたあとのものなので、
 # どの vbias を選んでも UI は写らない（追跡ファイル自体が除去済み）。
+P07_PANEL_A_VBIAS = 0.40
 P07_PANEL_B_VBIAS = 0.25
 
 
@@ -898,7 +1126,7 @@ def _crop_top_bottom_to_aspect(img: Image.Image, target_ar: float, vbias: float)
     「必要クロップ量はアスペクト比の差分から一意に決まり、`vbias` が上下の配分を
     決める」という式をここで再現する。本関数は「画像が目的より縦長
     （`img_ar < target_ar`）で上下だけをクロップする」場合のみを扱う
-    （P7 パネル(b) の `aerial_quarry_pond.jpg` はこのケースに該当する）。
+    （P7 の共通比 ≈ 1.02 に対し、パネル(a)(b) の写真はいずれも縦長でこのケースに該当する）。
     """
     iw, ih = img.size
     img_ar = iw / ih
@@ -920,43 +1148,36 @@ def make_p07_three_scales(features: list[dict]) -> None:
     ここで新規に生成する（日本語記事側の図版・生成スクリプトは変更しない）。
 
     パネル:
-        (a) On foot — texture         : choba_lake_3.jpg（S1表紙と同一写真、クロップなし。
-                                         Fix round 2 でグレースケールの fig03_keirin_cliff.jpg
-                                         から色付きに差し替え）
+        (a) On foot — texture         : choba_lake_3.jpg（S1表紙と同一写真。共通比へ
+                                         縦クロップ `P07_PANEL_A_VBIAS`。Fix round 2 で
+                                         グレースケールの fig03_keirin_cliff.jpg から
+                                         色付きに差し替え）
         (b) From the air — boundaries : aerial_quarry_pond.jpg（S4左と同じ色付き原本。
                                          macOS の Dock とツールチップは追跡ファイルの
-                                         時点で除去済み）を 16:9 へ縦クロップ
+                                         時点で除去済み）を共通比へ縦クロップ
                                          （`P07_PANEL_B_VBIAS`）
         (c) From orbit — distribution : 検出145ポリゴンの分布（p06/p08と同じ配色・
                                          地図範囲。ゾーンラベル・訪問地点は描かない）
 
-    3パネルは高さを揃えて横並びにする（各パネルの実アスペクト比を列幅の比に使うため、
-    letterbox＝余白がほぼ生じない）。
+    3パネルは**表示寸法を完全に揃える**（共通比 = パネル(c) の地図範囲の比。
+    写真は上下クロップのみで合わせ、引き伸ばしはしない）。
     """
-    photo_a = _load_photo(OUT_DIR / "choba_lake_3.jpg")
-    ar_a = photo_a.size[0] / photo_a.size[1]
-
-    photo_b = _crop_top_bottom_to_aspect(
-        _load_photo(OUT_DIR / "aerial_quarry_pond.jpg"),
-        P07_PANEL_B_AR, P07_PANEL_B_VBIAS,
+    panel_ar = map_axes_ar()
+    photo_a = _crop_top_bottom_to_aspect(
+        _load_photo(OUT_DIR / "choba_lake_3.jpg"), panel_ar, P07_PANEL_A_VBIAS,
     )
-    ar_b = photo_b.size[0] / photo_b.size[1]
+    photo_b = _crop_top_bottom_to_aspect(
+        _load_photo(OUT_DIR / "aerial_quarry_pond.jpg"), panel_ar, P07_PANEL_B_VBIAS,
+    )
 
-    west, south, east, north = MAP_BBOX
-    xmin, ymin = _to_3857(west, south)
-    xmax, ymax = _to_3857(east, north)
-    ar_c = (xmax - xmin) / (ymax - ymin)
-
-    # 3パネルの合計アスペクト比（約3.66）から逆算した高さ。(a) 列は縦長写真
-    # （アスペクト比0.75）のため他列より狭く、キャプションを1行で置くと隣の列に
-    # 溢れる（実測で確認済み）。P12（Task 4 fix round 1）と同じ「フォントを縮めず
-    # 2行に折り返す」方針をここでも採用する。
+    # 3列すべて同じ比・同じ幅。キャプションは2行に折り返す（フォントを縮めず表示方法を
+    # 変える方針。P12 と同じ）。
     panel_height_in = 3.2
     caption_fontsize = 21.0
 
     fig, (ax_a, ax_b, ax_c) = plt.subplots(
-        1, 3, figsize=(panel_height_in * (ar_a + ar_b + ar_c), panel_height_in),
-        dpi=P07_DPI, gridspec_kw={"width_ratios": [ar_a, ar_b, ar_c], "wspace": 0.05},
+        1, 3, figsize=(panel_height_in * 3 * panel_ar, panel_height_in),
+        dpi=P07_DPI, gridspec_kw={"width_ratios": [1, 1, 1], "wspace": 0.05},
     )
 
     title_texts = []
@@ -973,7 +1194,7 @@ def make_p07_three_scales(features: list[dict]) -> None:
     draw_basemap(ax_c)  # P6・P8 と同じ背景地図（減光済み）
     draw_water_polygons(ax_c, features)
     add_scalebar(ax_c, fontsize=caption_fontsize)
-    add_basemap_credit(ax_c, P07_BASEMAP_CREDIT_PT)
+    credit = add_basemap_credit(ax_c, P07_BASEMAP_CREDIT_PT)
     label_c = "(c) From orbit —\ndistribution"
     title_texts.append(ax_c.set_title(label_c, fontsize=caption_fontsize, color=COL_TEXT, pad=10))
 
@@ -989,6 +1210,16 @@ def make_p07_three_scales(features: list[dict]) -> None:
             f"P7: キャプション '{title_text.get_text()!r}' の表示幅 {title_width_px:.1f}px が "
             f"自列幅 {col_width_px:.1f}px の105%を超えている（隣列と衝突する可能性）"
         )
+
+    # 3パネルの**表示寸法が同一**であることを実測で検査する（DESIGN_GUIDE §4.3）。
+    boxes = [ax.get_window_extent(renderer=renderer) for ax in (ax_a, ax_b, ax_c)]
+    for i, bb in enumerate(boxes[1:], start=1):
+        assert abs(bb.width - boxes[0].width) <= 1.0 and abs(bb.height - boxes[0].height) <= 1.0, (
+            f"P7: パネル {i} の表示寸法 {bb.width:.1f}x{bb.height:.1f}px が "
+            f"パネル 0 の {boxes[0].width:.1f}x{boxes[0].height:.1f}px と一致しない"
+        )
+    # 帰属表示はパネル(c) の地図の下（軸の外）に置く。地図面に重ならないことを検査する。
+    assert_credit_outside_map(fig, ax_c, credit, [], "P7 panel (c)")
 
     out = OUT_DIR / "p07_three_scales.png"
     plt.savefig(out, dpi=P07_DPI, bbox_inches="tight", facecolor="white")
@@ -1120,6 +1351,7 @@ def main() -> None:
         return
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    assert_map_bbox_frames_island()
     features = load_polygons()
     print(f"loaded {len(features)} polygons from {GEOJSON_PATH.relative_to(PROJECT_ROOT)}")
 
