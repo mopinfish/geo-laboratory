@@ -148,6 +148,8 @@
 - **Central claim**: 夏季シーンから島内145件の水域ポリゴンを検出し、その分布は採石の歴史的中心と整合した。
 - **Projected body**: 大きな数値 `145`; `intra-island water polygons ≥ 100 m², summer 2025-08-02`; `Clustered in the north, south-east, centre and west — consistent with historical quarrying records`; `145 detections vs 127 recorded quarry sites — a comparison of scale, not a one-to-one match`; 小タイル `Spring 2025-03-23 — 113 polygons reported`; `These are detected water polygons, not individually field-confirmed quarry ponds.`; `Contains modified Copernicus Sentinel data [2025].`
 - **Visual**: 検出分布図（4集中地帯を注記した**新規図版 P6**）。春季113は小さな数値タイルで併記。
+  検出ポリゴンの下に**追跡済みの背景地図**（地理院タイル `seamlessphoto` z17、`basemap_kitagi_gsi_seamlessphoto.png`）を減光して敷き、海岸線との関係で位置が読めるようにする。
+  図版内左上に `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.` を焼き込む。
 - **Notes-only boundary**: 145は検出数であって丁場数ではない。春季113は当時の報告値で、実行設定が保存されておらず差の原因は特定できていない（現行パイプラインの再計算は180）。夏季のNDVIマスクで除外されたのは9ピクセルのみで、候補マスクへの追加効果は限定的だった。精度への効果は未評価である。
 - **Required spoken content（英語ノートで必須。投影面に全て載せる必要はない）**:
   - `Spring: 2025-03-23, 0.0% cloud — 113 reported polygons, largest 1.28 hectares`
@@ -173,8 +175,8 @@
   `choba_lake_3.jpg` である）、
   (b) `fig06_aerial_quarries.jpg`（S4と同じ縦クロップでUI除去）、
   (c) 検出145ポリゴンの分布（`exp002_kitagi_summer_water_polygons_2025-08-02.geojson`、
-  ゾーンラベル・訪問地点なし）。生成: `exp002_kitagi_foss4g2026_figures.py` の
-  `make_p07_three_scales()`）。
+  ゾーンラベル・訪問地点なし。P6・P8 と同じ背景地図を減光して敷き、帰属表示を焼き込む）。
+  生成: `exp002_kitagi_foss4g2026_figures.py` の `make_p07_three_scales()`）。
 - **Notes-only boundary**: なし（解釈の提示）。
 - **Claim type**: Framing（論旨）。
 - **Duration**: 1:10
@@ -185,6 +187,7 @@
 - **Central claim**: 現地で訪れたのは5〜6か所、衛星が返したのは145件の候補である。両者は規模が違う。候補は有限の現地確認リストになる。
 - **Projected body**: `Five or six quarry sites visited during the event`; `145 water polygons detected from one scene`; `Individual ponds are not field-confirmed — no precision or recall yet`; `Every quarry feature already mapped in OpenStreetMap overlaps one of the detections (retrieved 2026-08-23, for reference)`; `The candidates form a finite field-check list.`
 - **Visual**: 検出分布図の上に、**座標を確認できた訪問地点のみ**を控えめに重ねる（**新規図版 P8**）。訪問記の図4で座標が特定できているのは4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜）であり、この4地点だけを表示する。
+  背景地図・帰属表示は P6 と同一（地理院タイル `seamlessphoto` z17、減光）。
 - **Notes-only boundary**: 訪問した5〜6か所を145ポリゴンの個別IDへ照合した記録はない。ここで述べているのは**規模の対比**であり、訪問地点が検出集合の部分集合であるという主張ではない。到達可能性は安全・立入許可に依存し、すべてが徒歩で到達できるとは限らない。OSM は参考値であって正解データではなく、重なりは同一地物の同定や精度を意味しない。件数の内訳・距離の定義は投影しない。
 - **Claim type**: Scale contrast ＋ acknowledged gap ＋ OSM を参考値として1行。
 - **Duration**: 1:30
@@ -236,11 +239,12 @@
 | ID | 内容 | 生成元 |
 |---|---|---|
 | P5 | 指数4パネル（NDWI / MNDWI / NDVI / 最終マスク） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p05_index_panels()`（`poster_f4_index_panels.png` のパネル画像を切り出し、英語ラベルとカラーバーを再描画） |
-| P6 | 4集中地帯を注記した検出分布図 | `scripts/generate_exp002_poster_figures.py` の F3 派生 |
+| P6 | 4集中地帯を注記した検出分布図（減光した地理院タイル背景つき） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（公開GeoJSON + `basemap_kitagi_gsi_seamlessphoto.png`） |
 | P7 | 三スケール合成図（徒歩・上空・衛星の英語ラベルのみ） | 同スクリプトの `make_p07_three_scales()`（`choba_lake_3.jpg` + `fig06_aerial_quarries.jpg` + 公開GeoJSON） |
-| P8 | 検出分布図に、座標を確認できた訪問地点4点のみを重ねた図 | 公開GeoJSON + 訪問記 図4 の4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜） |
+| P8 | 検出分布図に、座標を確認できた訪問地点4点のみを重ねた図（背景地図は P6 と同一） | 公開GeoJSON + 訪問記 図4 の4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜） + `basemap_kitagi_gsi_seamlessphoto.png` |
 | P12 | 「衛星 → 現地 → 地図」の3ステップフロー | 新規作図（図形3つ・細い矢印） |
 | S3・S4・S9 | 写真スロット（固定寸法） | 訪問記の写真、8月31日撮影分 |
+| BM | 背景地図ラスタ（地理院タイル `seamlessphoto` z17、範囲 133.514/34.367/133.562/34.402、取得日 2026-08-24） | `exp002_kitagi_foss4g2026_figures.py --fetch-basemap`（ネットワークを使う唯一の経路。取得後は追跡ファイルを読むのみ） |
 
 ## 8月31日の撮影に向けた事前準備
 
@@ -256,6 +260,7 @@
 
 - 本文を **15 pt 未満へ自動縮小しない**。収まらない場合は footer またはスピーカーノートへ送る（投影文字列が多い S2・S5・S6・S11 で特に注意）
 - S5 の式、S6 の補足値（春季タイル・雲量）は、中心メッセージより**小さい evidence 階層**に置く
+- 図版内の**背景地図の帰属表示**（`Basemaps: GSI Tiles, Geospatial Information Authority of Japan.`）は本文でも主題ラベルでもないため、15 pt 下限ではなく**フッター階層（11〜12 pt）**に従う（S11 のフッターが同一文言を 11 pt で置いている前例に合わせる）。この行は図版生成スクリプトの`NATIVE_FONT_SIZES` に宣言せず、validator の 15 pt 検査の対象外とする（意図的な除外であることを本節で明記する）
 - **図版内に焼き込んだ文字**も、スライド上の実効サイズで 15 pt を下回らない。実効サイズは
   `native_pt × (配置幅 ÷ 画像実寸幅)` であり、判定は生成済みPPTXの `shape.width` と
   画像実寸（px ÷ dpi）から復元して行う（`validate_..._presentation.py` の
@@ -321,3 +326,12 @@
 | Important: 11枚版の検査不足 | タイトル・必須文字列・禁止表現・15pt下限・画像数・callout・pin画像・実効フォントサイズの検査群を、12枚版と再訪なし版の**両方**に走らせるようパラメータ化した（466 → 949 checks） |
 | Important: S7 Visual の不整合 | パネル(a)のソース名を成果物と一致させた（`fig03_keirin_cliff.jpg` → `choba_lake_3.jpg`）。新規図版一覧に P5・P7 を追加 |
 | Minor: S8 の呼称 | タイミング表の「見ていない95%」を規模の対比の表現に改めた（採用タイトルは変更なし） |
+
+### 2026-08-24 発表者からの調整依頼（背景地図の追加）
+
+| 依頼 | 対応 |
+|---|---|
+| 検出ポリゴンが島のどこにあるか分からない（検出地図の背景が中性色で海岸線が無い） | 地理院タイルの背景地図を**追跡ラスタ**として一度だけ取得し（`--fetch-basemap`）、P6・S7パネル(c)・P8 の最下層に減光して敷いた。図版生成は以後ネットワークに触れない（ラスタが無ければ明示的に失敗させる） |
+| 背景地図は英語版タイルで | 英語版タイル（`xyz/english/`）は**z11 までしか存在せず**（実測）、島の縮尺では 70 px しか得られないため、ブリーフが同時に要求する解像度（出力1pxあたり2px以上）を満たせない。英語版を指定した理由（日本語地名を投影面に出さない）を満たすため、**文字を一切含まない**全国最新写真（`seamlessphoto` z17）を採用した。日本語地名を含む淡色地図・標準地図・白地図は使わない。詳細は照合記録 2.4 節 |
+| 主題データとの視覚的競合を避ける | DESIGN_GUIDE §7.3 に従い整数演算で減光（`出力 = 255 - (255 - 入力) × 0.30`）。減光後の最小輝度 178 に対し検出ポリゴンのグレースケール輝度は 64 で、グレースケール化しても明確に分離することを目視確認した |
+| 帰属表示 | 各図版内の左上に `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.` を焼き込む（フッター階層 11〜12 pt。上記「実装時のハードゲート」参照）。図版の外側には置かない（図版実寸が伸びて配置倍率＝図中文字の実効ptが下がるため） |

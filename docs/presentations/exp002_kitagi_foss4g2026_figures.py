@@ -2,8 +2,15 @@
 """FOSS4G 2026 北木島 口頭発表用の新規図版（P5・P6・P7・P8・P12）を生成する。
 
 公開済みの追跡データ（`docs/results/exp002/exp002_kitagi_summer_water_polygons_2025-08-02.geojson`）
-と、既にリポジトリへ取り込まれている画像のみを入力とし、`tmp/`（Git管理外のキャッシュ）や
-ネットワークアクセスには依存しない。
+と、既にリポジトリへ取り込まれている画像（背景地図ラスタを含む）のみを入力とし、
+`tmp/`（Git管理外のキャッシュ）やネットワークアクセスには依存しない。
+
+背景地図（地理院タイル）だけは一度ネットワークから取得する必要があるが、その取得は
+`--fetch-basemap` という専用の入口に分離してあり、図版生成の通常経路（引数なしの実行）は
+追跡済みラスタ `images/basemap_kitagi_gsi_seamlessphoto.png` を読むだけである。
+取得系のモジュール（`mercantile` / `urllib`）も `fetch_basemap()` の内側でのみ import する。
+ラスタが存在しない場合は `load_basemap()` が明示的に失敗し、取得手順の再実行を促す
+（背景地図なしの図版を黙って出力しない）。
 配色は `scripts/generate_exp002_poster_figures.py` のポスター配色定数
 （COL_TEXT / COL_WATER / COL_STONE）を流用し、ポスターと発表資料の
 見た目を揃える。ただし背景の陸域シルエットは衛星バンドから再導出せず、
@@ -12,14 +19,18 @@
 出力先: docs/presentations/images/
     p05_index_panels.png         — 指数4パネル（ポスター F4 のパネル画像を切り出し、
                                     英語ラベルとカラーバーを大きく再描画したもの）
-    p06_clusters_map.png         — 検出145ポリゴン + 4地区（英語ラベル、報告書§4.3準拠）
+    p06_clusters_map.png         — 検出145ポリゴン + 4地区（英語ラベル、報告書§4.3準拠。
+                                    減光した地理院タイル背景つき）
     p07_three_scales.png         — 三スケール合成図（英語ラベルのみ。Task 4 レビュー
                                     指摘の修正: 日本語記事と共有される
                                     `fig09_multiscale.png` の英語投影面への流用を解消）
-    p08_visit_anchors_map.png    — 同じ地図 + 座標確認済み訪問4地点（凡例つき）
+    p08_visit_anchors_map.png    — 同じ地図 + 座標確認済み訪問4地点（凡例つき、背景地図つき）
     p12_loop_diagram.png         — 「衛星 → 現地 → 地図」の3ステップフロー図
 
 実行方法:
+    # 背景地図の取得（一度だけ。ネットワークを使う唯一の経路）
+    uv run python docs/presentations/exp002_kitagi_foss4g2026_figures.py --fetch-basemap
+    # 図版生成（ネットワーク非依存）
     uv run python docs/presentations/exp002_kitagi_foss4g2026_figures.py
 
 再実行時にバイト一致するよう、実行日時・乱数・辞書順序等は一切使用しない。
@@ -42,6 +53,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -80,6 +92,62 @@ COL_WATER_EDGE = "#062a52"
 # 地図の描画範囲（検出ポリゴン145件の実際の分布に、訪問4地点を含む余白を付けた範囲）
 MAP_BBOX = [133.514, 34.367, 133.562, 34.402]  # [west, south, east, north]
 MAP_CENTER_LAT = 34.384
+
+# ---------------------------------------------------------------- 背景地図（地理院タイル）
+# 検出ポリゴンが「島のどこにあるのか」が分かるよう、検出地図（P6・P8・P7 パネル(c)）の
+# 下に地理院タイルの背景地図を敷く。
+#
+# タイルの選定（統制者ブリーフからの逸脱と、その理由）:
+#   ブリーフは英語版タイル（`xyz/english/`）の使用を指示していたが、英語版タイルは
+#   **ズームレベル 5〜11 しか存在しない**（z12 以上は 404。実測で確認）。z11 の地上分解能は
+#   約 76 m/px で、地図範囲(MAP_BBOX)の幅 5,343 m はわずか 70 px にしかならない。
+#   出力図版の地図軸は約 1,850 px 幅であり、ブリーフが要求する「出力1pxあたり2px以上」
+#   （＝3,700 px 以上）に対して 1/50 以下で、拡大すれば著しくぼやける。
+#   一方、英語版タイルを指定した理由は「日本語版の地図は日本語の地名が焼き込まれており、
+#   投影面は英語のみでなければならない」ことである。そこで**文字を一切含まない**
+#   全国最新写真（`seamlessphoto`、z2〜18）を z17 で使う。文字が無いため
+#   「投影面は英語のみ」という要件は完全に満たされ、かつ 4,474 px（出力1pxあたり2.4px）で
+#   解像度の要件も満たす。淡色地図・標準地図（z18まで）は日本語地名を含むため使わない。
+#   陰影起伏図（z16まで）・色別標高図（z15まで）は解像度が足りない。
+BASEMAP_PATH = OUT_DIR / "basemap_kitagi_gsi_seamlessphoto.png"
+BASEMAP_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg"
+BASEMAP_ZOOM = 17
+# 背景地図の範囲は地図軸の範囲（MAP_BBOX）と厳密に一致させる。タイルモザイクを
+# 合成したあと、この範囲に対応する画素窓へ切り出して保存するため、描画時の
+# `imshow(extent=...)` は軸の範囲そのものになり、位置合わせの誤差が生じない。
+BASEMAP_BBOX = MAP_BBOX  # [west, south, east, north] = 取得・保存した範囲
+BASEMAP_RETRIEVED = "2026-08-24"  # 取得日（この日に一度だけ取得し、リポジトリに追跡）
+# 保存された背景地図の画素数。取得スクリプトが書き出した値であり、読み込み時に
+# 検査することで「別の範囲・別のズームのラスタが置かれた」事故を検出する。
+BASEMAP_EXPECTED_PX = (4474, 3953)
+# 欠測画素の埋め色。`seamlessphoto` は (1) 沖合のタイルが存在せず404を返す、
+# (2) 存在するタイルの一部に真っ黒な無データ領域がある——という2種類の欠測を含む。
+# どちらも取得範囲では南西・南東の沖合だけに現れる（実測: 404 が 4.1%、黒が 2.8%、
+# いずれも海域）。実写の海の色の中央値 (45, 66, 68) で両方を埋めると、減光後には
+# 周囲の海とほぼ区別できない平坦な面になる。淡い青で埋めると減光後も明度差が残り、
+# 沖合に矩形のパッチが見えてしまう（試作で確認）。
+BASEMAP_NODATA_FILL = (45, 66, 68)
+# 「無データ」と見なす画素の上限（全チャンネルがこの値以下）。実写の陰影は
+# ここまで暗くならないため、陸域の影を誤って塗り潰すことはない。
+BASEMAP_BLACK_MAX = 10
+# 背景地図の減光率（DESIGN_GUIDE §7.3「背景地図を薄くし、主題データとの視覚的競合を
+# 避ける」）。出力 = 255 - (255 - 入力) × KEEP。KEEP=0.30 では最も暗い画素でも
+# 178 以上になり、主題データ（COL_WATER のグレースケール輝度 64）と明確に分離する。
+BASEMAP_LIGHTEN_KEEP = 0.30
+# 背景地図の帰属表示（プロジェクトで既に使っている文言と一致させる。
+# S11 フッターの `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.` と同一）。
+BASEMAP_CREDIT = "Basemaps: GSI Tiles, Geospatial Information Authority of Japan."
+# 帰属表示は2行に折り返して図版内に置く（1行では図幅を超える）。
+BASEMAP_CREDIT_WRAPPED = "Basemaps: GSI Tiles, Geospatial\nInformation Authority of Japan."
+# 帰属表示の native フォントサイズ。デッキのフッター階層（実効 11〜12pt）に合わせる。
+#   P6: 実寸 9.49 in、S6 の配置倍率 0.516 → 22pt × 0.516 = 11.4pt
+#   P8: 実寸 7.51 in、S8 の配置倍率 0.518 → 22pt × 0.518 = 11.4pt
+#   P7: 実寸 9.27 in、S7 の配置倍率 1.028 → 11pt × 1.028 = 11.3pt
+# 帰属表示は本文でも図中の主題ラベルでもないため、15pt 下限（`NATIVE_FONT_SIZES` の
+# 検査対象）には含めない。この扱いは内容契約の「実装時のハードゲート」に明記してある
+# （S11 フッターが同一文言を 11pt で置いている前例に合わせる）。
+BASEMAP_CREDIT_PT_MAP = 22.0
+P07_BASEMAP_CREDIT_PT = 11.0
 
 # 訪問4地点（Task 0 の踏査地点と同一の座標。scripts/build_chiri_koryu_figures.py の
 # waypoints と一致させること。Task 1 の preflight ruling により verbatim で固定）
@@ -306,6 +374,163 @@ def draw_water_polygons(ax, features: list[dict]) -> None:
             )
 
 
+def _bbox_3857(bbox=MAP_BBOX) -> tuple[float, float, float, float]:
+    """[west, south, east, north] を Web Mercator の (xmin, xmax, ymin, ymax) に変換する。"""
+    west, south, east, north = bbox
+    xmin, ymin = _to_3857(west, south)
+    xmax, ymax = _to_3857(east, north)
+    return xmin, xmax, ymin, ymax
+
+
+def fetch_basemap() -> None:
+    """地理院タイルを**一度だけ**取得して `BASEMAP_PATH` に保存する（ネットワーク使用）。
+
+    通常の図版生成（`main()`）はこの関数を呼ばない。図版生成をネットワークから完全に
+    独立させるため、取得は `--fetch-basemap` という専用の入口に分離してある。
+    タイル取得に使うモジュール（`mercantile` / `urllib`）もこの関数の内側でだけ
+    import し、モジュール先頭には取得系の import を置かない。
+
+    欠測（404 のタイルと、タイル内の真っ黒な無データ領域）は `BASEMAP_NODATA_FILL` で
+    埋める。合成後、`BASEMAP_BBOX` に対応する画素窓へ切り出して保存するので、
+    保存されたラスタの地理的範囲は地図軸の範囲と厳密に一致する。
+    """
+    import io  # noqa: PLC0415 — 取得専用の入口だけで使う
+    import urllib.error  # noqa: PLC0415
+    import urllib.request  # noqa: PLC0415
+
+    import mercantile  # noqa: PLC0415
+
+    west, south, east, north = BASEMAP_BBOX
+    tiles = list(mercantile.tiles(west, south, east, north, BASEMAP_ZOOM))
+    xs = sorted({t.x for t in tiles})
+    ys = sorted({t.y for t in tiles})
+    print(
+        f"fetching {len(tiles)} tiles (z{BASEMAP_ZOOM}, "
+        f"x {xs[0]}–{xs[-1]}, y {ys[0]}–{ys[-1]}) from {BASEMAP_TILE_URL}"
+    )
+    mosaic = Image.new("RGB", (256 * len(xs), 256 * len(ys)), BASEMAP_NODATA_FILL)
+    missing = 0
+    for tile in tiles:
+        url = BASEMAP_TILE_URL.format(z=tile.z, x=tile.x, y=tile.y)
+        try:
+            with urllib.request.urlopen(url, timeout=60) as response:
+                payload = response.read()
+        except urllib.error.HTTPError as exc:
+            if exc.code != 404:
+                raise
+            missing += 1  # 沖合のタイルは存在しない。BASEMAP_NODATA_FILL のままにする
+            continue
+        with Image.open(io.BytesIO(payload)) as tile_img:
+            mosaic.paste(
+                tile_img.convert("RGB"),
+                (256 * (tile.x - xs[0]), 256 * (tile.y - ys[0])),
+            )
+    print(f"  fetched {len(tiles) - missing} tiles, {missing} missing (sea) -> flat sea fill")
+
+    # モザイク全体の 3857 範囲（タイル境界にスナップした値）から、BASEMAP_BBOX に
+    # 対応する画素窓を切り出す。
+    upper_left = mercantile.xy_bounds(mercantile.Tile(xs[0], ys[0], BASEMAP_ZOOM))
+    lower_right = mercantile.xy_bounds(mercantile.Tile(xs[-1], ys[-1], BASEMAP_ZOOM))
+    mx0, my1 = upper_left.left, upper_left.top
+    mx1, my0 = lower_right.right, lower_right.bottom
+    px_per_m_x = mosaic.size[0] / (mx1 - mx0)
+    px_per_m_y = mosaic.size[1] / (my1 - my0)
+    xmin, xmax, ymin, ymax = _bbox_3857(BASEMAP_BBOX)
+    left = round((xmin - mx0) * px_per_m_x)
+    right = round((xmax - mx0) * px_per_m_x)
+    top = round((my1 - ymax) * px_per_m_y)
+    bottom = round((my1 - ymin) * px_per_m_y)
+    cropped = mosaic.crop((left, top, right, bottom))
+
+    # タイル内の真っ黒な無データ領域も埋め色に置き換える（減光すると 178 の灰色の
+    # 矩形として目立つため）。
+    arr = np.asarray(cropped, dtype=np.uint8).copy()
+    black = arr.max(axis=2) <= BASEMAP_BLACK_MAX
+    arr[black] = BASEMAP_NODATA_FILL
+    print(f"  filled {black.sum()} black no-data pixels ({black.mean():.2%})")
+    cropped = Image.fromarray(arr)
+
+    assert cropped.size == BASEMAP_EXPECTED_PX, (
+        f"切り出した背景地図の画素数 {cropped.size} が BASEMAP_EXPECTED_PX "
+        f"{BASEMAP_EXPECTED_PX} と一致しない（定数を更新すること）"
+    )
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    cropped.save(BASEMAP_PATH, format="PNG", optimize=True)
+    print(
+        f"saved: {BASEMAP_PATH.relative_to(PROJECT_ROOT)} "
+        f"({cropped.size[0]} x {cropped.size[1]} px, "
+        f"{BASEMAP_PATH.stat().st_size / 1e6:.1f} MB)\n"
+        f"  extent (west, south, east, north) = {BASEMAP_BBOX}\n"
+        f"  zoom = {BASEMAP_ZOOM}, tile url = {BASEMAP_TILE_URL}, "
+        f"retrieved = {BASEMAP_RETRIEVED}"
+    )
+
+
+_BASEMAP_CACHE: dict[str, np.ndarray] = {}
+
+
+def load_basemap() -> np.ndarray:
+    """追跡済みの背景地図ラスタを読み、減光した uint8 配列を返す（ネットワーク非使用）。
+
+    ファイルが無い場合は**明示的に失敗させる**。背景地図を黙って省いた図版を
+    出力すると、検出ポリゴンの位置が分からない元の状態へ静かに戻ってしまう。
+    """
+    if "img" in _BASEMAP_CACHE:
+        return _BASEMAP_CACHE["img"]
+    if not BASEMAP_PATH.is_file():
+        raise FileNotFoundError(
+            f"背景地図が見つかりません: {BASEMAP_PATH}\n"
+            "  この図版は追跡済みの背景地図ラスタを読み込みます（生成時にネットワークへは"
+            "アクセスしません）。\n"
+            "  取得手順を再実行してください:\n"
+            "    uv run python docs/presentations/exp002_kitagi_foss4g2026_figures.py "
+            "--fetch-basemap"
+        )
+    with Image.open(BASEMAP_PATH) as img:
+        assert img.size == BASEMAP_EXPECTED_PX, (
+            f"{BASEMAP_PATH.name}: 画素数 {img.size} が BASEMAP_EXPECTED_PX "
+            f"{BASEMAP_EXPECTED_PX} と一致しない（取得範囲・ズームが異なるラスタの可能性）"
+        )
+        arr = np.asarray(img.convert("RGB"), dtype=np.uint16)
+    # 減光: 出力 = 255 - (255 - 入力) × KEEP。整数演算のみで丸めるため、実行ごとに
+    # 完全に同じ値になる（バイト一致の要件）。
+    keep_num = round(BASEMAP_LIGHTEN_KEEP * 100)
+    lightened = (255 - ((255 - arr) * keep_num + 50) // 100).astype(np.uint8)
+    _BASEMAP_CACHE["img"] = lightened
+    return lightened
+
+
+def draw_basemap(ax, bbox=MAP_BBOX) -> None:
+    """地図軸の最下層に減光した背景地図を敷く（主題データは zorder 5 以上で上に載る）。"""
+    xmin, xmax, ymin, ymax = _bbox_3857(bbox)
+    ax.imshow(
+        load_basemap(),
+        extent=(xmin, xmax, ymin, ymax),
+        interpolation="antialiased",
+        zorder=0,
+    )
+
+
+def add_basemap_credit(ax, fontsize: float, *, text: str = BASEMAP_CREDIT_WRAPPED):
+    """背景地図の帰属表示を地図軸の内側（右下）に置き、その Text を返す。
+
+    軸の**外側**には置かない。外側に置くと図版全体の実寸が伸びてスライド上の配置倍率が
+    下がり、図中文字の実効ptが目減りする（15pt下限の余裕は数%しかない）。
+    フォントサイズはデッキのフッター階層（実効 11〜12pt）に合わせる。内容契約の
+    「実装時のハードゲート」に、帰属表示行はフッター階層に従うことを明記してある。
+    """
+    # 置き場所は軸の左上（地図範囲の北西隅）。この一帯は海で、検出ポリゴンもゾーン
+    # ラベルも訪問地点ラベルも無いため、3つの図版すべてで衝突しない（P6・P8 では
+    # `assert_labels_inside_and_disjoint()` が実測で検査する）。右下・左下は
+    # スケールバーと south-east / 訪問地点のラベルに近く、実測で衝突した。
+    return ax.text(
+        0.022, 0.978, text,
+        transform=ax.transAxes, ha="left", va="top",
+        fontsize=fontsize, color=COL_TEXT, linespacing=1.25, zorder=30,
+        bbox=dict(boxstyle="square,pad=0.3", fc="white", ec=COL_TEXT, alpha=0.9),
+    )
+
+
 def report_size(path: Path) -> int:
     with Image.open(path) as img:
         w, h = img.size
@@ -446,6 +671,9 @@ def make_p05_index_panels() -> None:
 def make_p06_clusters_map(features: list[dict]) -> None:
     fig, ax = plt.subplots(figsize=(11.0, 9.4), dpi=SAVE_DPI)
     setup_map_axes(ax)
+    # 追跡済みの背景地図（地理院タイル）を最下層に敷く。検出ポリゴンが島のどこに
+    # あるのかを海岸線との関係で読めるようにするため（DESIGN_GUIDE §7.3 に従い減光）。
+    draw_basemap(ax)
     draw_water_polygons(ax, features)
 
     # native フォントは 20pt から 32pt へ引き上げた（Final review の Critical 指摘）。
@@ -498,8 +726,12 @@ def make_p06_clusters_map(features: list[dict]) -> None:
     scalebar_fontsize = 32.0
     add_scalebar(ax, fontsize=scalebar_fontsize)
 
+    # 帰属表示はゾーンラベルと同じ衝突検査にかける（オフセットの手調整が将来崩れても
+    # 機械的に検出できるようにする）。
+    credit = add_basemap_credit(ax, BASEMAP_CREDIT_PT_MAP)
+
     plt.tight_layout()
-    assert_labels_inside_and_disjoint(fig, ax, zone_annotations, "P6")
+    assert_labels_inside_and_disjoint(fig, ax, [*zone_annotations, credit], "P6")
     out = OUT_DIR / "p06_clusters_map.png"
     plt.savefig(out, dpi=SAVE_DPI, bbox_inches="tight", facecolor="white")
     plt.close()
@@ -519,6 +751,7 @@ def make_p06_clusters_map(features: list[dict]) -> None:
 def make_p08_visit_anchors_map(features: list[dict]) -> None:
     fig, ax = plt.subplots(figsize=(11.0, 9.4), dpi=SAVE_DPI)
     setup_map_axes(ax)
+    draw_basemap(ax)  # P6 と同じ背景地図（減光済み）
     draw_water_polygons(ax, features)
 
     # native フォントは 20pt から 32pt へ引き上げた（Final review の Critical 指摘。
@@ -612,8 +845,10 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
         edgecolor=COL_TEXT,
     )
 
+    credit = add_basemap_credit(ax, BASEMAP_CREDIT_PT_MAP)
+
     plt.tight_layout()
-    assert_labels_inside_and_disjoint(fig, ax, visit_annotations, "P8")
+    assert_labels_inside_and_disjoint(fig, ax, [*visit_annotations, credit], "P8")
     out = OUT_DIR / "p08_visit_anchors_map.png"
     plt.savefig(
         out, dpi=SAVE_DPI, bbox_inches="tight", facecolor="white",
@@ -729,8 +964,10 @@ def make_p07_three_scales(features: list[dict]) -> None:
         title_texts.append(ax.set_title(label, fontsize=caption_fontsize, color=COL_TEXT, pad=10))
 
     setup_map_axes(ax_c, MAP_BBOX)
+    draw_basemap(ax_c)  # P6・P8 と同じ背景地図（減光済み）
     draw_water_polygons(ax_c, features)
     add_scalebar(ax_c, fontsize=caption_fontsize)
+    add_basemap_credit(ax_c, P07_BASEMAP_CREDIT_PT)
     label_c = "(c) From orbit —\ndistribution"
     title_texts.append(ax_c.set_title(label_c, fontsize=caption_fontsize, color=COL_TEXT, pad=10))
 
@@ -862,6 +1099,20 @@ def make_p12_loop_diagram() -> None:
 
 # ---------------------------------------------------------------- main
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--fetch-basemap",
+        action="store_true",
+        help=(
+            "地理院タイルを取得して背景地図ラスタを保存する（ネットワークを使う唯一の経路。"
+            "図版は生成しない）"
+        ),
+    )
+    args = parser.parse_args()
+    if args.fetch_basemap:
+        fetch_basemap()
+        return
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     features = load_polygons()
     print(f"loaded {len(features)} polygons from {GEOJSON_PATH.relative_to(PROJECT_ROOT)}")

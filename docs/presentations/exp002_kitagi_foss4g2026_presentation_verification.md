@@ -72,15 +72,16 @@ SHA256 は `docs/presentations/images/` 内のファイルから本書執筆時�
 
 | ファイル名 | コピー元 / 生成元 | SHA256 | 使用スライド |
 |---|---|---|---|
+| `basemap_kitagi_gsi_seamlessphoto.png` | 取得元: 地理院タイル `https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg`（全国最新写真、ズーム17、範囲 west 133.514 / south 34.367 / east 133.562 / north 34.402、取得日 2026-08-24）。取得は `exp002_kitagi_foss4g2026_figures.py --fetch-basemap` で一度だけ行い、以後はこの追跡ファイルを読むのみ（下記2.4参照） | `d4acad49c687f4e7be26cca39af254a999a9fa4afb339273d5c696ba1e72f640` | （直接配置せず）P6・P7パネル(c)・P8 の背景地図 |
 | `choba_lake_1.jpg` | コピー元: `docs/results/exp002/photos/choba_lake_1.jpg`（著者撮影、バイト一致確認済み） | `df0c227a8100895ac850978393c94ef960e662bc18f8694feda1462ad22a5d3a` | S3（右） |
 | `choba_lake_3.jpg` | コピー元: `docs/results/exp002/photos/choba_lake_3.jpg`（著者撮影、バイト一致確認済み） | `fc76d7fa21c77ed0b4ecff470860b8f767fd1a7e0a0844e79338ffa47afffb8e` | S1（表紙）・S7パネル(a)の原画像 |
 | `fig01_lake_stage.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig01_lake_stage.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `02da83402c64be3ed06acfefdb5f324c204428350e82b9534bfe4ad4303761ae` | S3（左） |
 | `fig05_drone_takeoff.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig05_drone_takeoff.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `f4ec2d10e0729a867af58f5cad32040a40f9be56eb24c6432e90ada6573353a3` | S4（右） |
 | `fig06_aerial_quarries.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig06_aerial_quarries.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `086a3714fee9792edbf29e60057fff10452028a584338f65bf0784582c4e29b2` | S4（左）・S7パネル(b)の原画像（`vbias=0.2768` で上寄りクロップ） |
 | `p05_index_panels.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p05_index_panels()`（入力: `poster_f4_index_panels.png` のパネル画像4枚の切り出し。ラスタは無加工で、英語ラベルとカラーバーのみ大きく再描画。下記2.3参照） | `0baee6fe35ec978d91567fe8688d43272ded0304400c8713addff3469faab4c7` | S5 |
-| `p06_clusters_map.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（入力: 公開GeoJSON、SHA256は下記2.1参照） | `09aa8638622bb442dc078c3e722928cbd135f530f89555aa69d64b0be546a5b4` | S6 |
-| `p07_three_scales.png` | 生成元: 同スクリプトの `make_p07_three_scales()`（入力: `choba_lake_3.jpg`・`fig06_aerial_quarries.jpg`・公開GeoJSON。英語ラベルのみの発表専用合成図） | `1c3e8b52a1a322eb89236a0218565ccd48fd96f4891f7a9be3c08b2da07d3fb7` | S7 |
-| `p08_visit_anchors_map.png` | 生成元: 同スクリプトの `make_p08_visit_anchors_map()`（入力: 公開GeoJSON＋訪問記図4の座標確認済み4地点） | `add61bb21d7a7339c20ae8f31bce11b5c3d42fef016b651593222ccd564e26a0` | S8 |
+| `p06_clusters_map.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（入力: 公開GeoJSON、SHA256は下記2.1参照） | `28a38ba53e82371dd736332f343fa2c936e429aff9ec042d2d2abae8756a13c1` | S6 |
+| `p07_three_scales.png` | 生成元: 同スクリプトの `make_p07_three_scales()`（入力: `choba_lake_3.jpg`・`fig06_aerial_quarries.jpg`・公開GeoJSON。英語ラベルのみの発表専用合成図） | `35480da35fb01f89808810887b65069ddfe0b3ec7ee41e9ed0107023b561682d` | S7 |
+| `p08_visit_anchors_map.png` | 生成元: 同スクリプトの `make_p08_visit_anchors_map()`（入力: 公開GeoJSON＋訪問記図4の座標確認済み4地点） | `9b5ff60f4e6980cb47cfd49e8af4f7952a76d9756a354eb75ac9c35f5dd0c772` | S8 |
 | `p12_loop_diagram.png` | 生成元: 同スクリプトの `make_p12_loop_diagram()`（新規作図、外部入力なし） | `d7d389b2fdc97829f427cdd29b25339ab16c9bf2113dce8cf9c7da9ad21ea45e` | S12 |
 | `placeholder_revisit_1.png` | 生成元: 記録なし（一回性の生成物。生成スクリプトは保存されていない）。8/31撮影分の実写に差し替えるまでの仮画像 | `f9a9175dd22b98cb607f5f67e1f0d1c84aa77b675aea26e96e35d6bccdd4ea33` | S9（左、実写未着手のため使用中） |
 | `placeholder_revisit_2.png` | 生成元: 同上。`placeholder_revisit_1.png` とバイト単位で同一（同一手順で生成された仮画像） | `f9a9175dd22b98cb607f5f67e1f0d1c84aa77b675aea26e96e35d6bccdd4ea33` | S9（右、実写未着手のため使用中） |
@@ -121,6 +122,68 @@ S5 の指数4パネルは、ポスター図版 `poster_f4_index_panels.png` を*
   （`81b9b5dc9f1dffc38369606f3e2a5c91d21e75c63839972be577f761d57fc16a`）を検査してから
   切り出す。切り出し箱の各辺が白い帯を含まないことも実測で検査する
 
+### 2.4 背景地図（地理院タイル）の出典・範囲・取得日と、英語版タイルを使わなかった理由
+
+検出地図（P6・S7パネル(c)・P8）は、検出ポリゴンが島のどこにあるのかを海岸線との関係で
+読めるよう、地理院タイルの背景地図を最下層に敷く。
+
+| 項目 | 値 |
+|---|---|
+| タイルURL | `https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg`（地理院タイル「全国最新写真（シームレス）」） |
+| ズームレベル | 17 |
+| 範囲（west, south, east, north） | 133.514, 34.367, 133.562, 34.402（EPSG:4326。図版の地図軸 `MAP_BBOX` と厳密に一致） |
+| 保存画素数 | 4,474 × 3,953 px（地上分解能約 1.0 m/px） |
+| 取得日 | 2026-08-24 |
+| 取得タイル数 | 304 枚（うち沖合16枚は 404。欠測は埋め色で処理） |
+| 追跡ファイル | `docs/presentations/images/basemap_kitagi_gsi_seamlessphoto.png`（18.3 MB） |
+| 帰属表示 | `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.`（P6・P8 は native 22pt、P7パネル(c) は native 11pt で図版内左上に焼き込み。実効 11.3〜11.4pt でフッター階層と同じ） |
+
+**英語版タイル（`xyz/english/`）を使わなかった理由（ブリーフからの逸脱）**
+
+統制者ブリーフは英語版タイルの使用を指示していたが、英語版タイルは**ズームレベル 5〜11 しか
+存在しない**（z12 以上は 404。本作業中に実測して確認）。z11 の地上分解能は約 76 m/px で、
+地図範囲（幅 5,343 m）はわずか 70 px にしかならない。出力図版の地図軸は約 1,850 px 幅で
+あり、ブリーフが同時に要求する「出力1pxあたり2px以上」（＝3,700 px 以上）に対して 1/50 以下
+であって、拡大すれば著しくぼやける。二つの要求は同時に満たせない。
+
+英語版タイルを指定した理由は「日本語版の地図は日本語の地名が焼き込まれており、投影面は
+英語のみでなければならない」ことである。そこで**文字を一切含まない**全国最新写真
+（`seamlessphoto`、z2〜18）を z17 で使った。文字が無いため「投影面は英語のみ」という要件は
+完全に満たされ、かつ 4,474 px（出力1pxあたり2.4px）で解像度の要件も満たす。
+検討して採らなかった代替:
+
+- 淡色地図 `pale`・標準地図 `std`（z18まで）: 日本語地名（北木島・豊浦・大浦 等）を含む
+- 白地図 `blank`（z14まで）: 日本語地名を含む
+- 陰影起伏図 `hillshademap`（z16まで）・色別標高図 `relief`（z15まで）: 文字は無いが解像度不足
+- 英語版タイル z11 を拡大: 上記のとおり著しくぼやける
+
+**欠測画素の処理**
+
+`seamlessphoto` は (1) 沖合のタイルが存在せず404を返す、(2) 存在するタイルの一部に真っ黒な
+無データ領域がある——という2種類の欠測を含む。いずれも取得範囲では南西・南東の沖合だけに
+現れる（404 が 4.1%、黒が 2.8%）。実写の海の色の中央値 RGB (45, 66, 68) で両方を埋めた。
+減光後の埋め色は RGB (192, 198, 199) で、周囲の海の平均（(192〜196, 198〜205, 198〜209)）と
+ほぼ一致するため、明度差としては見えない（模様の無い平坦な面としてのみ判別できる）。
+陸域・検出ポリゴンのある領域に欠測は無い。
+
+**減光とグレースケール確認**
+
+DESIGN_GUIDE §7.3（背景地図を薄くし、主題データとの視覚的競合を避ける）に従い、
+`出力 = 255 - (255 - 入力) × 0.30` の整数演算で減光する（実行ごとに完全に同じ値になる）。
+減光後のラスタの最小輝度は 178（グレースケール変換後 179）で、検出ポリゴンの色
+`COL_WATER = #0d47a1`（グレースケール輝度 64、透過 0.95 で背景と合成しても約 71）とは
+100階調以上離れている。P6・P7・P8 の各図版を Pillow の `.convert("L")` でグレースケール化して
+目視し、水域ポリゴンが背景地図から明確に分離していることを確認した（本書6章に記録）。
+
+**再生成時のネットワーク非依存**
+
+図版生成（`exp002_kitagi_foss4g2026_figures.py` の通常実行）はこの追跡ラスタを読むだけで、
+ネットワークへはアクセスしない。取得系のモジュール（`mercantile` / `urllib`）は
+`fetch_basemap()` の内側でのみ import する。ラスタが無い場合は
+`load_basemap()` が `FileNotFoundError` で明示的に失敗し、`--fetch-basemap` の再実行を促す
+（黙って背景地図なしの図版を出力しない）。画素数が `BASEMAP_EXPECTED_PX` と異なる場合も
+assert で失敗する。
+
 ## 3. 2026-08-31 撮影記録（現地確認後に追記）
 
 S9（"Two days ago I went back — a first look, not validation"）の2枚の写真は、本書執筆時点では未撮影であり、`placeholder_revisit_1.png` / `placeholder_revisit_2.png` が仮画像として使われている（2章参照）。8月31日の再訪後、撮影した写真に差し替えたうえで、以下の空欄表を実測値で埋めること。
@@ -150,6 +213,8 @@ S9（"Two days ago I went back — a first look, not validation"）の2枚の写
 | OSMは参考値 | OpenStreetMap照合は参考値であり正解データではない。距離は地物形状をEPSG:32653へ投影した形状間距離（重なる場合は0m）。投影面には件数・距離・感度を出さず、S8の1行のみに集約する | 内容契約「本発表の性格」節・S8 Notes-only boundary、`exp002_osm_comparison.md`（距離定義・集計表・「これは精度検証ではない」の明記） |
 | 指数の合成条件は投影、個別定義式は発話・図版内 | S5投影本文には閾値付きの合成条件（`Water if (NDWI > −0.2 OR MNDWI > −0.1) AND NOT (NDVI > 0.3)`）を置くが、`NDWI = (Green − NIR) / (Green + NIR)` 等の個別定義式は投影本文に置かず、発話とfigure内注記（`p05_index_panels.png`）に限る | 本書1.1節、`exp002_kitagi_foss4g2026_presentation.py` の `s05()` コメント、validator `check_evidence_hierarchy()` |
 | S1・S3は色付き原本、上空写真はグレースケール | S1表紙・S3の2枚の写真は色付きの現地写真原本を使う。上空写真（`fig05_drone_takeoff.jpg`・`fig06_aerial_quarries.jpg`）は日本語記事用に変換されたグレースケール版のままで、色付き原本が存在しないため差し替えていない（本書執筆時にPillowで画素サンプリングして確認: `choba_lake_1.jpg`/`choba_lake_3.jpg`/`fig01_lake_stage.jpg` は mode RGB でチャンネル間に差があり、`fig05_drone_takeoff.jpg`/`fig06_aerial_quarries.jpg` は mode L で無彩色） | 内容契約 S1・S3の Visual 注記（Fix round 2・3）、本書2章の画像表 |
+| 背景地図は文字を含まない地理院タイル | 検出地図（P6・S7パネル(c)・P8）の背景地図は地理院タイルの全国最新写真（`seamlessphoto` z17）を使う。英語版タイルは z11 までしか存在せず島の縮尺では著しくぼやけるため使えない。日本語地名を含む淡色地図・標準地図・白地図は投影面が英語のみという契約に抵触するため使わない。文字を含まない写真タイルはこの契約に抵触しない | 本書2.4節、内容契約 S6・S7・S8 の Visual 注記 |
+| 帰属表示はフッター階層 | 図版内の帰属表示（`Basemaps: GSI Tiles, ...`）は本文でも主題ラベルでもないため、15pt下限ではなくフッター階層（実効11〜12pt）に従う。S11 フッターが同一文言を 11pt で置いている前例に合わせる | 内容契約「実装時のハードゲート」節、`exp002_kitagi_foss4g2026_figures.py` の `BASEMAP_CREDIT_PT_MAP` |
 | S7は英語専用の三スケール合成図 | S7には発表専用に新規生成した `p07_three_scales.png`（英語ラベルのみ）を使い、日本語記事と共有される `fig09_multiscale.png`（日本語キャプション焼き込み・動画UI写り込み）は使わない | 内容契約 S7 Visual 注記、本書2.2節 |
 | 再訪は現地確認の開始であり検証ではない | 8月31日の再訪は"a first look, not validation"であり、サンプリング設計されたaccuracy validationではない。写真は候補地点の存在を示すのみで、正誤の集計や丁場の同定は行わない | 内容契約 S9 Notes-only boundary・「8月31日の撮影に向けた事前準備」節、本書3章 |
 | OSMへの還元は今後の計画 | OpenStreetMapへの地物追加は今後の計画として述べ、既に還元したとは述べない。追加するのは現地で確認できたものに限る | 内容契約「主張境界」節・S12 Notes-only boundary、S12投影本文（"I plan to contribute the ponds I can confirm."） |
@@ -159,7 +224,10 @@ S9（"Two days ago I went back — a first look, not validation"）の2枚の写
 以下はすべて `uv run python` 経由で実行する（リポジトリ規約）。図版・PPTX・検査スクリプトはこの順に再実行すればバイト単位で再現される決定的な出力を生成する（各スクリプトのdocstringに再現性の明記あり）。
 
 ```bash
-# 1. 新規図版（P5・P6・P7・P8・P12）を images/ に生成
+# 0. 背景地図の取得（ネットワークを使う唯一の経路。取得済みなら再実行不要）
+uv run python docs/presentations/exp002_kitagi_foss4g2026_figures.py --fetch-basemap
+
+# 1. 新規図版（P5・P6・P7・P8・P12）を images/ に生成（ネットワーク非依存）
 uv run python docs/presentations/exp002_kitagi_foss4g2026_figures.py
 
 # 2. 口頭発表 PPTX を生成（12枚版）
