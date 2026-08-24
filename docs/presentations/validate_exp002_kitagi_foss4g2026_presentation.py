@@ -63,7 +63,10 @@ JA_MARKER = "**JA (not spoken)**"
 # (事実の説明, その事実が発話されていると認める正規表現) の並び。
 S6_REQUIRED_FACTS: list[tuple[str, str]] = [
     ("春季シーンの日付", r"2025-03-23|twenty-third of March"),
-    ("春季シーンの雲量（0.0%）", r"0\.0%|no cloud at all|zero cloud"),
+    # 雲量0.0%は**数値として発話される**ことを要求する。`no cloud at all` のような
+    # 見た目の印象に置き換えると「報告されたメタデータの値」であることが伝わらないため、
+    # 数値表記と綴り字表記（zero point zero percent）のみを受け入れる。
+    ("春季シーンの雲量（0.0%）", r"0\.0%|zero point zero percent"),
     ("春季の報告件数（113）", r"\b113\b|one hundred and thirteen"),
     ("春季の最大面積（1.28 ha）", r"1\.28 hectares|one point two eight hectares"),
     ("夏季シーンの日付", r"2025-08-02|second of August"),

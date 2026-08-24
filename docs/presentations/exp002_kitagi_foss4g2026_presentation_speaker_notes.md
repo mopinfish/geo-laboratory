@@ -15,12 +15,13 @@
 
 **EN (spoken)**
 
-Good afternoon. Before anything else, please look at the wall in this picture. This cliff is not natural. People have quarried granite on this island for about four hundred years; this wall is one result. The water at the bottom arrived later, after the cutting stopped. This is a photograph I took on the island myself. It is not a map, and it is not a result from my analysis. My name is Noboru Otsuka, and I work at Geolonia. For the next twenty minutes I will show you the same island at three different scales.
+Good afternoon. Please look at this wall. This cliff is not natural. People have quarried granite on this island for about four hundred years, and this wall is one result. The water at the bottom arrived later, after the cutting stopped. This is a photograph I took on the island myself. It is not a map, and it is not a result from my analysis. For the next twenty minutes I will show you the same island at three different scales.
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
 - 訳: 「この崖は自然のものではない」から入る。この島では約400年にわたり花崗岩が切り出されてきており、この壁はその結果のひとつ。水はその後に溜まったもの。写真は著者が現地で撮影したもので、検出結果の図ではない。
 - 冒頭の一言は「この崖は自然のものではない」に固定する。ここで手法の話をしない。
+- 氏名・所属は表紙に投影されているため口頭では述べない（発話は写真の説明に集中させる）。
 - 表紙写真は現地写真。検出結果の可視化と誤解されないよう「結果ではない」と明言する。
 
 ---
@@ -81,7 +82,7 @@ On the second day we flew from the stage on the water. And the island changed sh
 
 From the air, the quarries read as grey rectangles cut into a green canopy. Straight edges, right angles, sharp corners. Nothing else on that island looks like that.
 
-The thing I did not expect is what sits between them. Where two companies held quarrying rights next to each other, neither side cut the boundary. So a thin wall of granite is left standing between the two pits. A property line, standing as terrain. A line on a legal document became a landform.
+The thing I did not expect is what sits between them. Two companies once held quarrying rights side by side. Neither company cut through the boundary. So a thin wall of granite is left standing between the two pits. A property line, standing as terrain. A line on a legal document became a landform.
 
 You cannot see that from the ground, because you are inside one pit or the other. And from orbit, at ten metres, the wall is too thin to notice. You can only see it from the air.
 
@@ -91,7 +92,7 @@ And one more thing from those two days, which I will pick up again at the end. T
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
-- 訳: 2日目に湖上ステージからドローンを飛ばした。上空からは緑の樹冠に切り込まれた灰色の矩形として見える。隣接する採石権者の境界は切削されず、細い花崗岩の壁として残る。所有権の線が地形になっている。イベントではOpenStreetMapへの地物追加と湖の測量も行った。
+- 訳: 2日目に湖上ステージからドローンを飛ばした。上空からは緑の樹冠に切り込まれた灰色の矩形として見える。かつて2社が隣り合って採石権を持っていたが、どちらもその境界を切り崩さなかったため、細い花崗岩の壁として残っている。所有権の線が地形になっている。イベントではOpenStreetMapへの地物追加と湖の測量も行った。
 - 境界が地形になっているという観察は**現地での定性的観察**であり、本研究の測定結果ではない。英語でも明言する。
 - イベントで追加したのは現地で観察できた地物のみ。徒歩到達範囲を網羅的に地図化したとは述べない。
 - 最後の一文（島全体のインベントリにはなっていない）はS12の「地図に還す」への伏線。
@@ -102,11 +103,11 @@ And one more thing from those two days, which I will pick up again at the end. T
 
 **EN (spoken)**
 
-On the train home I was still thinking about the five or six ponds I had seen, and about all the ones I had not. There is one instrument that covers the whole island in a single frame, and it is free to use.
+On the train home, I was still thinking about the five or six quarry sites I had visited — and how little of the island I had seen. There is one instrument that covers the whole island in a single frame, and it is free to use.
 
-I used Sentinel-2, level 2A, pulled through the Microsoft Planetary Computer STAC API. One summer scene, the second of August 2025, with zero point seven percent cloud, on a ten metre grid.
+I downloaded a Sentinel-2 Level-2A scene through the STAC API of the Microsoft Planetary Computer. The summer scene is from the second of August 2025, with zero point seven percent cloud, on a ten metre grid.
 
-I want to say clearly that this is a standard water-index workflow, and nothing in the method is new. I used three indices, all of them simple band arithmetic. NDWI is built from the green band and the near-infrared band. MNDWI is built from the green band and the short-wave infrared band. NDVI, the vegetation index, is built from the near-infrared band and the red band. The rule that combines them is simple, and the exact expression is on the slide. A pixel counts as water when either water index is high enough on its own, unless the vegetation index marks that pixel as vegetation. The two water cut-offs sit just below zero — minus zero point two, and minus zero point one. The vegetation cut-off is zero point three.
+I want to say clearly that this is a standard water-index workflow; the method is not new. All three indices are simple band arithmetic. NDWI compares green and near-infrared light. MNDWI compares green and short-wave infrared. NDVI compares near-infrared and red. Either water index can flag a pixel. NDVI then removes pixels marked as vegetation. The exact expression is on the slide. The two water cut-offs sit just below zero — minus zero point two, and minus zero point one. The vegetation cut-off is zero point three.
 
 You may be wondering why two of those thresholds sit below zero. The reason is the pixel size. At ten metres, a narrow pond is part water, part granite and part shadow, all inside one pixel, so a strict positive threshold can miss small ponds or mixed shoreline pixels.
 
@@ -114,8 +115,9 @@ I picked the numbers from the valley in the histogram. I did not optimise them, 
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
-- 訳: Sentinel-2 L2A を Microsoft Planetary Computer の STAC API 経由で取得。2025年8月2日・雲量0.7%・10 m グリッド。NDWI＝緑と近赤外、MNDWI＝緑と短波赤外、NDVI＝近赤外と赤。水域条件は（NDWI > −0.2 または MNDWI > −0.1）かつ NDVI > 0.3 でない。負の閾値は10 mでの混合画素への対処。閾値はヒストグラムの谷から決めた値で、最適化・感度分析・現地検証はしていない。短波赤外は20 mから10 mへリサンプリング。報告下限は100 m²。
-- 3指数の**式は投影本文に置かず図版の中に置く**。したがって「何と何から作るか」は英語の発話で必ず言う。閾値そのものはスライドに出ているので、口頭では式を読み上げず規則の形だけを言い、数値は一度だけ落ち着いて言う。
+- 訳: Sentinel-2 L2A のシーンを Microsoft Planetary Computer の STAC API 経由でダウンロードした。2025年8月2日・雲量0.7%・10 m グリッド。NDWI＝緑と近赤外、MNDWI＝緑と短波赤外、NDVI＝近赤外と赤。水域条件は（NDWI > −0.2 または MNDWI > −0.1）かつ NDVI > 0.3 でない。負の閾値は10 mでの混合画素への対処。閾値はヒストグラムの谷から決めた値で、最適化・感度分析・現地検証はしていない。短波赤外は20 mから10 mへリサンプリング。報告下限は100 m²。
+- 3指数の**式は投影本文に置かず図版の中に置く**。したがって「何と何から作るか」は英語の発話で必ず言う。閾値そのものはスライドに出ているので、口頭では式を読み上げず規則の形だけを言い、数値は一度だけ落ち着いて言う。指数の説明は1文1指数の短文に分けてあるので、続けて速く読まず、指数ごとに区切る。
+- `STAC` は一語として読まず、`S-T-A-C` と1文字ずつ読む。
 - 「標準的な手順であり手法の新規性はない」も英語で必ず言う。本発表は手法の新規性を主張しない。
 - 閾値の由来（ヒストグラムの谷・最適化なし）はこのスライドの留保。急いでいても削らない。
 
@@ -127,7 +129,7 @@ I picked the numbers from the valley in the histogram. I did not optimise them, 
 
 So: one scene, one island, and this is what came out. The scan found one hundred and forty-five water polygons inside the island, each at least one hundred square metres.
 
-There are two scenes behind this. In spring, on the twenty-third of March 2025, the scene had no cloud at all; we reported one hundred and thirteen polygons, and the largest of them was one point two eight hectares. In summer, on the second of August 2025, cloud was zero point seven percent; the scan returned one hundred and forty-five polygons, and the largest was seven thousand eight hundred and twenty-six square metres.
+There are two scenes behind this. For spring, I used a scene from the twenty-third of March 2025. Its reported cloud cover was zero point zero percent. We reported one hundred and thirteen polygons. The largest was one point two eight hectares. The summer scene was from the second of August 2025, with zero point seven percent cloud. It returned one hundred and forty-five polygons. The largest was seven thousand eight hundred and twenty-six square metres.
 
 Now the honest part. The two reported scenes differed, but we have not isolated the cause. It is tempting to say this is the season, and I am not going to say that. The spring figure is what we reported; that run's configuration is not preserved. So please treat one hundred and thirteen as the reported value, with a reproducibility limitation.
 
@@ -139,9 +141,11 @@ The line at the bottom of the slide is the one to take away. These are detected 
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
-- 訳: 夏季シーンから島内145件（各100 m²以上）を検出。春季 2025-03-23・雲量0.0%・報告113件・最大1.28 ha、夏季 2025-08-02・雲量0.7%・145件・最大7,826 m²。両者は差があるが原因は特定できていない。春季値は当時の報告値で実行設定が保存されていない。NDVIマスクの除外は9ピクセルのみ（この結果への寄与は小さかった）。分布は北・南東・中央・西の4集中帯で歴史記録と整合。145対127は規模の比較であって1対1対応ではない。検出は候補であり個別に現地確認されていない。精度指標は算出していない。
+- 訳: 夏季シーンから島内145件（各100 m²以上）を検出。春季 2025-03-23・報告雲量0.0%・報告113件・最大1.28 ha、夏季 2025-08-02・雲量0.7%・145件・最大7,826 m²。両者は差があるが原因は特定できていない。春季値は当時の報告値で実行設定が保存されていない。NDVIマスクの除外は9ピクセルのみ（この結果への寄与は小さかった）。分布は北・南東・中央・西の4集中帯で歴史記録と整合。145対127は規模の比較であって1対1対応ではない。検出は候補であり個別に現地確認されていない。精度指標は算出していない。
 - 春季113は当時の報告値であり、現行パイプラインで同一シーンを再計算すると180件になる（113は未再現）。この数はスライドにも英語の発話にも出さないが、再現性を問われた場合に答えられるよう把握しておく。
 - 必須発話6行（両シーンの日付・雲量・件数・最大面積、原因未特定、実行設定の非保存、NDVIの9ピクセル、候補であって現地確認済みでない旨）はこのスライドの契約事項。時間が押しても削らない。
+- 雲量は「報告値（reported cloud cover）」として数値で述べる。「雲がまったく無かった」のような見た目の印象に置き換えない。
+- 数値は1文1項目に分けてある。7,826 m²（seven thousand eight hundred and twenty-six square metres）の前後では一拍置き、桁を潰さずに言う。
 - 季節を原因として断定しない。「原因は特定できていない」で止める。
 - 145件は検出数であって丁場数ではない。127との近さを一致として語らない。
 - S6単体で2:30以内に収める。押している場合は情景描写ではなく分布の説明を短くする。
@@ -178,13 +182,13 @@ Now I want to hold two numbers against each other, because the gap between them 
 
 I am not saying that my five or six are five or six of the 145. I never matched the places I visited to individual polygons, so please hear this as a contrast of scale and nothing more. Individual ponds are not field-confirmed. There is no precision and no recall yet.
 
-I can offer you one reference point. Every quarry feature that is already mapped in OpenStreetMap overlaps one of my detections. I pulled that comparison in late August, and I am showing it as a reference, not as ground truth. OpenStreetMap is not an accuracy benchmark, and an overlap does not mean the two records describe the same feature. So I will not call it agreement, and I will not turn it into a percentage.
+One reference point: every OpenStreetMap quarry feature in the comparison overlapped a detection. I pulled that comparison in late August, and I am showing it only as a reference. But OpenStreetMap is not ground truth, and overlap does not prove identity. So I will not call it agreement, and I do not report it as accuracy.
 
-What I do have is something I find more useful than a percentage. Before the scan, the honest answer I could find to "how many drowned quarries are on this island" was that there is no public island-wide list. The scan does not answer that question either. What it gives me is one hundred and forty-five water-polygon candidates to prioritise for field checking, subject to access, safety and permission. The candidates form a finite field-check list, and that is what makes the next step possible to plan.
+Before the scan, the honest answer I could find to "how many drowned quarries are on this island" was that there is no public island-wide list. Nor does the scan tell us how many drowned quarries exist. It gives 145 water-polygon candidates to prioritise, subject to access, safety and permission. That finite list makes fieldwork possible to plan.
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
-- 訳: 訪問5〜6か所に対し、1シーンから145件の検出。走査の前に見つけられた答えは「島全体を網羅した公開リストは無い」であり、走査もその問いには答えない。得られるのは、立入可否・安全・許可を前提に現地確認の優先順位を付けるための水域ポリゴン候補145件である。訪問地点を個別ポリゴンに照合した記録はないため、これは規模の対比にとどまる。個別の池は現地確認されておらず、精度指標もない。OSMに既に登録済みの丁場地物はいずれも検出と重なるが、これは参考値であって正解データではない。重なりは同一地物の同定を意味しない。候補は有限の現地確認リストになる。
+- 訳: 訪問5〜6か所に対し、1シーンから145件の検出。訪問地点を個別ポリゴンに照合した記録はないため、これは規模の対比にとどまる。個別の池は現地確認されておらず、精度指標もない。参考として、比較対象としたOSMの丁場地物はいずれも検出と重なった（照合は8月下旬）。ただしOSMは正解データではなく、重なりは同一地物であることの証明にはならないため、精度としては報告しない。走査の前に見つけられた答えは「島全体を網羅した公開リストは無い」であり、走査もまた丁場池の総数を教えてはくれない。得られるのは、立入可否・安全・許可を前提に優先順位を付けるための水域ポリゴン候補145件であり、この有限のリストが現地調査の計画を可能にする。
 - OSMは参考値。件数の内訳・距離の定義・感度は投影せず、口頭でも数値化しない（質疑で聞かれた場合のみ想定問答で答える）。
 - 訪問地点が検出集合の部分集合であるとは主張しない。この否定を英語で必ず言う。
 - 到達可能性は安全・立入許可に依存する。「歩けば全部確認できる」とは言わない。
@@ -217,7 +221,7 @@ What a visit like this changes is not a number. Walking to a place because a sat
 
 **EN (spoken)**
 
-I should be explicit about where this breaks.
+Before I take this any further, I should be explicit about its limits.
 
 Ten metre resolution. A pond narrower than about ten metres is unreliable, and that island has narrow flooded cuts. Thresholds below zero. They let in dark rock and deep shadow, and that is the price I paid for keeping the small ponds. No precision and no recall, because the field validation that would produce those numbers has not been done.
 
@@ -225,12 +229,14 @@ And what I detect is water, not quarries. A natural pond is water. An irrigation
 
 One more, which I mentioned earlier. I had expected vegetation to be a real problem. The mask changed only nine pixels in this run, so it added little to this particular result.
 
-The next steps are simple and boring. Walk the candidates. Add a land mask so the shoreline stops leaking in. Try higher-resolution imagery on the narrow ones. None of that needs a new method. It needs somebody to go and look.
+The next steps are straightforward, but essential. Walk the candidates. Add a land mask so the shoreline stops leaking in. Try higher-resolution imagery on the narrow ones. None of that needs a new method. It needs somebody to go and look.
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
 - 訳: 10 m解像度では約10 m未満の池は信頼できない。負の閾値は暗い岩肌や影を取り込む。精度指標はなく、現地検証も行っていない。検出しているのは水域であって丁場ではないため、自然の池・農業用ため池・貯水施設が含まれ得る。海岸線付近のポリゴンには海水が含まれる可能性がある。NDVIマスクの除外はこの実行では9ピクセルのみで、この結果への寄与は小さかった。次の一手は候補の踏査・海岸線用の陸域マスク・高分解能画像。
 - 限界は弁明せず短く言い切る。ここで補足を足すほど弱く聞こえる。
+- 冒頭は「次に進む前に限界を明示する」という前置きで入る。11枚版（S9なしでS8の直後）でもそのまま成立する言い方にしてある。
+- 「次の一手」は退屈な作業としてではなく、簡明だが不可欠な作業として述べる。
 - 「今後の課題」を新手法の必要性として語らない。必要なのは現地確認である。
 
 ---
@@ -239,11 +245,11 @@ The next steps are simple and boring. Walk the candidates. Add a land mask so th
 
 **EN (spoken)**
 
-The 145 polygons are open data now. They are published as GeoJSON, in EPSG 4326, so you could open them in QGIS this afternoon if you wanted to.
+To make that next step possible, the 145 polygons are open data now. They are published as GeoJSON, in EPSG 4326, so you could open them in QGIS this afternoon if you wanted to.
 
 Now, what exactly is public? The detected polygons are public. The pipeline also writes raster output for fieldwork and heritage documentation, and that is an output format rather than something I have published.
 
-The whole pipeline is open-source Python: rasterio, numpy, shapely, pystac-client, planetary-computer and folium. No licence fee. No imagery purchase.
+The pipeline uses open-source Python libraries, including Rasterio, NumPy and Shapely. There are no licence fees and no imagery to buy.
 
 Which means the same workflow could be extended to other quarried islands in the Seto Inland Sea, and there are several of them. One warning if you try it. Do not carry my thresholds across unchanged. They came out of the histogram of this island, in this season, in this water. Derive your own.
 
@@ -251,8 +257,10 @@ The imagery is modified Copernicus Sentinel data from 2025, and this work is CC 
 
 **JA (not spoken)** — 訳と補足。読み上げない。
 
-- 訳: 145件は GeoJSON（EPSG:4326）として公開済み。パイプラインは現地調査・遺産記録向けにラスタ出力も生成するが、こちらは出力仕様であって公開物ではない。実装はOSSのPythonのみ（rasterio, numpy, shapely, pystac-client, planetary-computer, folium）。ライセンス費・画像購入費は不要。瀬戸内の他の採石島へ展開可能だが、閾値はそのまま持ち込めない。
+- 訳: S10の「見に行く」を可能にするために、145件は GeoJSON（EPSG:4326）として公開済み。パイプラインは現地調査・遺産記録向けにラスタ出力も生成するが、こちらは出力仕様であって公開物ではない。実装はOSSのPythonライブラリのみで、口頭ではrasterio・numpy・shapelyの3つだけを挙げる（6つの全リストはフッターに投影されている）。ライセンス費・画像購入費は不要。瀬戸内の他の採石島へ展開可能だが、閾値はそのまま持ち込めない。
 - 公開物（GeoJSON）とパイプライン出力（GeoTIFF）を混同しない。この区別を英語で必ず言う。
+- ライブラリ名の6連続は口頭では潰れるため、発話は3つに絞る。残りはフッターの投影で足りる。
+- `EPSG 4326` に触れる場合は `E-P-S-G four three two six` と1文字ずつ読む。
 - 帰属表記（Copernicus・CC BY 4.0）はこことS6で口頭にも載せる。
 
 ---
