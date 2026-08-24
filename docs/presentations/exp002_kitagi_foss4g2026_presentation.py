@@ -13,8 +13,10 @@
 （現地訪問が未実施の場合の切替。`build(revisit=False)` が11枚を返す）。
 
 スピーカーノートは `exp002_kitagi_foss4g2026_presentation_speaker_notes.md` を正本とし、
-ビルド時に読み込んで各スライドのノートペインへ書き込む（英語の発話本文を先頭に、
-空行を挟んで日本語の非発話部分を続ける）。再訪なし版では S9 の節を使わないだけで、
+ビルド時に読み込んで各スライドのノートペインへ書き込む。1スライドは3ブロック構成で、
+英語の発話原稿 → 日本語の発話原稿（読み上げ可）→ 日本語の補足（読み上げない）の順に、
+空行を挟んで全ブロックを書き込む（発表者が PowerPoint のノートペインだけを見ても
+3ブロックすべてが読めるようにする）。再訪なし版では S9 の節を使わないだけで、
 残りのスライドは内容契約のスライド番号で対応付ける。
 
 決定性（determinism）: 生成される .pptx はコミット対象であり、再生成しても
@@ -48,9 +50,12 @@ OUTPUT = BASE / "exp002_kitagi_foss4g2026_presentation.pptx"
 NO_REVISIT_OUTPUT = BASE / "exp002_kitagi_foss4g2026_presentation_no_revisit.pptx"
 NOTES_MD = BASE / "exp002_kitagi_foss4g2026_presentation_speaker_notes.md"
 
-# スピーカーノート Markdown の構造マーカー（英語＝発話対象、日本語＝非発話）。
+# スピーカーノート Markdown の構造マーカー。壇上で読むのは英語（EN）で、日本語の
+# 発話原稿（JA_SPOKEN_MARKER 以下）は練習・自己確認・万一の代替のためにそのまま
+# 読み上げられる文章として書いてある。非発話の補足は JA_NOTES_MARKER 以下に置く。
 EN_MARKER = "**EN (spoken)**"
-JA_MARKER = "**JA (not spoken)**"
+JA_SPOKEN_MARKER = "**JA（訳・読み上げ可）**"
+JA_NOTES_MARKER = "**JA（補足・読み上げない）**"
 
 # --- 16:9 スライドサイズ ---
 SLIDE_W = Emu(12192000)
@@ -833,9 +838,10 @@ def _strip_section_rule(text: str) -> str:
 def parse_speaker_notes() -> dict[int, dict[str, str]]:
     """スピーカーノート Markdown を内容契約のスライド番号ごとに読み取る。
 
-    `### Slide N — <title>` 見出しで節に分け、`**EN (spoken)**` から
-    `**JA (not spoken)**` の直前までを英語の発話本文、`**JA (not spoken)**` の行から
-    節末までを日本語の非発話部分として取り出す。
+    `### Slide N — <title>` 見出しで節に分け、3つのマーカーで3ブロックに割る。
+    `**EN (spoken)**` から次のマーカーの直前までが英語の発話原稿、
+    `**JA（訳・読み上げ可）**` から次のマーカーの直前までが日本語の発話原稿、
+    `**JA（補足・読み上げない）**` の行から節末までが非発話の補足である。
     """
     md = NOTES_MD.read_text(encoding="utf-8")
     parts = re.split(r"(?m)^### Slide (\d+) — (.*)$", md)[1:]
@@ -843,22 +849,40 @@ def parse_speaker_notes() -> dict[int, dict[str, str]]:
     for i in range(0, len(parts), 3):
         number = int(parts[i])
         body = parts[i + 2]
-        if EN_MARKER not in body or JA_MARKER not in body:
-            raise ValueError(f"ノートの Slide {number} に EN / JA の区切りが無い")
+        if (
+            EN_MARKER not in body
+            or JA_SPOKEN_MARKER not in body
+            or JA_NOTES_MARKER not in body
+        ):
+            raise ValueError(f"ノートの Slide {number} に3ブロックの区切りが無い")
         after_en = body.split(EN_MARKER, 1)[1]
-        en = after_en.split(JA_MARKER, 1)[0].strip()
-        ja = _strip_section_rule(JA_MARKER + after_en.split(JA_MARKER, 1)[1])
-        sections[number] = {"title": parts[i + 1].strip(), "en": en, "ja": ja}
+        en = after_en.split(JA_SPOKEN_MARKER, 1)[0].strip()
+        after_ja_spoken = after_en.split(JA_SPOKEN_MARKER, 1)[1]
+        ja_spoken = (
+            JA_SPOKEN_MARKER
+            + "\n\n"
+            + after_ja_spoken.split(JA_NOTES_MARKER, 1)[0].strip()
+        )
+        ja_notes = _strip_section_rule(
+            JA_NOTES_MARKER + after_ja_spoken.split(JA_NOTES_MARKER, 1)[1]
+        )
+        sections[number] = {
+            "title": parts[i + 1].strip(),
+            "en": en,
+            "ja_spoken": ja_spoken,
+            "ja_notes": ja_notes,
+        }
     return sections
 
 
 def build_notes_text(section: dict[str, str]) -> str:
-    """ノートペインに書き込む文字列を組み立てる（英語→空行→日本語）。
+    """ノートペインに書き込む文字列を組み立てる（英語原稿→日本語原稿→非発話の補足）。
 
-    日本語側は見出し行（`**JA (not spoken)**` 以下）を含めたまま入れる。発表者が
-    ノートペインだけを見た状態でも「ここから先は読み上げない」境界が分かるようにする。
+    日本語の2ブロックは見出し行（`**JA（訳・読み上げ可）**` /
+    `**JA（補足・読み上げない）**`）を含めたまま入れる。発表者がノートペインだけを
+    見た状態でも「どこまで読み上げてよいか」の境界が分かるようにする。
     """
-    return f"{section['en']}\n\n{section['ja']}"
+    return f"{section['en']}\n\n{section['ja_spoken']}\n\n{section['ja_notes']}"
 
 
 def build(revisit: bool = True) -> Presentation:
