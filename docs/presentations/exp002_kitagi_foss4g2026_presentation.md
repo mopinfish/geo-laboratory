@@ -159,8 +159,8 @@
 - **Central claim**: 夏季シーンから島内145件の水域ポリゴンを検出し、その分布は採石の歴史的中心と整合した。
 - **Projected body**: 大きな数値 `145`; `intra-island water polygons ≥ 100 m², summer 2025-08-02`; `Clustered in the north, south-east, centre and west — consistent with historical quarrying records`; `145 detections vs 127 recorded quarry sites — a comparison of scale, not a one-to-one match`; 小タイル `Spring 2025-03-23 — 113 polygons reported`; `These are detected water polygons, not individually field-confirmed quarry ponds.`; `Contains modified Copernicus Sentinel data [2025].`
 - **Visual**: 検出分布図（4集中地帯を注記した**新規図版 P6**）。春季113は小さな数値タイルで併記。
-  検出ポリゴンの下に**追跡済みの背景地図**（地理院タイル `seamlessphoto` z17、`basemap_kitagi_gsi_seamlessphoto.png`）を減光して敷き、海岸線との関係で位置が読めるようにする。
-  図版内左上に `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.` を焼き込む。
+  検出ポリゴンの下に**追跡済みの背景地図**（CARTO Positron ラベルなし `light_nolabels` z17、`basemap_kitagi_carto_positron.png`）を減光して敷き、海岸線との関係で位置が読めるようにする。**航空写真は使わない**（実写の池の上に検出結果を載せると ground truth と読まれるため。照合記録 2.4 節）。
+  図版内左上に `Basemap: © OpenStreetMap contributors, © CARTO` を焼き込む。
 - **Notes-only boundary**: 145は検出数であって丁場数ではない。春季113は当時の報告値で、実行設定が保存されておらず差の原因は特定できていない（現行パイプラインの再計算は180）。夏季のNDVIマスクで除外されたのは9ピクセルのみで、候補マスクへの追加効果は限定的だった。精度への効果は未評価である。
 - **Required spoken content（英語ノートで必須。投影面に全て載せる必要はない）**:
   - `Spring: 2025-03-23, 0.0% cloud — 113 reported polygons, largest 1.28 hectares`
@@ -199,7 +199,7 @@
 - **Central claim**: 現地で訪れたのは5〜6か所、衛星が返したのは145件の候補である。両者は規模が違う。候補は有限の現地確認リストになる。
 - **Projected body**: `Five or six quarry sites visited during the event`; `145 water polygons detected from one scene`; `Individual ponds are not field-confirmed — no precision or recall yet`; `Every quarry feature already mapped in OpenStreetMap overlaps one of the detections (retrieved 2026-08-23, for reference)`; `The candidates form a finite field-check list.`
 - **Visual**: 検出分布図の上に、**座標を確認できた訪問地点のみ**を控えめに重ねる（**新規図版 P8**）。訪問記の図4で座標が特定できているのは4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜）であり、この4地点だけを表示する。
-  背景地図・帰属表示は P6 と同一（地理院タイル `seamlessphoto` z17、減光）。
+  背景地図・帰属表示は P6 と同一（CARTO Positron ラベルなし `light_nolabels` z17、減光）。
 - **Notes-only boundary**: 訪問した5〜6か所を145ポリゴンの個別IDへ照合した記録はない。ここで述べているのは**規模の対比**であり、訪問地点が検出集合の部分集合であるという主張ではない。到達可能性は安全・立入許可に依存し、すべてが徒歩で到達できるとは限らない。OSM は参考値であって正解データではなく、重なりは同一地物の同定や精度を意味しない。件数の内訳・距離の定義は投影しない。
 - **Claim type**: Scale contrast ＋ acknowledged gap ＋ OSM を参考値として1行。
 - **Duration**: 1:30
@@ -229,7 +229,7 @@
 ## Slide 11 — The 145 polygons are open data now
 
 - **Central claim**: 検出結果を公開したので、誰でも同じ手順を再実行し、候補を確かめられる。
-- **Projected body**: `Published — 145 detected polygons as GeoJSON · EPSG:4326`; `Pipeline outputs — GeoJSON and GeoTIFF for fieldwork and heritage documentation`; `Open-source Python pipeline · no licence fee, no imagery purchase`; `The same workflow could be extended to other quarried islands in the Seto Inland Sea.`; footer に `rasterio · numpy · shapely · pystac-client · planetary-computer · folium`、`Contains modified Copernicus Sentinel data [2025]. Basemaps: GSI Tiles, Geospatial Information Authority of Japan. CC BY 4.0.`
+- **Projected body**: `Published — 145 detected polygons as GeoJSON · EPSG:4326`; `Pipeline outputs — GeoJSON and GeoTIFF for fieldwork and heritage documentation`; `Open-source Python pipeline · no licence fee, no imagery purchase`; `The same workflow could be extended to other quarried islands in the Seto Inland Sea.`; footer に `rasterio · numpy · shapely · pystac-client · planetary-computer · folium`、`Contains modified Copernicus Sentinel data [2025]. CC BY 4.0.`、`Basemaps: GSI Tiles, Geospatial Information Authority of Japan; © OpenStreetMap contributors, © CARTO.`（デッキが実際に使う2種類の基図。S2 の位置図が GSI Tiles、S6・S7パネル(c)・S8 の検出地図が CARTO/OSM）
 - **Visual**: QRコード（`poster_qr_repo.png`）と最小限のテキスト。
 - **Notes-only boundary**: 公開しているのはGeoJSON。GeoTIFF はパイプラインの出力仕様であって公開物ではない。閾値は他島へそのまま持ち込めない。
 - **Claim type**: Reuse and transferability。
@@ -251,13 +251,13 @@
 | ID | 内容 | 生成元 |
 |---|---|---|
 | P5 | 指数4パネル（NDWI / MNDWI / NDVI / 最終マスク） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p05_index_panels()`（`poster_f4_index_panels.png` のパネル画像を切り出し、英語ラベルとカラーバーを再描画） |
-| P6 | 4集中地帯を注記した検出分布図（減光した地理院タイル背景つき） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（公開GeoJSON + `basemap_kitagi_gsi_seamlessphoto.png`） |
-| P7 | 三スケール合成図（徒歩・上空・衛星の英語ラベルのみ） | 同スクリプトの `make_p07_three_scales()`（`choba_lake_3.jpg` + `aerial_quarry_pond.jpg` + 公開GeoJSON + `basemap_kitagi_gsi_seamlessphoto.png`） |
-| P8 | 検出分布図に、座標を確認できた訪問地点4点のみを重ねた図（背景地図は P6 と同一） | 公開GeoJSON + 訪問記 図4 の4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜） + `basemap_kitagi_gsi_seamlessphoto.png` |
+| P6 | 4集中地帯を注記した検出分布図（減光したラベルなし淡色地図の背景つき） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（公開GeoJSON + `basemap_kitagi_carto_positron.png`） |
+| P7 | 三スケール合成図（徒歩・上空・衛星の英語ラベルのみ） | 同スクリプトの `make_p07_three_scales()`（`choba_lake_3.jpg` + `aerial_quarry_pond.jpg` + 公開GeoJSON + `basemap_kitagi_carto_positron.png`） |
+| P8 | 検出分布図に、座標を確認できた訪問地点4点のみを重ねた図（背景地図は P6 と同一） | 公開GeoJSON + 訪問記 図4 の4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜） + `basemap_kitagi_carto_positron.png` |
 | P12 | 「衛星 → 現地 → 地図」の3ステップフロー | 新規作図（図形3つ・細い矢印） |
 | S3・S9 | 写真スロット（16:9固定寸法） | 訪問記の写真、8月31日撮影分 |
 | S4 | 写真スロット（縦長・固定寸法。縦横比 0.878） | 発表者提供の色付き原本 `docs/results/exp002/photos/01.jpg`（画面UIを除去して `aerial_quarry_pond.jpg`）・`02.jpg`（`drone_lake_stage.jpg`） |
-| BM | 背景地図ラスタ（地理院タイル `seamlessphoto` z17、範囲 133.514/34.367/133.562/34.402、取得日 2026-08-24） | `exp002_kitagi_foss4g2026_figures.py --fetch-basemap`（ネットワークを使う唯一の経路。取得後は追跡ファイルを読むのみ） |
+| BM | 背景地図ラスタ（CARTO Positron ラベルなし `light_nolabels` z17、範囲 133.514/34.367/133.562/34.402、取得日 2026-08-24、0.95 MB） | `exp002_kitagi_foss4g2026_figures.py --fetch-basemap`（ネットワークを使う唯一の経路。取得後は追跡ファイルを読むのみ） |
 
 ## 8月31日の撮影に向けた事前準備
 
@@ -273,7 +273,7 @@
 
 - 本文を **15 pt 未満へ自動縮小しない**。収まらない場合は footer またはスピーカーノートへ送る（投影文字列が多い S2・S5・S6・S11 で特に注意）
 - S5 の式、S6 の補足値（春季タイル・雲量）は、中心メッセージより**小さい evidence 階層**に置く
-- 図版内の**背景地図の帰属表示**（`Basemaps: GSI Tiles, Geospatial Information Authority of Japan.`）は本文でも主題ラベルでもないため、15 pt 下限ではなく**フッター階層（11〜12 pt）**に従う（S11 のフッターが同一文言を 11 pt で置いている前例に合わせる）。この行は図版生成スクリプトの`NATIVE_FONT_SIZES` に宣言せず、validator の 15 pt 検査の対象外とする（意図的な除外であることを本節で明記する）
+- 図版内の**背景地図の帰属表示**（`Basemap: © OpenStreetMap contributors, © CARTO`）は本文でも主題ラベルでもないため、15 pt 下限ではなく**フッター階層（11〜12 pt）**に従う（S11 のフッターが基図の帰属表示を 11 pt で置いている前例に合わせる）。この行は図版生成スクリプトの`NATIVE_FONT_SIZES` に宣言せず、validator の 15 pt 検査の対象外とする（意図的な除外であることを本節で明記する）
 - **図版内に焼き込んだ文字**も、スライド上の実効サイズで 15 pt を下回らない。実効サイズは
   `native_pt × (配置幅 ÷ 画像実寸幅)` であり、判定は生成済みPPTXの `shape.width` と
   画像実寸（px ÷ dpi）から復元して行う（`validate_..._presentation.py` の
@@ -344,10 +344,10 @@
 
 | 依頼 | 対応 |
 |---|---|
-| 検出ポリゴンが島のどこにあるか分からない（検出地図の背景が中性色で海岸線が無い） | 地理院タイルの背景地図を**追跡ラスタ**として一度だけ取得し（`--fetch-basemap`）、P6・S7パネル(c)・P8 の最下層に減光して敷いた。図版生成は以後ネットワークに触れない（ラスタが無ければ明示的に失敗させる） |
-| 背景地図は英語版タイルで | 英語版タイル（`xyz/english/`）は**z11 までしか存在せず**（実測）、島の縮尺では 70 px しか得られないため、ブリーフが同時に要求する解像度（出力1pxあたり2px以上）を満たせない。英語版を指定した理由（日本語地名を投影面に出さない）を満たすため、**文字を一切含まない**全国最新写真（`seamlessphoto` z17）を採用した。日本語地名を含む淡色地図・標準地図・白地図は使わない。詳細は照合記録 2.4 節 |
-| 主題データとの視覚的競合を避ける | DESIGN_GUIDE §7.3 に従い整数演算で減光（`出力 = 255 - (255 - 入力) × 0.30`）。減光後の最小輝度 178 に対し検出ポリゴンのグレースケール輝度は 64 で、グレースケール化しても明確に分離することを目視確認した |
-| 帰属表示 | 各図版内の左上に `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.` を焼き込む（フッター階層 11〜12 pt。上記「実装時のハードゲート」参照）。図版の外側には置かない（図版実寸が伸びて配置倍率＝図中文字の実効ptが下がるため） |
+| 検出ポリゴンが島のどこにあるか分からない（検出地図の背景が中性色で海岸線が無い） | 文字を含まない背景地図を**追跡ラスタ**として一度だけ取得し（`--fetch-basemap`）、P6・S7パネル(c)・P8 の最下層に減光して敷いた。図版生成は以後ネットワークに触れない（ラスタが無ければ明示的に失敗させる） |
+| 背景地図は英語版タイルで | 英語版タイル（`xyz/english/`）は**z11 までしか存在せず**（実測）、島の縮尺では 70 px しか得られないため、解像度（出力1pxあたり2px以上）を満たせない。英語版を指定した理由（日本語地名を投影面に出さない）を満たすため、**ラベルを一切含まない**淡色地図 CARTO Positron（`light_nolabels` z17）を採用した。日本語地名を含む淡色地図・標準地図・白地図は使わない。詳細は照合記録 2.4 節 |
+| 主題データとの視覚的競合を避ける | DESIGN_GUIDE §7.3 に従い整数演算で減光（`出力 = 255 - (255 - 入力) × 0.80`）。減光後の最小輝度 222 に対し検出ポリゴンのグレースケール輝度は 64 で、グレースケール化しても明確に分離することを目視確認した。Positron は元から淡いため、写真基図向けの `0.30` では海岸線が消える（照合記録 2.4 節） |
+| 帰属表示 | 各図版内の左上に `Basemap: © OpenStreetMap contributors, © CARTO` を焼き込む（フッター階層 11〜12 pt。上記「実装時のハードゲート」参照）。図版の外側には置かない（図版実寸が伸びて配置倍率＝図中文字の実効ptが下がるため） |
 
 ### 2026-08-24 発表者からの調整依頼（写真の色付き原本への差し替え）
 
@@ -357,3 +357,19 @@
 | `01.jpg` の画面UI（macOS Dock・「Pages」ツールチップ）を投影面に出さない | 行ごとの彩度プロファイルと拡大目視で位置を特定（ツールチップ上端 y≈1244、Dock 上端 y≈1319）し、**追跡ファイルへのコピー時点で y=1230 で切り落とした**。表示側のクロップをどう変えても UI が再出現しない構造にした。詳細は照合記録 2.5 節 |
 | 縦長写真に合わせて S4 のレイアウトを変更 | 16:9 スロット2枚（横並び・本文は上）から、**縦長スロット2枚（横並び・本文は左）**へ変更。実測でスロット 3.87 × 4.40 in ×2 ＋ 間隔 0.20 in = 7.93 in、本文列 4.00 in となり図版帯（12.23 × 4.80 in）に重なりなく収まることを確認した。写真は引き伸ばさずクロップのみ。S3・S9 の 16:9 固定スロットは変更していない |
 | S7 パネル(b) も色付き原本へ | P7 は3パネル同高さの横並びなのでパネル(b) は横長（16:9）のまま。丁場池の水面が中央に、左右の切削面がともに入る `vbias=0.25` を試作の目視比較で選んだ |
+
+### 2026-08-24 是正（背景地図を航空写真からラベルなし淡色地図へ）
+
+同日の第1波では背景地図に地理院タイルの全国最新写真（`seamlessphoto` z17）を採用したが、
+これを撤回し **CARTO Positron のラベルなしタイル（`light_nolabels` z17）** に差し替えた。
+背景地図を敷くこと自体・取得の一回性・ネットワーク非依存・減光・帰属表示の位置と階層は変えていない。
+
+| 是正の理由・論点 | 対応 |
+|---|---|
+| 航空写真は S7 の物語と衝突する | S7 は「(a) 歩いて＝質感 / (b) 上空から＝境界 / (c) 衛星から＝分布」の三スケール合成図であり、パネル(c) の下に航空写真を敷くとパネル(b) と見分けが付かなくなる。ラベルなしの**地図**にしたことでパネル(b) と(c) が明確に別物として読める |
+| 航空写真は ground truth と読まれる | 本発表の主張境界は「検出は候補であり、ground truth も精度指標も持たない」こと。実際の丁場池が写った写真の上に検出結果を載せると「目視で検証済み」と受け取られ、「池が見えるなら指数は不要では」という誤解も招く。写真ではない地図に替えて解消した |
+| 投影面は英語のみ | Positron のラベルなしタイルは文字を一切含まないため、英語版タイルを指定した本来の理由をそのまま満たす（日本語地名を含む地理院の淡色地図・標準地図・白地図は引き続き使わない） |
+| 解像度 | Positron は z20 まであり、z17 で 4,474 px（出力1pxあたり2.4px）を確保できる |
+| 減光率の再調整 | Positron は元から淡いため（海 = 輝度 216、陸 = 241）、写真基図向けの `KEEP = 0.30` では全画素が 243 に潰れて海岸線が消える。`KEEP = 0.80` に緩め、検出ポリゴン（輝度 64）との差 158階調と海陸差 20階調を両立させた |
+| 帰属表示 | 図版内の焼き込みを `Basemap: © OpenStreetMap contributors, © CARTO` に差し替えた。S11 フッターはデッキが実際に使う2種類の基図を挙げる（S2 の位置図 = GSI Tiles、S6・S7パネル(c)・S8 = CARTO/OSM） |
+| 容量 | ベクタ由来のフラットなラスタは PNG が圧縮されるため、追跡ラスタ 18.3 MB → 0.95 MB、PPTX 各 13.0 MB → 8.9 MB に戻った |

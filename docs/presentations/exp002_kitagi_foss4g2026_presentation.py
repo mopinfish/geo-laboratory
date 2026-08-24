@@ -782,8 +782,13 @@ def s11(slide, n: int) -> None:
     )
     add_footer(slide, [
         "rasterio · numpy · shapely · pystac-client · planetary-computer · folium",
-        "Contains modified Copernicus Sentinel data [2025]. Basemaps: GSI Tiles, "
-        "Geospatial Information Authority of Japan. CC BY 4.0.",
+        "Contains modified Copernicus Sentinel data [2025]. CC BY 4.0.",
+        # 基図の帰属はデッキが実際に使っている2種類だけを挙げる（他は挙げない）。
+        #   S2 の位置図（`poster_f1_study_area.png`）= 地理院タイル英語版
+        #   S6・S7 パネル(c)・S8 の検出地図 = CARTO Positron（OpenStreetMap データ）
+        # 1行に収めると 11pt でも折り返して行がスライド下端へ迫るため、独立した行にする。
+        "Basemaps: GSI Tiles, Geospatial Information Authority of Japan; "
+        "© OpenStreetMap contributors, © CARTO.",
     ])
     add_slide_number(slide, n)
 

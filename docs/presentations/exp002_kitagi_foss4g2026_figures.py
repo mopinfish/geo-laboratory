@@ -5,9 +5,9 @@
 と、既にリポジトリへ取り込まれている画像（背景地図ラスタを含む）のみを入力とし、
 `tmp/`（Git管理外のキャッシュ）やネットワークアクセスには依存しない。
 
-背景地図（地理院タイル）だけは一度ネットワークから取得する必要があるが、その取得は
+背景地図（CARTO Positron のラベルなしタイル）だけは一度ネットワークから取得する必要があるが、その取得は
 `--fetch-basemap` という専用の入口に分離してあり、図版生成の通常経路（引数なしの実行）は
-追跡済みラスタ `images/basemap_kitagi_gsi_seamlessphoto.png` を読むだけである。
+追跡済みラスタ `images/basemap_kitagi_carto_positron.png` を読むだけである。
 取得系のモジュール（`mercantile` / `urllib`）も `fetch_basemap()` の内側でのみ import する。
 ラスタが存在しない場合は `load_basemap()` が明示的に失敗し、取得手順の再実行を促す
 （背景地図なしの図版を黙って出力しない）。
@@ -20,7 +20,7 @@
     p05_index_panels.png         — 指数4パネル（ポスター F4 のパネル画像を切り出し、
                                     英語ラベルとカラーバーを大きく再描画したもの）
     p06_clusters_map.png         — 検出145ポリゴン + 4地区（英語ラベル、報告書§4.3準拠。
-                                    減光した地理院タイル背景つき）
+                                    減光したラベルなし背景地図つき）
     p07_three_scales.png         — 三スケール合成図（英語ラベルのみ。Task 4 レビュー
                                     指摘の修正: 日本語記事と共有される
                                     `fig09_multiscale.png` の英語投影面への流用を解消）
@@ -93,24 +93,37 @@ COL_WATER_EDGE = "#062a52"
 MAP_BBOX = [133.514, 34.367, 133.562, 34.402]  # [west, south, east, north]
 MAP_CENTER_LAT = 34.384
 
-# ---------------------------------------------------------------- 背景地図（地理院タイル）
+# ---------------------------------------------------------------- 背景地図（CARTO Positron）
 # 検出ポリゴンが「島のどこにあるのか」が分かるよう、検出地図（P6・P8・P7 パネル(c)）の
-# 下に地理院タイルの背景地図を敷く。
+# 下に文字を含まない淡色の**地図**を敷く。
 #
-# タイルの選定（統制者ブリーフからの逸脱と、その理由）:
-#   ブリーフは英語版タイル（`xyz/english/`）の使用を指示していたが、英語版タイルは
-#   **ズームレベル 5〜11 しか存在しない**（z12 以上は 404。実測で確認）。z11 の地上分解能は
-#   約 76 m/px で、地図範囲(MAP_BBOX)の幅 5,343 m はわずか 70 px にしかならない。
-#   出力図版の地図軸は約 1,850 px 幅であり、ブリーフが要求する「出力1pxあたり2px以上」
-#   （＝3,700 px 以上）に対して 1/50 以下で、拡大すれば著しくぼやける。
-#   一方、英語版タイルを指定した理由は「日本語版の地図は日本語の地名が焼き込まれており、
-#   投影面は英語のみでなければならない」ことである。そこで**文字を一切含まない**
-#   全国最新写真（`seamlessphoto`、z2〜18）を z17 で使う。文字が無いため
-#   「投影面は英語のみ」という要件は完全に満たされ、かつ 4,474 px（出力1pxあたり2.4px）で
-#   解像度の要件も満たす。淡色地図・標準地図（z18まで）は日本語地名を含むため使わない。
-#   陰影起伏図（z16まで）・色別標高図（z15まで）は解像度が足りない。
-BASEMAP_PATH = OUT_DIR / "basemap_kitagi_gsi_seamlessphoto.png"
-BASEMAP_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg"
+# タイルの選定（検討した候補と却下理由）:
+#   (1) 地理院タイル英語版（`xyz/english/`）は **ズーム 5〜11 しか存在しない**
+#       （z12 以上は 404。実測で確認）。z11 の地上分解能は約 76 m/px で、地図範囲
+#       (MAP_BBOX) の幅 5,343 m はわずか 70 px にしかならない。出力図版の地図軸は
+#       約 1,850 px 幅であり、「出力1pxあたり2px以上」（＝3,700 px 以上）に対して
+#       1/50 以下で、拡大すれば著しくぼやける。使えない。
+#   (2) 地理院タイルの淡色地図・標準地図（z18まで）・白地図（z14まで）は
+#       **日本語地名が焼き込まれている**。投影面は英語のみという制約に反するため使わない。
+#   (3) 陰影起伏図（z16まで）・色別標高図（z15まで）は文字を含まないが解像度が足りない。
+#   (4) 全国最新写真（`seamlessphoto`）は文字が無く z18 まであるが、**航空写真は使わない**。
+#       理由は2つある。第一に、S7 は「歩いて／上空から／衛星から」の三スケール合成図で、
+#       パネル(c)（衛星・分布）の下に航空写真を敷くとパネル(b)（上空）と見分けが付かなくなり、
+#       このスライドの主旨が壊れる。第二に、実際の丁場池が写った航空写真の上に検出結果を
+#       載せると「目視で検証済み」と読まれてしまう。本発表の主張境界は「検出は候補であり、
+#       ground truth も精度指標も持たない」ことなので、これは許容できない
+#       （「池が見えるなら指数は要らないのでは」という誤解も招く）。
+#   (5) **採用: CARTO Positron（`light_nolabels`、z20まで）**。ラベルを一切含まないため
+#       投影面が英語のみという要件を満たし、z17 で 4,474 px（出力1pxあたり2.4px）と
+#       解像度も満たす。海岸線と道路が読めるので発表者の依頼（島のどこにあるか）に直接応え、
+#       ベクタ由来のフラットなラスタなので実写と違い PNG が十分に圧縮される。
+#       出典表示は `© OpenStreetMap contributors, © CARTO`（下記 BASEMAP_CREDIT）。
+BASEMAP_PATH = OUT_DIR / "basemap_kitagi_carto_positron.png"
+# `{s}`（サブドメイン）・`{r}`（Retina）のプレースホルダは使わない。取得コードは
+# z/x/y だけを差し込むため、サブドメインは固定し、Retina 版（@2x）も使わない
+# （contextily の `cx.providers.CartoDB.PositronNoLabels` と同じタイル。
+#  URL テンプレートは `https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png`）。
+BASEMAP_TILE_URL = "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
 BASEMAP_ZOOM = 17
 # 背景地図の範囲は地図軸の範囲（MAP_BBOX）と厳密に一致させる。タイルモザイクを
 # 合成したあと、この範囲に対応する画素窓へ切り出して保存するため、描画時の
@@ -120,32 +133,25 @@ BASEMAP_RETRIEVED = "2026-08-24"  # 取得日（この日に一度だけ取得�
 # 保存された背景地図の画素数。取得スクリプトが書き出した値であり、読み込み時に
 # 検査することで「別の範囲・別のズームのラスタが置かれた」事故を検出する。
 BASEMAP_EXPECTED_PX = (4474, 3953)
-# 欠測画素の埋め色。`seamlessphoto` は (1) 沖合のタイルが存在せず404を返す、
-# (2) 存在するタイルの一部に真っ黒な無データ領域がある——という2種類の欠測を含む。
-# どちらも取得範囲では南西・南東の沖合だけに現れる（実測: 404 が 4.1%、黒が 2.8%、
-# いずれも海域）。実写の海の色の中央値 (45, 66, 68) で両方を埋めると、減光後には
-# 周囲の海とほぼ区別できない平坦な面になる。淡い青で埋めると減光後も明度差が残り、
-# 沖合に矩形のパッチが見えてしまう（試作で確認）。
-BASEMAP_NODATA_FILL = (45, 66, 68)
-# 「無データ」と見なす画素の上限（全チャンネルがこの値以下）。実写の陰影は
-# ここまで暗くならないため、陸域の影を誤って塗り潰すことはない。
-BASEMAP_BLACK_MAX = 10
 # 背景地図の減光率（DESIGN_GUIDE §7.3「背景地図を薄くし、主題データとの視覚的競合を
-# 避ける」）。出力 = 255 - (255 - 入力) × KEEP。KEEP=0.30 では最も暗い画素でも
-# 178 以上になり、主題データ（COL_WATER のグレースケール輝度 64）と明確に分離する。
-BASEMAP_LIGHTEN_KEEP = 0.30
-# 背景地図の帰属表示（プロジェクトで既に使っている文言と一致させる。
-# S11 フッターの `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.` と同一）。
-BASEMAP_CREDIT = "Basemaps: GSI Tiles, Geospatial Information Authority of Japan."
-# 帰属表示は2行に折り返して図版内に置く（1行では図幅を超える）。
-BASEMAP_CREDIT_WRAPPED = "Basemaps: GSI Tiles, Geospatial\nInformation Authority of Japan."
+# 避ける」）。出力 = 255 - (255 - 入力) × KEEP。
+# Positron は元から淡い（実測: 海 ≈ 輝度 219、陸 ≈ 250、道路・海岸線 ≈ 200 前後）ため、
+# 写真基図に使っていた KEEP=0.30 をそのまま当てると海岸線と道路が消えてしまう
+# （海陸差が約 31 階調 → 約 9 階調）。主題データ（COL_WATER のグレースケール輝度 64）
+# との分離は素のままでも 130 階調以上あるので、減光は「わずかに掛ける」だけで足りる。
+BASEMAP_LIGHTEN_KEEP = 0.80
+# 背景地図の帰属表示。CARTO Positron は OpenStreetMap データを CARTO がレンダリングした
+# タイルなので、両者を表示する（contextily のプロバイダ定義の attribution と同一内容）。
+BASEMAP_CREDIT = "Basemap: © OpenStreetMap contributors, © CARTO"
+# 帰属表示は2行に折り返して図版内に置く（1行では帰属表示の箱が図の左上域からはみ出す）。
+BASEMAP_CREDIT_WRAPPED = "Basemap: © OpenStreetMap\ncontributors, © CARTO"
 # 帰属表示の native フォントサイズ。デッキのフッター階層（実効 11〜12pt）に合わせる。
 #   P6: 実寸 9.49 in、S6 の配置倍率 0.516 → 22pt × 0.516 = 11.4pt
 #   P8: 実寸 7.51 in、S8 の配置倍率 0.518 → 22pt × 0.518 = 11.4pt
 #   P7: 実寸 9.27 in、S7 の配置倍率 1.028 → 11pt × 1.028 = 11.3pt
 # 帰属表示は本文でも図中の主題ラベルでもないため、15pt 下限（`NATIVE_FONT_SIZES` の
 # 検査対象）には含めない。この扱いは内容契約の「実装時のハードゲート」に明記してある
-# （S11 フッターが同一文言を 11pt で置いている前例に合わせる）。
+# （S11 フッターが基図の帰属表示を 11pt で置いている前例に合わせる）。
 BASEMAP_CREDIT_PT_MAP = 22.0
 P07_BASEMAP_CREDIT_PT = 11.0
 
@@ -383,15 +389,17 @@ def _bbox_3857(bbox=MAP_BBOX) -> tuple[float, float, float, float]:
 
 
 def fetch_basemap() -> None:
-    """地理院タイルを**一度だけ**取得して `BASEMAP_PATH` に保存する（ネットワーク使用）。
+    """CARTO Positron タイルを**一度だけ**取得して `BASEMAP_PATH` に保存する（ネットワーク使用）。
 
     通常の図版生成（`main()`）はこの関数を呼ばない。図版生成をネットワークから完全に
     独立させるため、取得は `--fetch-basemap` という専用の入口に分離してある。
     タイル取得に使うモジュール（`mercantile` / `urllib`）もこの関数の内側でだけ
     import し、モジュール先頭には取得系の import を置かない。
 
-    欠測（404 のタイルと、タイル内の真っ黒な無データ領域）は `BASEMAP_NODATA_FILL` で
-    埋める。合成後、`BASEMAP_BBOX` に対応する画素窓へ切り出して保存するので、
+    CARTO Positron は全球を覆うので欠測タイルは存在しない。404 が返るのは URL や
+    ズームの指定を誤った場合であり、その場合は**黙って埋めずに失敗させる**
+    （欠測を海として塗り潰していた写真基図向けの処理は廃止した）。
+    合成後、`BASEMAP_BBOX` に対応する画素窓へ切り出して保存するので、
     保存されたラスタの地理的範囲は地図軸の範囲と厳密に一致する。
     """
     import io  # noqa: PLC0415 — 取得専用の入口だけで使う
@@ -408,24 +416,22 @@ def fetch_basemap() -> None:
         f"fetching {len(tiles)} tiles (z{BASEMAP_ZOOM}, "
         f"x {xs[0]}–{xs[-1]}, y {ys[0]}–{ys[-1]}) from {BASEMAP_TILE_URL}"
     )
-    mosaic = Image.new("RGB", (256 * len(xs), 256 * len(ys)), BASEMAP_NODATA_FILL)
-    missing = 0
+    mosaic = Image.new("RGB", (256 * len(xs), 256 * len(ys)), (255, 255, 255))
     for tile in tiles:
         url = BASEMAP_TILE_URL.format(z=tile.z, x=tile.x, y=tile.y)
         try:
             with urllib.request.urlopen(url, timeout=60) as response:
                 payload = response.read()
         except urllib.error.HTTPError as exc:
-            if exc.code != 404:
-                raise
-            missing += 1  # 沖合のタイルは存在しない。BASEMAP_NODATA_FILL のままにする
-            continue
+            # Positron は全球を覆うため 404 は「URL・ズームの指定ミス」を意味する。
+            # 欠測として埋めず、ここで失敗させる。
+            raise RuntimeError(f"タイル取得に失敗しました（{exc.code}）: {url}") from exc
         with Image.open(io.BytesIO(payload)) as tile_img:
             mosaic.paste(
                 tile_img.convert("RGB"),
                 (256 * (tile.x - xs[0]), 256 * (tile.y - ys[0])),
             )
-    print(f"  fetched {len(tiles) - missing} tiles, {missing} missing (sea) -> flat sea fill")
+    print(f"  fetched {len(tiles)} tiles (no missing tiles expected: global coverage)")
 
     # モザイク全体の 3857 範囲（タイル境界にスナップした値）から、BASEMAP_BBOX に
     # 対応する画素窓を切り出す。
@@ -441,14 +447,6 @@ def fetch_basemap() -> None:
     top = round((my1 - ymax) * px_per_m_y)
     bottom = round((my1 - ymin) * px_per_m_y)
     cropped = mosaic.crop((left, top, right, bottom))
-
-    # タイル内の真っ黒な無データ領域も埋め色に置き換える（減光すると 178 の灰色の
-    # 矩形として目立つため）。
-    arr = np.asarray(cropped, dtype=np.uint8).copy()
-    black = arr.max(axis=2) <= BASEMAP_BLACK_MAX
-    arr[black] = BASEMAP_NODATA_FILL
-    print(f"  filled {black.sum()} black no-data pixels ({black.mean():.2%})")
-    cropped = Image.fromarray(arr)
 
     assert cropped.size == BASEMAP_EXPECTED_PX, (
         f"切り出した背景地図の画素数 {cropped.size} が BASEMAP_EXPECTED_PX "
@@ -671,7 +669,7 @@ def make_p05_index_panels() -> None:
 def make_p06_clusters_map(features: list[dict]) -> None:
     fig, ax = plt.subplots(figsize=(11.0, 9.4), dpi=SAVE_DPI)
     setup_map_axes(ax)
-    # 追跡済みの背景地図（地理院タイル）を最下層に敷く。検出ポリゴンが島のどこに
+    # 追跡済みの背景地図（CARTO Positron・ラベルなし）を最下層に敷く。検出ポリゴンが島のどこに
     # あるのかを海岸線との関係で読めるようにするため（DESIGN_GUIDE §7.3 に従い減光）。
     draw_basemap(ax)
     draw_water_polygons(ax, features)
@@ -1112,7 +1110,7 @@ def main() -> None:
         "--fetch-basemap",
         action="store_true",
         help=(
-            "地理院タイルを取得して背景地図ラスタを保存する（ネットワークを使う唯一の経路。"
+            "背景地図タイルを取得してラスタを保存する（ネットワークを使う唯一の経路。"
             "図版は生成しない）"
         ),
     )

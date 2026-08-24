@@ -836,6 +836,11 @@ VERIFICATION_RETIRED_IMAGE_NAMES: tuple[str, ...] = (
     # 参照されなくなり `images/` から削除した2点。削除の経緯を記録に残すため名前で検査する
     # （`docs/articles/` 側の原本は無変更で存在する）。
     "fig05_drone_takeoff.jpg", "fig06_aerial_quarries.jpg",
+    # 2026-08-24 の是正で背景地図を航空写真（地理院タイル `seamlessphoto`）から
+    # ラベルなしの淡色地図（CARTO Positron）へ差し替えた結果、参照されなくなり
+    # `images/` から削除したラスタ。差し替えの経緯（S7 の三スケールの物語との衝突と、
+    # ground truth と読まれる懸念）を記録に残すため名前で検査する。
+    "basemap_kitagi_gsi_seamlessphoto.png",
 )
 
 # 8/31 撮影分の空欄テーブルに必須の見出し4列。
