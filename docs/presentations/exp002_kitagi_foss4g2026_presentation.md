@@ -148,7 +148,7 @@
 - **Central claim**: 夏季シーンから島内145件の水域ポリゴンを検出し、その分布は採石の歴史的中心と整合した。
 - **Projected body**: 大きな数値 `145`; `intra-island water polygons ≥ 100 m², summer 2025-08-02`; `Clustered in the north, south-east, centre and west — consistent with historical quarrying records`; `145 detections vs 127 recorded quarry sites — a comparison of scale, not a one-to-one match`; 小タイル `Spring 2025-03-23 — 113 polygons reported`; `These are detected water polygons, not individually field-confirmed quarry ponds.`; `Contains modified Copernicus Sentinel data [2025].`
 - **Visual**: 検出分布図（4集中地帯を注記した**新規図版 P6**）。春季113は小さな数値タイルで併記。
-- **Notes-only boundary**: 145は検出数であって丁場数ではない。春季113は当時の報告値で、実行設定が保存されておらず差の原因は特定できていない（現行パイプラインの再計算は180）。夏季のNDVIマスクで除外されたのは9ピクセルのみで、これは仮説の棄却である。
+- **Notes-only boundary**: 145は検出数であって丁場数ではない。春季113は当時の報告値で、実行設定が保存されておらず差の原因は特定できていない（現行パイプラインの再計算は180）。夏季のNDVIマスクで除外されたのは9ピクセルのみで、候補マスクへの追加効果は限定的だった。精度への効果は未評価である。
 - **Required spoken content（英語ノートで必須。投影面に全て載せる必要はない）**:
   - `Spring: 2025-03-23, 0.0% cloud — 113 reported polygons, largest 1.28 hectares`
   - `Summer: 2025-08-02, 0.7% cloud — 145 polygons, largest 7,826 square metres`

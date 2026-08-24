@@ -39,9 +39,9 @@
 
 ### Q1-4. Why does the NDVI mask matter if it only removed 9 pixels?
 - **JP:** 9ピクセルしか除外していないNDVIマスクに意味はあるのですか。
-- **A (EN):** Honestly, not in this scene — that was my third hypothesis and it was rejected. The vegetation mask itself covered a large area `[report: 72,636 px]`, but it barely overlapped the water candidates, so only 9 pixels changed. I keep it as a low-cost safeguard: it will matter when the workflow moves to greener islands.
-- **A (JP):** 正直に言えば、このシーンでは意味がありませんでした。3番目の仮説として立て、棄却されました。植生マスク自体は広い面積を覆っています `[報告書: 72,636 px]` が、水域候補との重複がほとんどなく、変化したのは9ピクセルだけでした。低コストな安全策として残しています。より緑の多い島へ展開するときには効くはずです。
-- 根拠: 報告書 4.2（表4-2）、5.1（仮説3は棄却）
+- **A (EN):** It changed very little in this scene. The vegetation mask covered 72,636 pixels `[report]`, but only nine overlapped the water candidates. Without field validation, I cannot say whether those nine pixels improved accuracy. I keep the mask as a low-cost safeguard because it may matter more on greener islands.
+- **A (JP):** このシーンでは変化はごくわずかでした。植生マスクは72,636ピクセルを覆っていましたが `[報告書]`、水域候補と重複したのは9ピクセルのみです。現地検証がないため、その9ピクセルが精度を改善したかどうかは言えません。候補マスクへの追加効果は小さかったが、精度への効果は評価できません。低コストな安全策として残しています。より緑の多い島では効く可能性があります。
+- 根拠: 報告書 4.2（表4-2）、5.1（仮説3の検証。精度への効果は未評価）
 
 ---
 

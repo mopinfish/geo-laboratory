@@ -144,9 +144,9 @@
 
 ### Beat 4.5 — NDVIマスクの「意外な結果」（Beat 4 の後。中央カラムの 9 px と F4）
 
-**EN:** One result surprised me. I expected the NDVI vegetation mask to do real work in summer — that was my third hypothesis. It excluded **nine pixels**. Nine. So in this scene the water candidates and the vegetated areas barely overlapped in this granite-dominated landscape. That hypothesis is rejected, and I keep the mask as a low-cost safeguard for transferring the workflow to greener islands.
+**EN:** One result surprised me. I expected the NDVI vegetation mask to do real work in summer — that was my third hypothesis. It excluded **nine pixels**. Nine. So in this scene the water candidates and the vegetated areas barely overlapped in this granite-dominated landscape. The mask's additional effect on the candidate layer was very small here, and whether it changed accuracy I cannot say — there's no ground truth in this study. I keep the mask as a low-cost safeguard for transferring the workflow to greener islands.
 
-**JP:** 一つ意外な結果がありました。夏季ではNDVI植生マスクが効くと予想していた — これが3番目の仮説でした。実際に除外されたのは**9ピクセル**です。9です。つまり花崗岩が卓越するこのシーンでは、水域候補と高NDVI植生域の重複がほとんどなかったということです。この仮説は棄却されました。マスクは、より緑の多い島へワークフローを展開するときの低コストな安全策として残しています。
+**JP:** 一つ意外な結果がありました。夏季ではNDVI植生マスクが効くと予想していた — これが3番目の仮説でした。実際に除外されたのは**9ピクセル**です。9です。つまり花崗岩が卓越するこのシーンでは、水域候補と高NDVI植生域の重複がほとんどなかったということです。候補マスクへの追加効果はこのシーンでは非常に小さく、精度に効いたかどうかは正解データがないため言えません。マスクは、より緑の多い島へワークフローを展開するときの低コストな安全策として残しています。
 
 ### Beat 5.5 — 季節差の読み方（Beat 5 の後。右カラム 113 / 145 タイルと春季注記）
 
@@ -203,7 +203,7 @@
 |---|---|
 | 全ての Tier 1 数値・主張・留保文言 | `exp002_kitagi_quarry_foss4g2026_poster_content.md`（内容契約）、`exp002_kitagi_quarry_foss4g2026_poster.svg`（最終文言） |
 | 4か所の集中地帯、北部が採石中心 | `docs/reports/exp002_kitagi_quarry_water_detection_report.md` 4.3、5.3 |
-| NDVIマスク仮説の棄却（9 px） | 同 5.1 仮説3 |
+| NDVIマスクの候補への追加効果（9 px、精度への効果は未評価） | 同 5.1 仮説3 |
 | 夏季の指数値域が狭い3つの要因 | 同 5.2 |
 | 春季113のプロベナンス | 同 4.1 追記（2026-08-14）、5.4 第6項 |
 | 春季・夏季の検出特性の違い | 同 4.4 |

@@ -15,7 +15,7 @@
 | **145**（夏季・島内検出ポリゴン数） | 投影: S6（callout 66pt）・S7・S8・S11。発話: S6–S12全体 | 報告書 表4-2「島内水域ポリゴン数（海域除外）145」（§4.2）。公開GeoJSON（`exp002_kitagi_summer_water_polygons_2025-08-02.geojson`）を本書執筆時に実測し、`features` 数が145件であることを確認済み（2章の生成コマンドと同じ環境で `len(features) == 145`） |
 | **113**（春季・島内報告ポリゴン数） | 投影: S6（小タイル "Spring 2025-03-23 — 113 polygons reported"）。発話: S6 required spoken content | 報告書 表4-1「島内水域ポリゴン数（海域除外）113」（§4.1）。同節の再現性追記: 当該実行の設定は保存されておらず、現行パイプラインで同一シーンを再計算すると180件になり113は未再現（原因未特定のまま S6 で扱う） |
 | **127**（1957年ピークの丁場数） | 投影: S2（"127 active quarry sites at the 1957 peak"）・S6（"145 detections vs 127 recorded quarry sites"） | 報告書 §1.1「昭和32年（1957年）には島内に大小127か所の丁場が稼働」。プロポーザル Abstract ¶2 に同値 |
-| **9 px**（NDVIマスクによる除外画素数） | 発話のみ: S6 required spoken content（"The NDVI vegetation mask removed only nine pixels"）、S10 EN本文（"The mask changed only nine pixels in this run"）。投影本文には数値を置かない | 報告書 表4-2「植生マスクにより除外 9 px」（§4.2）。仮説3の棄却根拠（§5.1） |
+| **9 px**（NDVIマスクによる除外画素数） | 発話のみ: S6 required spoken content（"The NDVI vegetation mask removed only nine pixels"）、S10 EN本文（"The mask changed only nine pixels in this run"）。投影本文には数値を置かない | 報告書 表4-2「植生マスクにより除外 9 px」（§4.2）。仮説3の検証根拠。精度への効果は未評価（§5.1） |
 | **100 m²**（最小報告ポリゴン面積） | 投影: S5（"Minimum reported polygon area: 100 m²"）・S6（"intra-island water polygons ≥ 100 m²"） | 報告書 §3.4「水域ポリゴンは100m²以上のもののみを抽出した」 |
 | **10 m**（解析グリッド／Sentinel-2の分解能） | 投影: S5（"10 m analysis grid"、"at 10 m a narrow pond is..."）・S10（"10 m resolution — ponds narrower than about 10 m are unreliable"） | 報告書 §3.2（B02/B03/B04/B08の分解能10m）・§3.4（10mグリッドでの複合判定） |
 | **20 m**（B11短波長赤外バンドの元解像度） | 発話のみ: S5 EN本文（"The short-wave band arrives at twenty metres, so I resampled it to ten"）。投影本文には置かない | 報告書 §3.2「B11（20m分解能）はバイリニア補間により10m分解能にリサンプリングした」 |
