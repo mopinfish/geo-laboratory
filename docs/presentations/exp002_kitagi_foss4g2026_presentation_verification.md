@@ -72,15 +72,15 @@ SHA256 は `docs/presentations/images/` 内のファイルから本書執筆時�
 
 | ファイル名 | コピー元 / 生成元 | SHA256 | 使用スライド |
 |---|---|---|---|
+| `aerial_quarry_pond.jpg` | コピー元: `docs/results/exp002/photos/01.jpg`（著者提供の色付き原本、1080 x 1440 px）。**macOS の Dock（上端 y=1319）と「Pages」ツールチップ（上端 y=1244）を投影面に出さないため、上から 1230 行だけを切り出したもの**（1080 x 1230 px、下記2.5参照） | `5262eff47363798e4aff1bd3cf0c450a50bff8cb2d9176d391d517bdcdd49467` | S4（左、クロップなし）・S7パネル(b)の原画像（16:9へ `vbias=0.25` で縦クロップ） |
 | `basemap_kitagi_gsi_seamlessphoto.png` | 取得元: 地理院タイル `https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg`（全国最新写真、ズーム17、範囲 west 133.514 / south 34.367 / east 133.562 / north 34.402、取得日 2026-08-24）。取得は `exp002_kitagi_foss4g2026_figures.py --fetch-basemap` で一度だけ行い、以後はこの追跡ファイルを読むのみ（下記2.4参照） | `d4acad49c687f4e7be26cca39af254a999a9fa4afb339273d5c696ba1e72f640` | （直接配置せず）P6・P7パネル(c)・P8 の背景地図 |
 | `choba_lake_1.jpg` | コピー元: `docs/results/exp002/photos/choba_lake_1.jpg`（著者撮影、バイト一致確認済み） | `df0c227a8100895ac850978393c94ef960e662bc18f8694feda1462ad22a5d3a` | S3（右） |
 | `choba_lake_3.jpg` | コピー元: `docs/results/exp002/photos/choba_lake_3.jpg`（著者撮影、バイト一致確認済み） | `fc76d7fa21c77ed0b4ecff470860b8f767fd1a7e0a0844e79338ffa47afffb8e` | S1（表紙）・S7パネル(a)の原画像 |
+| `drone_lake_stage.jpg` | コピー元: `docs/results/exp002/photos/02.jpg`（著者提供の色付き原本、1080 x 1440 px、無加工のコピー） | `a458369e6601199c6e95819733f36dfa6fc3848826bbf5ceb0361c60294df94f` | S4（右、`vbias=0.0` で下側を縦クロップ） |
 | `fig01_lake_stage.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig01_lake_stage.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `02da83402c64be3ed06acfefdb5f324c204428350e82b9534bfe4ad4303761ae` | S3（左） |
-| `fig05_drone_takeoff.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig05_drone_takeoff.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `f4ec2d10e0729a867af58f5cad32040a40f9be56eb24c6432e90ada6573353a3` | S4（右） |
-| `fig06_aerial_quarries.jpg` | コピー元: `docs/articles/2026_chiri-koryu-10/figures/fig06_aerial_quarries.jpg`（著者撮影・記事図版と共有、バイト一致確認済み） | `086a3714fee9792edbf29e60057fff10452028a584338f65bf0784582c4e29b2` | S4（左）・S7パネル(b)の原画像（`vbias=0.2768` で上寄りクロップ） |
 | `p05_index_panels.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p05_index_panels()`（入力: `poster_f4_index_panels.png` のパネル画像4枚の切り出し。ラスタは無加工で、英語ラベルとカラーバーのみ大きく再描画。下記2.3参照） | `0baee6fe35ec978d91567fe8688d43272ded0304400c8713addff3469faab4c7` | S5 |
 | `p06_clusters_map.png` | 生成元: `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（入力: 公開GeoJSON、SHA256は下記2.1参照） | `28a38ba53e82371dd736332f343fa2c936e429aff9ec042d2d2abae8756a13c1` | S6 |
-| `p07_three_scales.png` | 生成元: 同スクリプトの `make_p07_three_scales()`（入力: `choba_lake_3.jpg`・`fig06_aerial_quarries.jpg`・公開GeoJSON。英語ラベルのみの発表専用合成図） | `35480da35fb01f89808810887b65069ddfe0b3ec7ee41e9ed0107023b561682d` | S7 |
+| `p07_three_scales.png` | 生成元: 同スクリプトの `make_p07_three_scales()`（入力: `choba_lake_3.jpg`・`fig06_aerial_quarries.jpg`・公開GeoJSON。英語ラベルのみの発表専用合成図） | `c1276d1a39c4232093ea738e65d97d412c746d71344b7fd746ba437d2c7f8861` | S7 |
 | `p08_visit_anchors_map.png` | 生成元: 同スクリプトの `make_p08_visit_anchors_map()`（入力: 公開GeoJSON＋訪問記図4の座標確認済み4地点） | `9b5ff60f4e6980cb47cfd49e8af4f7952a76d9756a354eb75ac9c35f5dd0c772` | S8 |
 | `p12_loop_diagram.png` | 生成元: 同スクリプトの `make_p12_loop_diagram()`（新規作図、外部入力なし） | `d7d389b2fdc97829f427cdd29b25339ab16c9bf2113dce8cf9c7da9ad21ea45e` | S12 |
 | `placeholder_revisit_1.png` | 生成元: 記録なし（一回性の生成物。生成スクリプトは保存されていない）。8/31撮影分の実写に差し替えるまでの仮画像 | `f9a9175dd22b98cb607f5f67e1f0d1c84aa77b675aea26e96e35d6bccdd4ea33` | S9（左、実写未着手のため使用中） |
@@ -103,6 +103,8 @@ SHA256 は `docs/presentations/images/` 内のファイルから本書執筆時�
 
 - **`fig03_keirin_cliff.jpg`**（日本語記事用にグレースケール化された図版）: S1表紙・S7パネル(a)の初期案として使われていたが、色付きの現地写真であるべきという判断（本書「4. 意図的に境界を引いた主張」参照）により `choba_lake_3.jpg`（色付き）へ差し替え、参照が無くなったコピーを `images/` から削除した（コミット `031cfef`「fix: S1表紙・S3写真をグレースケール記事図版から色付き原本に差し替え」）。記事側の原本（`docs/articles/2026_chiri-koryu-10/figures/fig03_keirin_cliff.jpg`）は無変更で存在する
 - **`fig09_multiscale.png`**（日本語記事と共有される三スケール合成図。日本語キャプション焼き込み・動画UI写り込みあり）: S7の英語専用面という契約に抵触するため不採用とし、発表専用の `p07_three_scales.png`（英語ラベルのみ）に差し替え、参照が無くなったコピーを削除した（コミット `2fe3ba0`「fix: S7の英語のみ違反を解消（fig09_multiscale→p07_three_scales差し替え）」）
+
+- **`fig05_drone_takeoff.jpg` / `fig06_aerial_quarries.jpg`**（いずれも日本語記事用にグレースケール化された図版。mode L で無彩色）: S4（2枚）と S7パネル(b) に使っていたが、2026-08-24 に発表者から色付き原本（`docs/results/exp002/photos/01.jpg`・`02.jpg`）の提供を受けたため `aerial_quarry_pond.jpg` / `drone_lake_stage.jpg` へ差し替え、参照が無くなったコピーを `images/` から削除した。記事側の原本（`docs/articles/2026_chiri-koryu-10/figures/`）は無変更で存在し、`scripts/build_chiri_koryu_figures.py` は引き続きそちらを参照する
 
 ### 2.3 P5（指数4パネル）の由来と、ポスター図版を直接使わない理由
 
@@ -184,6 +186,75 @@ DESIGN_GUIDE §7.3（背景地図を薄くし、主題データとの視覚的�
 （黙って背景地図なしの図版を出力しない）。画素数が `BASEMAP_EXPECTED_PX` と異なる場合も
 assert で失敗する。
 
+### 2.5 S4・S7パネル(b) の色付き原本と、`01.jpg` から取り除いた画面UI
+
+2026-08-24、発表者から S4 用の色付き原本2点の提供を受けた。従来使っていた記事図版
+（`fig05_drone_takeoff.jpg`・`fig06_aerial_quarries.jpg`）は印刷用にグレースケール化された
+ものだったため、これを置き換えた（本書4章「S1・S3は色付き原本、上空写真はグレースケール」の
+裁定は、色付き原本が存在しないという前提が崩れたので更新した）。
+
+| 原本 | 内容 | SHA256 | 画素数・モード |
+|---|---|---|---|
+| `docs/results/exp002/photos/01.jpg` | 丁場池を上空から見た構図（**パソコン画面を撮影した写真**） | `f2811e248d50e2529b0b31ef2a1261ded74b5854fd02e78633b93ca3344840e6` | 1080 x 1440、RGB |
+| `docs/results/exp002/photos/02.jpg` | 湖上ステージ上のドローン2機 | `7cdf0340d1689232ea6636ad3555f217b72afc9be63dd28ec82f4cb68431d8fc` | 1080 x 1440、RGB |
+
+**`01.jpg` から取り除いた画面UI**
+
+`01.jpg` はパソコンの画面を撮影した写真であり、下端に macOS の Dock、その少し上に
+「Pages」というツールチップが写り込んでいる。どちらも投影面に出してはならない。
+行ごとの彩度プロファイル（Pillow で実測）と拡大目視により、以下の位置を特定した。
+
+| 要素 | 画像内の位置（1440 行中） | 高さ比 |
+|---|---|---|
+| 「Pages」ツールチップ（吹き出しの上端〜先端） | y ≈ 1244〜1310 | 86.4%〜91.0% |
+| macOS Dock（帯の上端。画面を斜めから撮っているため左 1319・右 1347 と傾く） | y ≈ 1319 以降 | 91.6% 以降 |
+
+上端がより高い（＝より上にある）のはツールチップの y=1244 なので、**y=1230 で切り落とした**
+（余裕 14 px）。追跡ファイル `docs/presentations/images/aerial_quarry_pond.jpg` は
+この切り出し後の 1080 x 1230 px であり、UI は追跡ファイルの時点で存在しない。
+表示側のクロップ（S4 のスロット比、S7 パネル(b) の 16:9）をどう変えても UI が
+再出現しないのは、この「元ファイルの時点で除去する」設計によるものである。
+切り出しコマンド（一回性。`images/` への他の画像のコピーと同じ扱い）:
+
+```python
+from PIL import Image
+Image.open("docs/results/exp002/photos/01.jpg").crop((0, 0, 1080, 1230)).save(
+    "docs/presentations/images/aerial_quarry_pond.jpg", quality=95, subsampling=0)
+Image.open("docs/results/exp002/photos/02.jpg").save(
+    "docs/presentations/images/drone_lake_stage.jpg", quality=95, subsampling=0)
+```
+
+**S4 のレイアウト変更（16:9横長スロット → 縦長スロット2枚）と実測**
+
+新しい2枚はいずれも縦位置（`aerial_quarry_pond.jpg` は 1080/1230 = 0.878、
+`drone_lake_stage.jpg` は 0.75）で、従来の 16:9 スロット（5.60 x 3.15 in）に収めると
+各フレームの 58% を捨てることになる。S4 の主張は「上空から見ると採石権の境界が地形として
+読める」であり、それには縦方向の広がりが必要なため、スロットを縦長にして本文列と左右に
+並べるレイアウトへ変更した。実測値:
+
+| 量 | 値 |
+|---|---|
+| 図版帯（タイトル下〜フッター手前） | 12.233 x 4.800 in |
+| 縦長スロット（1枚） | 3.866 x 4.400 in（縦横比 0.878 = `aerial_quarry_pond.jpg` の実比） |
+| 写真帯（2枚 + 間隔 0.200 in） | 7.933 in |
+| 本文列 | 4.000 in（= 12.233 − 7.933 − 0.300 の画像・本文間隔） |
+| 写真の上下位置 | 上 2.400 in / 下 6.800 in（図版帯 2.200〜7.000 in の内側） |
+
+すなわち、縦長スロット2枚は本文と重ならず、スライド外にも出ない。写真は引き伸ばさず、
+スロット比へのクロップのみで配置する（`add_picture_cover()`）。
+左（`aerial_quarry_pond.jpg`）はスロット比が実比と一致するためクロップは生じない。
+右（`drone_lake_stage.jpg`）は 14.6% を縦方向に落とす必要があり、被写体（岩壁・水面・機体2機）が
+上 65% に収まっているため全量を下側から取る（`vbias=0.0`、板張りの床のみを落とす）。
+S3・S9 の 16:9 固定スロット（`PHOTO_SLOT_W_IN` / `PHOTO_SLOT_H_IN`）は変更していない。
+
+**S7 パネル(b) のクロップ**
+
+P7 は3パネルを同じ高さで横並びにする図版なので、パネル(b) は横長のままである
+（16:9、`P07_PANEL_B_AR`）。`aerial_quarry_pond.jpg`（1080 x 1230）を 16:9 にするには縦 622 px を
+落とす必要があり、vbias 0.10 / 0.25 / 0.40 / 0.55 の試作を目視比較して、丁場池の水面が中央に、
+左右の切削面（灰色の岩壁と傾いた花崗岩のスラブ）がともに入る **0.25**（画像の 156〜763 行）を
+選んだ。
+
 ## 3. 2026-08-31 撮影記録（現地確認後に追記）
 
 S9（"Two days ago I went back — a first look, not validation"）の2枚の写真は、本書執筆時点では未撮影であり、`placeholder_revisit_1.png` / `placeholder_revisit_2.png` が仮画像として使われている（2章参照）。8月31日の再訪後、撮影した写真に差し替えたうえで、以下の空欄表を実測値で埋めること。
@@ -212,7 +283,7 @@ S9（"Two days ago I went back — a first look, not validation"）の2枚の写
 | 春季値は再現できない | 春季113件は当時の報告値であり、実行設定が保存されておらず現行パイプラインでは再現できない（再計算は180件）。差の原因は特定できていないため、季節を原因として断定しない | 内容契約 S6 required spoken content、報告書 §4.1 追記（2026-08-14）・§5.4-7 |
 | OSMは参考値 | OpenStreetMap照合は参考値であり正解データではない。距離は地物形状をEPSG:32653へ投影した形状間距離（重なる場合は0m）。投影面には件数・距離・感度を出さず、S8の1行のみに集約する | 内容契約「本発表の性格」節・S8 Notes-only boundary、`exp002_osm_comparison.md`（距離定義・集計表・「これは精度検証ではない」の明記） |
 | 指数の合成条件は投影、個別定義式は発話・図版内 | S5投影本文には閾値付きの合成条件（`Water if (NDWI > −0.2 OR MNDWI > −0.1) AND NOT (NDVI > 0.3)`）を置くが、`NDWI = (Green − NIR) / (Green + NIR)` 等の個別定義式は投影本文に置かず、発話とfigure内注記（`p05_index_panels.png`）に限る | 本書1.1節、`exp002_kitagi_foss4g2026_presentation.py` の `s05()` コメント、validator `check_evidence_hierarchy()` |
-| S1・S3は色付き原本、上空写真はグレースケール | S1表紙・S3の2枚の写真は色付きの現地写真原本を使う。上空写真（`fig05_drone_takeoff.jpg`・`fig06_aerial_quarries.jpg`）は日本語記事用に変換されたグレースケール版のままで、色付き原本が存在しないため差し替えていない（本書執筆時にPillowで画素サンプリングして確認: `choba_lake_1.jpg`/`choba_lake_3.jpg`/`fig01_lake_stage.jpg` は mode RGB でチャンネル間に差があり、`fig05_drone_takeoff.jpg`/`fig06_aerial_quarries.jpg` は mode L で無彩色） | 内容契約 S1・S3の Visual 注記（Fix round 2・3）、本書2章の画像表 |
+| 投影する現地写真はすべて色付き原本 | S1表紙・S3・S4 の現地写真はすべて色付きの原本を使う。2026-08-23 時点では上空写真の色付き原本が存在しなかったため S4 のみグレースケールの記事図版（`fig05_drone_takeoff.jpg`・`fig06_aerial_quarries.jpg`、mode L）を使っていたが、2026-08-24 に発表者から色付き原本の提供を受けたので差し替え、参照の無くなったコピーを削除した。現在 `images/` にある投影用の現地写真はすべて mode RGB である | 内容契約 S1・S3・S4 の Visual 注記、本書2.5節、validator `PINNED_PHOTO_SOURCES` |
 | 背景地図は文字を含まない地理院タイル | 検出地図（P6・S7パネル(c)・P8）の背景地図は地理院タイルの全国最新写真（`seamlessphoto` z17）を使う。英語版タイルは z11 までしか存在せず島の縮尺では著しくぼやけるため使えない。日本語地名を含む淡色地図・標準地図・白地図は投影面が英語のみという契約に抵触するため使わない。文字を含まない写真タイルはこの契約に抵触しない | 本書2.4節、内容契約 S6・S7・S8 の Visual 注記 |
 | 帰属表示はフッター階層 | 図版内の帰属表示（`Basemaps: GSI Tiles, ...`）は本文でも主題ラベルでもないため、15pt下限ではなくフッター階層（実効11〜12pt）に従う。S11 フッターが同一文言を 11pt で置いている前例に合わせる | 内容契約「実装時のハードゲート」節、`exp002_kitagi_foss4g2026_figures.py` の `BASEMAP_CREDIT_PT_MAP` |
 | S7は英語専用の三スケール合成図 | S7には発表専用に新規生成した `p07_three_scales.png`（英語ラベルのみ）を使い、日本語記事と共有される `fig09_multiscale.png`（日本語キャプション焼き込み・動画UI写り込み）は使わない | 内容契約 S7 Visual 注記、本書2.2節 |
@@ -385,3 +456,75 @@ uv run python docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.
 - 配置を縮める経路: native を触らず S6 の図版配置高さを 4.8in → 4.0in にすると
   `実効サイズ 13.77pt ...（native 32pt × 配置倍率 0.430）` で失敗した
   （4.4in では 15.2pt で合格する。設計に余裕を持たせているため）
+
+## 8. 2026-08-24 調整ウェーブの検証（背景地図・色付き写真・S4レイアウト）
+
+### 8.1 図中文字の実効サイズ（生成済みPPTXの `shape.width` から復元）
+
+配置倍率 = 配置幅 ÷ 画像実寸幅（実寸幅 = px ÷ 画像に記録された dpi）。実効pt = native pt × 配置倍率。
+値は12枚版・再訪なし版で同一である（両デッキで同じ配置定数を使うため）。
+
+| 図版 / スライド | 要素 | native pt | 実寸幅 (in) | 配置幅 (in) | 配置倍率 | 実効 pt | 実効 dpi |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `poster_f1_study_area.png` / S2 | パネルタイトル・島名ラベル | 16 / 16 / 15 | 7.85 | 8.16 | 1.040 | 16.6 / 16.6 / **15.6** | 288 |
+| `p05_index_panels.png` / S5 | パネルタイトル・カラーバー目盛 | 18 | 5.67 | 5.04 | 0.889 | **16.0** | 450 |
+| `p06_clusters_map.png` / S6 | ゾーンラベル・タイトル・スケールバー | 32 | 9.49 | 4.90 | 0.516 | **16.5** | 387 |
+| `p06_clusters_map.png` / S6 | 背景地図の帰属表示（フッター階層） | 22 | 9.49 | 4.90 | 0.516 | 11.4 | 387 |
+| `p07_three_scales.png` / S7 | パネルキャプション・スケールバー | 21 | 9.28 | 9.54 | 1.028 | **21.6** | 233 |
+| `p07_three_scales.png` / S7 | 背景地図の帰属表示（フッター階層） | 11 | 9.28 | 9.54 | 1.028 | 11.3 | 233 |
+| `p08_visit_anchors_map.png` / S8 | 訪問ラベル・タイトル・凡例・スケールバー | 32 | 7.51 | 3.89 | 0.518 | **16.6** | 386 |
+| `p08_visit_anchors_map.png` / S8 | 背景地図の帰属表示（フッター階層） | 22 | 7.51 | 3.89 | 0.518 | 11.4 | 386 |
+| `p12_loop_diagram.png` / S12 | ボックスタイトル・キャプション | 27 | 12.35 | 7.55 | 0.612 | **16.5** | 327 |
+
+太字は 15 pt 下限の検査対象（`NATIVE_FONT_SIZES` に宣言した主題ラベル）。すべて下限以上。
+帰属表示はフッター階層（11〜12 pt）として意図的に検査対象外にしている
+（内容契約「実装時のハードゲート」節、4章の裁定「帰属表示はフッター階層」を参照）。
+背景地図の追加でも図版の画素数は変わらず（P6 1898×1859、P8 1502×1853）、
+実効ptは調整前と同一である。P7 のみパネル(b) の写真差し替えで幅が 2224 → 2226 px に変わったが、
+配置は高さ拘束のため倍率は 1.028 のままである。実効dpi はすべて下限 200 dpi 以上。
+
+### 8.2 グレースケール確認（背景地図と主題データの分離）
+
+`Pillow` の `.convert("L")` で P6・P7・P8 をグレースケール化し、目視で確認した。
+
+| 図版 | グレースケール輝度の最小値 | 1パーセンタイル | 中央値 | 所見 |
+|---|---:|---:|---:|---|
+| `p06_clusters_map.png` | 38 | 43 | 197 | 検出ポリゴン（暗）と背景地図（明）が明確に分離。海岸線・砂浜・集落が薄く読める |
+| `p07_three_scales.png` | 0 | 43 | 193 | 最小値0はパネル(a)(b) の写真の暗部。パネル(c) の分離は P6 と同じ |
+| `p08_visit_anchors_map.png` | 0 | 43 | 202 | 最小値0は訪問地点の黒い三角マーカー。ポリゴンと背景地図の分離は P6 と同じ |
+
+減光後の背景地図そのものの最小輝度は 179（ラスタ全体で実測）、検出ポリゴンの色
+`COL_WATER = #0d47a1` のグレースケール輝度は 64（透過 0.95 で背景と合成しても約 71）である。
+100階調以上の差があり、グレースケールでも水域ポリゴンが最も目立つ要素であることを確認した。
+背景地図を薄くしたり主題データを濃くしたりする追加調整は不要だった。
+
+### 8.3 PDF化による全ページ目視（12枚版・再訪なし版）
+
+```bash
+soffice --headless --convert-to pdf --outdir /tmp/adjpdf \
+  docs/presentations/exp002_kitagi_foss4g2026_presentation.pptx \
+  docs/presentations/exp002_kitagi_foss4g2026_presentation_no_revisit.pptx
+pdftoppm -r 110 -png /tmp/adjpdf/exp002_kitagi_foss4g2026_presentation.pdf /tmp/adjpdf/a
+```
+
+`Pages: 12` / `Pages: 11`、いずれも `Page size: 960.009 x 540 pts`（16:9）。全ページを画像として
+目視し、文字切れ・重なり・スライド外への逸脱がないことを確認した。特に確認した点:
+
+- **S4**: 縦長スロット2枚は表示寸法が同一（3.87 × 4.40 in）で、いずれも引き伸ばされていない。
+  左は原本のクロップなし、右は下側のみクロップ。本文（8行に折り返し、17 pt）は左列 4.00 in に
+  収まり、写真と重ならず、スライド下端にも達しない
+- **macOS の Dock・「Pages」ツールチップ**: 12枚版・再訪なし版の全ページ（S4・S7 を含む）で
+  一切写っていない。追跡ファイルの時点で切り落としているため構造的に出現しない
+- **S6・S7(c)・S8**: 背景地図の上で検出ポリゴンが最も目立つ。帰属表示は地図軸の左上（北西の海域）に
+  収まり、ゾーンラベル・訪問地点ラベル・スケールバーと重ならない
+  （`assert_labels_inside_and_disjoint()` がレンダラ実測で機械検査）
+
+### 8.4 決定性とネットワーク非依存
+
+- 図版生成 → 両デッキ生成を2回連続で実行し、`git status` がクリーンであることを確認した
+  （図版PNG・PPTX いずれもバイト一致）
+- 図版生成をプロキシを無効アドレス（`127.0.0.1:9`）に向けた環境で実行し、正常に完走して
+  同一バイトの図版が得られることを確認した。取得系のモジュールはモジュール先頭で import せず
+  `fetch_basemap()` の内側だけで import している
+- 3つの検査スクリプト（発表・口頭資料・ポスター）をすべて再実行して合格した
+

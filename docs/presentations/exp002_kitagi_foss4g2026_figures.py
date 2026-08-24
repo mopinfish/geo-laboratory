@@ -869,17 +869,23 @@ def make_p08_visit_anchors_map(features: list[dict]) -> None:
 
 
 # ---------------------------------------------------------------- P7: 三スケール合成図（英語ラベルのみ）
-# S4（`exp002_kitagi_foss4g2026_presentation.py` の `s04()`）で採用した写真スロットの
-# アスペクト比（`PHOTO_SLOT_W_IN` / `PHOTO_SLOT_H_IN`）と同じ値をここで再現する。
-# 値そのものを import するのではなく定数として複製するのは、本スクリプトが
-# tmp/・ネットワークだけでなく presentation.py の実行順序にも依存しない
-# （どちらを先に実行しても成立する）ようにするため。
-P07_PHOTO_SLOT_AR = 5.6 / 3.15  # 16:9。PHOTO_SLOT_W_IN / PHOTO_SLOT_H_IN と同一
+# P7 は3パネルを同じ高さで横並びにする図版なので、パネル(b) は**横長**のクロップになる
+# （S4 は 2026-08-24 の調整で縦長スロットへ変更したが、P7 のパネル比とは無関係である。
+# 以前はここで S4 の 16:9 スロット比を複製していた）。16:9 を採用するのは、パネル(a) の
+# 縦長写真・パネル(c) の地図（縦横比 1.13）と並べたときに1パネルが極端に広くならず、
+# 丁場池とその周囲の切削面が横方向に収まる比だからである。
+P07_PANEL_B_AR = 16 / 9
 # P7 は S7 でほぼ実寸（倍率≈1.03）で置かれるため、SAVE_DPI(200) のままでは配置後の
 # 実効解像度が 195dpi となり下限 200dpi をわずかに割る。dpi は figure の実寸
 # （インチ）とレイアウトを変えず画素数だけを増やすので、この図版だけ引き上げる。
 P07_DPI = 240
-P07_FIG06_VBIAS = 0.2768  # S4 の s04() で fig06_aerial_quarries.jpg に使った値をそのまま再利用
+# パネル(b) の縦クロップ位置。`aerial_quarry_pond.jpg`（1080 x 1230 px）を 16:9 に
+# するには縦 622 px を落とす必要があり、そのうち上から取る割合をこの値で決める。
+# 0.10 / 0.25 / 0.40 / 0.55 の試作を目視比較し、丁場池の水面が中央に、左右の切削面
+# （灰色の岩壁と傾いた花崗岩のスラブ）がともに入る 0.25（画像の 156〜763 行）を選んだ。
+# 元画像は macOS の Dock と「Pages」ツールチップを切り落としたあとのものなので、
+# どの vbias を選んでも UI は写らない（追跡ファイル自体が除去済み）。
+P07_PANEL_B_VBIAS = 0.25
 
 
 def _load_photo(path: Path) -> Image.Image:
@@ -894,7 +900,7 @@ def _crop_top_bottom_to_aspect(img: Image.Image, target_ar: float, vbias: float)
     「必要クロップ量はアスペクト比の差分から一意に決まり、`vbias` が上下の配分を
     決める」という式をここで再現する。本関数は「画像が目的より縦長
     （`img_ar < target_ar`）で上下だけをクロップする」場合のみを扱う
-    （fig06_aerial_quarries.jpg はこのケースに該当する）。
+    （P7 パネル(b) の `aerial_quarry_pond.jpg` はこのケースに該当する）。
     """
     iw, ih = img.size
     img_ar = iw / ih
@@ -919,8 +925,10 @@ def make_p07_three_scales(features: list[dict]) -> None:
         (a) On foot — texture         : choba_lake_3.jpg（S1表紙と同一写真、クロップなし。
                                          Fix round 2 でグレースケールの fig03_keirin_cliff.jpg
                                          から色付きに差し替え）
-        (b) From the air — boundaries : fig06_aerial_quarries.jpg を S4 と同じ縦クロップ
-                                         （`P07_FIG06_VBIAS`）で動画UIの写り込みを除去
+        (b) From the air — boundaries : aerial_quarry_pond.jpg（S4左と同じ色付き原本。
+                                         macOS の Dock とツールチップは追跡ファイルの
+                                         時点で除去済み）を 16:9 へ縦クロップ
+                                         （`P07_PANEL_B_VBIAS`）
         (c) From orbit — distribution : 検出145ポリゴンの分布（p06/p08と同じ配色・
                                          地図範囲。ゾーンラベル・訪問地点は描かない）
 
@@ -931,8 +939,8 @@ def make_p07_three_scales(features: list[dict]) -> None:
     ar_a = photo_a.size[0] / photo_a.size[1]
 
     photo_b = _crop_top_bottom_to_aspect(
-        _load_photo(OUT_DIR / "fig06_aerial_quarries.jpg"),
-        P07_PHOTO_SLOT_AR, P07_FIG06_VBIAS,
+        _load_photo(OUT_DIR / "aerial_quarry_pond.jpg"),
+        P07_PANEL_B_AR, P07_PANEL_B_VBIAS,
     )
     ar_b = photo_b.size[0] / photo_b.size[1]
 

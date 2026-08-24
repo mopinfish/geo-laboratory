@@ -121,7 +121,18 @@
 
 - **Central claim**: 上空の縮尺で分かるのは境界の在り方である。採石権を持つ企業同士の境目が、細い岩壁として残されている。
 - **Projected body**: `Drone flown from the stage on the water`; `Grey rectangles cut into the green canopy`; `Between two quarries, a thin wall left standing`; `A property line, standing as terrain`; `The same event added features to OpenStreetMap.`
-- **Visual**: 上空写真（`fig06_aerial_quarries.jpg`）とドローン離陸（`fig05_drone_takeoff.jpg`）。
+- **Visual**: 丁場池の上空写真（`aerial_quarry_pond.jpg`）と湖上ステージのドローン
+  （`drone_lake_stage.jpg`）を**縦長スロット2枚**として同寸で並置し、本文列を左に置く。
+  （2026-08-24 の調整: 印刷用にグレースケール化された記事図版
+  `fig06_aerial_quarries.jpg` / `fig05_drone_takeoff.jpg` から、発表者提供の色付き原本
+  `docs/results/exp002/photos/01.jpg` / `02.jpg` に差し替えた。2枚はいずれも縦位置
+  （縦横比 0.75〜0.88）で 16:9 スロットでは各フレームの58%を捨てることになり、
+  S4 の主張（境界が地形として読める）に必要な縦方向の広がりが失われるため、
+  スロットを縦長に変更した。実測: スロット 3.87 × 4.40 in ×2 ＋ 間隔 0.20 in = 7.93 in、
+  本文列 4.00 in で図版帯 12.23 × 4.80 in に重なりなく収まる。写真は引き伸ばさず
+  スロット比へのクロップのみで配置する。`01.jpg` は画面を撮影した写真で macOS の Dock と
+  「Pages」ツールチップが写り込んでいるため、`images/` へのコピー時点で y=1230 で
+  切り落としてある。S3・S9 の 16:9 固定スロットは変更していない。詳細は照合記録 2.5 節）
 - **Notes-only boundary**: 境界が地形になっているという観察は現地での定性的観察であり、本研究の測定結果ではない。イベントではドローンで湖の測量も行った。
 - **Claim type**: Field observation（定性・境界）。
 - **Duration**: 1:30
@@ -173,7 +184,8 @@
   色付き写真。Fix round 2 でグレースケールの記事図版 `fig03_keirin_cliff.jpg` から
   差し替えた際に本行の更新が漏れていた。成果物・S1の注記・照合記録はいずれも
   `choba_lake_3.jpg` である）、
-  (b) `fig06_aerial_quarries.jpg`（S4と同じ縦クロップでUI除去）、
+  (b) `aerial_quarry_pond.jpg`（S4左と同じ色付き原本。16:9 へ `vbias=0.25` で縦クロップ。
+  画面UIは追跡ファイルの時点で除去済み）、
   (c) 検出145ポリゴンの分布（`exp002_kitagi_summer_water_polygons_2025-08-02.geojson`、
   ゾーンラベル・訪問地点なし。P6・P8 と同じ背景地図を減光して敷き、帰属表示を焼き込む）。
   生成: `exp002_kitagi_foss4g2026_figures.py` の `make_p07_three_scales()`）。
@@ -240,10 +252,11 @@
 |---|---|---|
 | P5 | 指数4パネル（NDWI / MNDWI / NDVI / 最終マスク） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p05_index_panels()`（`poster_f4_index_panels.png` のパネル画像を切り出し、英語ラベルとカラーバーを再描画） |
 | P6 | 4集中地帯を注記した検出分布図（減光した地理院タイル背景つき） | `docs/presentations/exp002_kitagi_foss4g2026_figures.py` の `make_p06_clusters_map()`（公開GeoJSON + `basemap_kitagi_gsi_seamlessphoto.png`） |
-| P7 | 三スケール合成図（徒歩・上空・衛星の英語ラベルのみ） | 同スクリプトの `make_p07_three_scales()`（`choba_lake_3.jpg` + `fig06_aerial_quarries.jpg` + 公開GeoJSON） |
+| P7 | 三スケール合成図（徒歩・上空・衛星の英語ラベルのみ） | 同スクリプトの `make_p07_three_scales()`（`choba_lake_3.jpg` + `aerial_quarry_pond.jpg` + 公開GeoJSON + `basemap_kitagi_gsi_seamlessphoto.png`） |
 | P8 | 検出分布図に、座標を確認できた訪問地点4点のみを重ねた図（背景地図は P6 と同一） | 公開GeoJSON + 訪問記 図4 の4地点（豊浦港・豊浦公会堂・湖上ステージ〔桂林〕・千ノ浜） + `basemap_kitagi_gsi_seamlessphoto.png` |
 | P12 | 「衛星 → 現地 → 地図」の3ステップフロー | 新規作図（図形3つ・細い矢印） |
-| S3・S4・S9 | 写真スロット（固定寸法） | 訪問記の写真、8月31日撮影分 |
+| S3・S9 | 写真スロット（16:9固定寸法） | 訪問記の写真、8月31日撮影分 |
+| S4 | 写真スロット（縦長・固定寸法。縦横比 0.878） | 発表者提供の色付き原本 `docs/results/exp002/photos/01.jpg`（画面UIを除去して `aerial_quarry_pond.jpg`）・`02.jpg`（`drone_lake_stage.jpg`） |
 | BM | 背景地図ラスタ（地理院タイル `seamlessphoto` z17、範囲 133.514/34.367/133.562/34.402、取得日 2026-08-24） | `exp002_kitagi_foss4g2026_figures.py --fetch-basemap`（ネットワークを使う唯一の経路。取得後は追跡ファイルを読むのみ） |
 
 ## 8月31日の撮影に向けた事前準備
@@ -335,3 +348,12 @@
 | 背景地図は英語版タイルで | 英語版タイル（`xyz/english/`）は**z11 までしか存在せず**（実測）、島の縮尺では 70 px しか得られないため、ブリーフが同時に要求する解像度（出力1pxあたり2px以上）を満たせない。英語版を指定した理由（日本語地名を投影面に出さない）を満たすため、**文字を一切含まない**全国最新写真（`seamlessphoto` z17）を採用した。日本語地名を含む淡色地図・標準地図・白地図は使わない。詳細は照合記録 2.4 節 |
 | 主題データとの視覚的競合を避ける | DESIGN_GUIDE §7.3 に従い整数演算で減光（`出力 = 255 - (255 - 入力) × 0.30`）。減光後の最小輝度 178 に対し検出ポリゴンのグレースケール輝度は 64 で、グレースケール化しても明確に分離することを目視確認した |
 | 帰属表示 | 各図版内の左上に `Basemaps: GSI Tiles, Geospatial Information Authority of Japan.` を焼き込む（フッター階層 11〜12 pt。上記「実装時のハードゲート」参照）。図版の外側には置かない（図版実寸が伸びて配置倍率＝図中文字の実効ptが下がるため） |
+
+### 2026-08-24 発表者からの調整依頼（写真の色付き原本への差し替え）
+
+| 依頼 | 対応 |
+|---|---|
+| S4 の写真をグレースケール記事図版から色付き原本へ | `docs/results/exp002/photos/01.jpg`（丁場池の上空写真）・`02.jpg`（湖上ステージのドローン）を `images/` へ取り込み、`fig06_aerial_quarries.jpg` / `fig05_drone_takeoff.jpg` を置き換えた。参照が無くなった2点は `images/` から削除した（`docs/articles/` 側の原本は無変更） |
+| `01.jpg` の画面UI（macOS Dock・「Pages」ツールチップ）を投影面に出さない | 行ごとの彩度プロファイルと拡大目視で位置を特定（ツールチップ上端 y≈1244、Dock 上端 y≈1319）し、**追跡ファイルへのコピー時点で y=1230 で切り落とした**。表示側のクロップをどう変えても UI が再出現しない構造にした。詳細は照合記録 2.5 節 |
+| 縦長写真に合わせて S4 のレイアウトを変更 | 16:9 スロット2枚（横並び・本文は上）から、**縦長スロット2枚（横並び・本文は左）**へ変更。実測でスロット 3.87 × 4.40 in ×2 ＋ 間隔 0.20 in = 7.93 in、本文列 4.00 in となり図版帯（12.23 × 4.80 in）に重なりなく収まることを確認した。写真は引き伸ばさずクロップのみ。S3・S9 の 16:9 固定スロットは変更していない |
+| S7 パネル(b) も色付き原本へ | P7 は3パネル同高さの横並びなのでパネル(b) は横長（16:9）のまま。丁場池の水面が中央に、左右の切削面がともに入る `vbias=0.25` を試作の目視比較で選んだ |

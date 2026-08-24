@@ -113,9 +113,14 @@ FIGURES = (
 # （Fix round 2 のレビュー指摘）。S7 は英語ラベルのみの三スケール合成図
 # `p07_three_scales.png` が、日本語キャプション付きの `fig09_multiscale.png` に
 # 戻ってしまう回帰を防ぐ（Fix round 1 のレビュー指摘）。
+# S4 は 2026-08-24 の調整で、印刷用にグレースケール化された記事図版
+# （`fig06_aerial_quarries.jpg` / `fig05_drone_takeoff.jpg`、いずれも削除済み）から
+# 発表者提供の色付き原本へ差し替えた。グレースケール版へのフォールバックも、
+# macOS の Dock / ツールチップを含む未クロップの原本の混入も、バイト比較で検出する。
 PINNED_PHOTO_SOURCES: dict[int, tuple[str, ...]] = {
     1: ("choba_lake_3.jpg",),
     3: ("fig01_lake_stage.jpg", "choba_lake_1.jpg"),
+    4: ("aerial_quarry_pond.jpg", "drone_lake_stage.jpg"),
     7: ("p07_three_scales.png",),
 }
 
@@ -827,6 +832,10 @@ VERIFICATION_NUMBER_VALUES: tuple[str, ...] = (
 # 名前を要求する）。images/ には存在しないため、SHA256照合の対象からは除外する。
 VERIFICATION_RETIRED_IMAGE_NAMES: tuple[str, ...] = (
     "fig03_keirin_cliff.jpg", "poster_f4_index_panels.png",
+    # 2026-08-24 の調整で S4・S7パネル(b) を色付き原本へ差し替えた結果、どのスライドからも
+    # 参照されなくなり `images/` から削除した2点。削除の経緯を記録に残すため名前で検査する
+    # （`docs/articles/` 側の原本は無変更で存在する）。
+    "fig05_drone_takeoff.jpg", "fig06_aerial_quarries.jpg",
 )
 
 # 8/31 撮影分の空欄テーブルに必須の見出し4列。
