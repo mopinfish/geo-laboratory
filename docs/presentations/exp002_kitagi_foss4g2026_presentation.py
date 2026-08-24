@@ -13,8 +13,10 @@
 （現地訪問が未実施の場合の切替。`build(revisit=False)` が11枚を返す）。
 
 スピーカーノートは `exp002_kitagi_foss4g2026_presentation_speaker_notes.md` を正本とし、
-ビルド時に読み込んで各スライドのノートペインへ書き込む（英語の発話本文を先頭に、
-空行を挟んで日本語の非発話部分を続ける）。再訪なし版では S9 の節を使わないだけで、
+ビルド時に読み込んで各スライドのノートペインへ書き込む。1スライドは3ブロック構成で、
+英語の発話原稿 → 日本語の発話原稿（読み上げ可）→ 日本語の補足（読み上げない）の順に、
+空行を挟んで全ブロックを書き込む（発表者が PowerPoint のノートペインだけを見ても
+3ブロックすべてが読めるようにする）。再訪なし版では S9 の節を使わないだけで、
 残りのスライドは内容契約のスライド番号で対応付ける。
 
 決定性（determinism）: 生成される .pptx はコミット対象であり、再生成しても
@@ -48,9 +50,12 @@ OUTPUT = BASE / "exp002_kitagi_foss4g2026_presentation.pptx"
 NO_REVISIT_OUTPUT = BASE / "exp002_kitagi_foss4g2026_presentation_no_revisit.pptx"
 NOTES_MD = BASE / "exp002_kitagi_foss4g2026_presentation_speaker_notes.md"
 
-# スピーカーノート Markdown の構造マーカー（英語＝発話対象、日本語＝非発話）。
+# スピーカーノート Markdown の構造マーカー。壇上で読むのは英語（EN）で、日本語の
+# 発話原稿（JA_SPOKEN_MARKER 以下）は練習・自己確認・万一の代替のためにそのまま
+# 読み上げられる文章として書いてある。非発話の補足は JA_NOTES_MARKER 以下に置く。
 EN_MARKER = "**EN (spoken)**"
-JA_MARKER = "**JA (not spoken)**"
+JA_SPOKEN_MARKER = "**JA（訳・読み上げ可）**"
+JA_NOTES_MARKER = "**JA（補足・読み上げない）**"
 
 # --- 16:9 スライドサイズ ---
 SLIDE_W = Emu(12192000)
@@ -97,6 +102,19 @@ PHOTO_ROW_TOP = GRAPHIC_BOTTOM - PHOTO_SLOT_H_IN
 PHOTO_ROW_LEFT = USABLE_LEFT + (USABLE_WIDTH - 2 * PHOTO_SLOT_W_IN - PHOTO_ROW_GAP) // 2
 # 写真スロットの上に置く本文（S3・S4・S9 共通）の高さ。
 PHOTO_TEXT_HEIGHT = PHOTO_ROW_TOP - GRAPHIC_TOP - Inches(0.15)
+
+# S4 の写真スロット: **縦長**写真2枚を同寸で並置する（S3・S9 の16:9固定スロットとは別系統）。
+# S4 で使う2枚（`aerial_quarry_pond.jpg` / `drone_lake_stage.jpg`）はいずれも縦位置
+# （縦横比 0.75〜0.88）で、16:9 スロットに収めると各フレームの 58% を捨てることになる。
+# S4 の主張は「上空から見ると採石権の境界が地形として読める」であり、それには縦方向の
+# 広がりが必要なため、スロット自体を縦長にして本文列と左右に並べる。
+# スロットの縦横比は `aerial_quarry_pond.jpg`（UI除去後 1080 x 1230 px）の実比に合わせ、
+# この写真をクロップなしで全面表示する。もう1枚（1080 x 1440 px）は上下クロップになり、
+# 被写体の無い下部（板張りの床）を落とす（`S04_PHOTO_VBIAS_2`）。
+S04_PHOTO_SLOT_AR = 1080 / 1230
+S04_PHOTO_SLOT_H = Inches(4.4)
+S04_PHOTO_GAP = Inches(0.2)
+S04_PHOTO_VBIAS_2 = 0.0  # 縦クロップは全量を下側から取る（空の板張りの床を落とす）
 
 # S2 の位置図（`poster_f1_study_area.png`）の配置倍率。
 # この図版の最小 native フォントは 15pt（パネル(b)の島名ラベル）なので、
@@ -509,9 +527,28 @@ def s03(slide, n: int) -> None:
 def s04(slide, n: int) -> None:
     """上空スケール：境界（内容契約 Slide 4 Projected body）。
 
-    視覚: 上空写真（`fig06_aerial_quarries.jpg`）とドローン離陸（`fig05_drone_takeoff.jpg`）。
+    視覚: 丁場池の上空写真（`aerial_quarry_pond.jpg`）と、湖上ステージのドローン
+    （`drone_lake_stage.jpg`）を**縦長スロット2枚**として同寸で並置し、本文列を左に置く。
+
+    2026-08-24 の調整: 発表者から色付き原本の提供を受け、印刷用にグレースケール化されて
+    いた記事図版（`fig06_aerial_quarries.jpg` / `fig05_drone_takeoff.jpg`）を置き換えた。
+    新しい2枚はいずれも縦位置（縦横比 0.75〜0.88）で、従来の 16:9 スロットでは各フレームの
+    58% を捨てることになる。S4 の主張（採石権の境界が地形として読める）は縦方向の広がりを
+    要するため、スロットを縦長にし、本文を上ではなく左に置くレイアウトへ変更した
+    （S3・S9 の 16:9 固定スロット `PHOTO_SLOT_*` は変更していない）。
+    実測: 縦長スロット 3.87 x 4.40 in を2枚並べると写真帯は 7.93 in、本文列は 4.00 in と
+    なり、図版帯（12.23 x 4.80 in）に重なりなく収まる。
     """
     add_title(slide, TITLES[3])
+    slot_w = Emu(int(round(S04_PHOTO_SLOT_H * S04_PHOTO_SLOT_AR)))
+    photos_w = 2 * slot_w + S04_PHOTO_GAP
+    photos_left = SLIDE_W - MARGIN - photos_w
+    photos_top = GRAPHIC_TOP + (GRAPHIC_HEIGHT - S04_PHOTO_SLOT_H) // 2
+    assert photos_left >= USABLE_LEFT, "S4: 縦長スロット2枚が本文列の領域に食い込んでいる"
+    assert photos_top >= GRAPHIC_TOP and photos_top + S04_PHOTO_SLOT_H <= GRAPHIC_BOTTOM, (
+        "S4: 縦長スロットが図版帯の上下に収まらない"
+    )
+    text_width = photos_left - MARGIN - IMAGE_TEXT_GAP
     add_body(
         slide,
         [
@@ -521,14 +558,20 @@ def s04(slide, n: int) -> None:
             "A property line, standing as terrain",
             "The same event added features to OpenStreetMap.",
         ],
-        top=GRAPHIC_TOP, height=PHOTO_TEXT_HEIGHT,
+        top=GRAPHIC_TOP, width=text_width, height=GRAPHIC_HEIGHT,
     )
-    # fig06 は再生中の動画をキャプチャした写真で、中央対称クロップだと再生バーや
-    # Dockが画面に残ってしまう。採石地の水面・崖が収まり、それらが外れる範囲へ
-    # 下側を多くクロップする（vbias<0.5）。fig05 は中央対称のままで問題ない。
-    add_photo_pair(
-        slide, IMAGES / "fig06_aerial_quarries.jpg", IMAGES / "fig05_drone_takeoff.jpg",
-        vbias1=0.2768,
+    # 左: 丁場池の上空写真。スロットの縦横比を実比に合わせてあるためクロップは生じない。
+    add_picture_cover(
+        slide, IMAGES / "aerial_quarry_pond.jpg",
+        photos_left, photos_top, slot_w, S04_PHOTO_SLOT_H, "Picture1",
+    )
+    # 右: 湖上ステージのドローン。1080 x 1440 px はスロットより縦長なので上下クロップに
+    # なる。被写体（岩壁・水面・機体2機）は上 65% に収まっており、下部は被写体の無い
+    # 板張りの床なので、クロップは全量を下側から取る（vbias=0.0）。
+    add_picture_cover(
+        slide, IMAGES / "drone_lake_stage.jpg",
+        photos_left + slot_w + S04_PHOTO_GAP, photos_top, slot_w, S04_PHOTO_SLOT_H,
+        "Picture2", vbias=S04_PHOTO_VBIAS_2,
     )
     add_slide_number(slide, n)
 
@@ -744,8 +787,13 @@ def s11(slide, n: int) -> None:
     )
     add_footer(slide, [
         "rasterio · numpy · shapely · pystac-client · planetary-computer · folium",
-        "Contains modified Copernicus Sentinel data [2025]. Basemaps: GSI Tiles, "
-        "Geospatial Information Authority of Japan. CC BY 4.0.",
+        "Contains modified Copernicus Sentinel data [2025]. CC BY 4.0.",
+        # 基図の帰属はデッキが実際に使っている2種類だけを挙げる（他は挙げない）。
+        #   S2 の位置図（`poster_f1_study_area.png`）= 地理院タイル英語版
+        #   S6・S7 パネル(c)・S8 の検出地図 = CARTO Positron（OpenStreetMap データ）
+        # 1行に収めると 11pt でも折り返して行がスライド下端へ迫るため、独立した行にする。
+        "Basemaps: GSI Tiles, Geospatial Information Authority of Japan; "
+        "© OpenStreetMap contributors, © CARTO.",
     ])
     add_slide_number(slide, n)
 
@@ -790,9 +838,10 @@ def _strip_section_rule(text: str) -> str:
 def parse_speaker_notes() -> dict[int, dict[str, str]]:
     """スピーカーノート Markdown を内容契約のスライド番号ごとに読み取る。
 
-    `### Slide N — <title>` 見出しで節に分け、`**EN (spoken)**` から
-    `**JA (not spoken)**` の直前までを英語の発話本文、`**JA (not spoken)**` の行から
-    節末までを日本語の非発話部分として取り出す。
+    `### Slide N — <title>` 見出しで節に分け、3つのマーカーで3ブロックに割る。
+    `**EN (spoken)**` から次のマーカーの直前までが英語の発話原稿、
+    `**JA（訳・読み上げ可）**` から次のマーカーの直前までが日本語の発話原稿、
+    `**JA（補足・読み上げない）**` の行から節末までが非発話の補足である。
     """
     md = NOTES_MD.read_text(encoding="utf-8")
     parts = re.split(r"(?m)^### Slide (\d+) — (.*)$", md)[1:]
@@ -800,22 +849,40 @@ def parse_speaker_notes() -> dict[int, dict[str, str]]:
     for i in range(0, len(parts), 3):
         number = int(parts[i])
         body = parts[i + 2]
-        if EN_MARKER not in body or JA_MARKER not in body:
-            raise ValueError(f"ノートの Slide {number} に EN / JA の区切りが無い")
+        if (
+            EN_MARKER not in body
+            or JA_SPOKEN_MARKER not in body
+            or JA_NOTES_MARKER not in body
+        ):
+            raise ValueError(f"ノートの Slide {number} に3ブロックの区切りが無い")
         after_en = body.split(EN_MARKER, 1)[1]
-        en = after_en.split(JA_MARKER, 1)[0].strip()
-        ja = _strip_section_rule(JA_MARKER + after_en.split(JA_MARKER, 1)[1])
-        sections[number] = {"title": parts[i + 1].strip(), "en": en, "ja": ja}
+        en = after_en.split(JA_SPOKEN_MARKER, 1)[0].strip()
+        after_ja_spoken = after_en.split(JA_SPOKEN_MARKER, 1)[1]
+        ja_spoken = (
+            JA_SPOKEN_MARKER
+            + "\n\n"
+            + after_ja_spoken.split(JA_NOTES_MARKER, 1)[0].strip()
+        )
+        ja_notes = _strip_section_rule(
+            JA_NOTES_MARKER + after_ja_spoken.split(JA_NOTES_MARKER, 1)[1]
+        )
+        sections[number] = {
+            "title": parts[i + 1].strip(),
+            "en": en,
+            "ja_spoken": ja_spoken,
+            "ja_notes": ja_notes,
+        }
     return sections
 
 
 def build_notes_text(section: dict[str, str]) -> str:
-    """ノートペインに書き込む文字列を組み立てる（英語→空行→日本語）。
+    """ノートペインに書き込む文字列を組み立てる（英語原稿→日本語原稿→非発話の補足）。
 
-    日本語側は見出し行（`**JA (not spoken)**` 以下）を含めたまま入れる。発表者が
-    ノートペインだけを見た状態でも「ここから先は読み上げない」境界が分かるようにする。
+    日本語の2ブロックは見出し行（`**JA（訳・読み上げ可）**` /
+    `**JA（補足・読み上げない）**`）を含めたまま入れる。発表者がノートペインだけを
+    見た状態でも「どこまで読み上げてよいか」の境界が分かるようにする。
     """
-    return f"{section['en']}\n\n{section['ja']}"
+    return f"{section['en']}\n\n{section['ja_spoken']}\n\n{section['ja_notes']}"
 
 
 def build(revisit: bool = True) -> Presentation:

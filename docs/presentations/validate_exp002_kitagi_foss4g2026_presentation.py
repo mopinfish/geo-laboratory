@@ -11,8 +11,9 @@
 配置倍率を復元し、図版生成スクリプトが宣言した native サイズ（`NATIVE_FONT_SIZES`）に
 掛けて求める（`check_placed_font_sizes()`）。配置幅を仮定した自己申告は使わない。
 
-このほか、スピーカーノート Markdown（構造・英語語数・S6 の required spoken content・
-再訪ノートの申し送り）と PPTX ノートペインとの同期、Task 6 の照合記録
+このほか、スピーカーノート Markdown（3ブロック構造・英語語数・日本語原稿の文字数・
+S6 の required spoken content・非発話ブロックだけに置くべき申し送り）と
+PPTX ノートペインとの同期、Task 6 の照合記録
 （`exp002_kitagi_foss4g2026_presentation_verification.md`）の数値の出典・
 images/ 全ファイルのSHA256・8/31撮影テーブルの見出しを検査する。
 
@@ -48,9 +49,18 @@ WPM = 145
 DURATIONS_S = [35, 100, 90, 90, 110, 150, 70, 90, 110, 80, 70, 55]
 WORD_TOLERANCE = 0.25
 
-# ノート Markdown 内の構造マーカー。英語（発話対象）と日本語（非発話）の境界。
+# 日本語の発話原稿の分量の判定基準。同じ秒数を 300〜350 字/分（空白・改行を除く
+# 文字数）へ換算した範囲で判定する。英語の語数ゲートとは独立に、日本語原稿だけを
+# 対象に数える（日本語が英語側の語数に混入していないことは EN ブロックの切り出しで担保）。
+JA_CHARS_PER_MIN_MIN = 300
+JA_CHARS_PER_MIN_MAX = 350
+
+# ノート Markdown 内の構造マーカー。3ブロック構成で、壇上で読むのは英語（EN）。
+# 日本語の発話原稿（JA_SPOKEN_MARKER 以下）は練習・自己確認・万一の代替のために
+# そのまま読み上げられる文章であり、非発話の補足は JA_NOTES_MARKER 以下に置く。
 EN_MARKER = "**EN (spoken)**"
-JA_MARKER = "**JA (not spoken)**"
+JA_SPOKEN_MARKER = "**JA（訳・読み上げ可）**"
+JA_NOTES_MARKER = "**JA（補足・読み上げない）**"
 
 # 内容契約 Slide 6 の `Required spoken content`。内部注記ではなく英語の発話本文に
 # 置くことが契約上の要件であるため、S6 の EN 部分に対して検査する。
@@ -87,7 +97,9 @@ REVISIT_PHOTO_STEMS = ("revisit_1", "revisit_2")
 REVISIT_PHOTO_EXTS = ("jpg", "jpeg", "png")
 
 # 再訪写真がプレースホルダのままである間、S9 のノートに残すことを必須とする目印。
-# S9 の英語本文は再訪前に書いたものであり、写真の差し替え時に本文も見直す必要がある。
+# S9 の英語・日本語の発話原稿はいずれも再訪前に書いたものであり、写真の差し替え時に
+# 両方を見直す必要がある。目印は**非発話ブロック**にのみ置く（発話ブロックに入ると
+# 壇上で読み上げてしまう）。
 REVISIT_UPDATE_MARKER = "[UPDATE AFTER 2026-08-31]"
 
 # 再訪なし版（11枚）の各スライド位置に対応する内容契約のスライド番号。
@@ -113,9 +125,14 @@ FIGURES = (
 # （Fix round 2 のレビュー指摘）。S7 は英語ラベルのみの三スケール合成図
 # `p07_three_scales.png` が、日本語キャプション付きの `fig09_multiscale.png` に
 # 戻ってしまう回帰を防ぐ（Fix round 1 のレビュー指摘）。
+# S4 は 2026-08-24 の調整で、印刷用にグレースケール化された記事図版
+# （`fig06_aerial_quarries.jpg` / `fig05_drone_takeoff.jpg`、いずれも削除済み）から
+# 発表者提供の色付き原本へ差し替えた。グレースケール版へのフォールバックも、
+# macOS の Dock / ツールチップを含む未クロップの原本の混入も、バイト比較で検出する。
 PINNED_PHOTO_SOURCES: dict[int, tuple[str, ...]] = {
     1: ("choba_lake_3.jpg",),
     3: ("fig01_lake_stage.jpg", "choba_lake_1.jpg"),
+    4: ("aerial_quarry_pond.jpg", "drone_lake_stage.jpg"),
     7: ("p07_three_scales.png",),
 }
 
@@ -644,9 +661,12 @@ def parse_notes(md: str) -> dict[int, dict[str, str]]:
     """スピーカーノート Markdown を `### Slide N — <title>` 単位に分解する。
 
     返り値は内容契約のスライド番号をキーとし、`title`（見出しのタイトル文字列）、
-    `en`（英語の発話本文。`**EN (spoken)**` から `**JA (not spoken)**` の直前まで）、
-    `ja`（`**JA (not spoken)**` の行から節末まで。節区切りの水平線 `---` は除く）を
-    持つ辞書。
+    `en`（英語の発話原稿。`**EN (spoken)**` から**最初の日本語マーカー**の直前まで）、
+    `ja_spoken`（日本語の発話原稿。`**JA（訳・読み上げ可）**` の行から
+    `**JA（補足・読み上げない）**` の直前まで）、`ja_notes`
+    （`**JA（補足・読み上げない）**` の行から節末まで。節区切りの水平線 `---` は除く）を
+    持つ辞書。英語の切り出しを最初の日本語マーカーで止めることで、語数ゲートが
+    日本語ブロック中の ASCII 語（NDWI・OpenStreetMap 等）を数えないようにしている。
 
     生成スクリプト側にも同等の分解処理があるが、検査側は独立実装で持つ
     （生成スクリプトの読み取り結果をそのまま信じると、PPTX ノートペインとの
@@ -658,26 +678,38 @@ def parse_notes(md: str) -> dict[int, dict[str, str]]:
         number = int(parts[i])
         title = parts[i + 1].strip()
         body = parts[i + 2]
-        en, ja = "", ""
-        if EN_MARKER in body and JA_MARKER in body:
+        en, ja_spoken, ja_notes = "", "", ""
+        if EN_MARKER in body and JA_SPOKEN_MARKER in body and JA_NOTES_MARKER in body:
             after_en = body.split(EN_MARKER, 1)[1]
-            en = after_en.split(JA_MARKER, 1)[0].strip()
-            ja = re.sub(
+            en = after_en.split(JA_SPOKEN_MARKER, 1)[0].strip()
+            after_ja_spoken = after_en.split(JA_SPOKEN_MARKER, 1)[1]
+            ja_spoken = (
+                JA_SPOKEN_MARKER
+                + "\n\n"
+                + after_ja_spoken.split(JA_NOTES_MARKER, 1)[0].strip()
+            )
+            ja_notes = re.sub(
                 r"\n+-{3,}\s*$",
                 "",
-                (JA_MARKER + after_en.split(JA_MARKER, 1)[1]).strip(),
+                (JA_NOTES_MARKER + after_ja_spoken.split(JA_NOTES_MARKER, 1)[1]).strip(),
             ).strip()
-        sections[number] = {"title": title, "en": en, "ja": ja}
+        sections[number] = {
+            "title": title,
+            "en": en,
+            "ja_spoken": ja_spoken,
+            "ja_notes": ja_notes,
+        }
     return sections
 
 
 def notes_pane_text(section: dict[str, str]) -> str:
     """ノート Markdown の1節から、PPTX ノートペインに入るべき文字列を組み立てる。
 
-    英語の発話本文を先頭に置き、空行を挟んで日本語（非発話）の塊を続ける
-    （生成スクリプトの `build_notes_text()` と同一の正規形）。
+    英語の発話原稿 → 日本語の発話原稿 → 非発話の補足の順に、空行を挟んで3ブロック
+    すべてを並べる（生成スクリプトの `build_notes_text()` と同一の正規形）。日本語の
+    2ブロックはマーカー行を含めたまま入れる。
     """
-    return f"{section['en']}\n\n{section['ja']}"
+    return f"{section['en']}\n\n{section['ja_spoken']}\n\n{section['ja_notes']}"
 
 
 def count_en_words(en: str) -> int:
@@ -690,8 +722,18 @@ def count_en_words(en: str) -> int:
     return len(re.findall(r"[A-Za-z][A-Za-z'’-]*", en))
 
 
+def count_ja_chars(ja_spoken: str) -> int:
+    """日本語の発話原稿の文字数を数える（マーカー行を除いた本文の非空白文字数）。
+
+    分量の目安は「1分あたり 300〜350 字」であり、句読点を含む文字数で数える一方、
+    改行・空白は数えない（Markdown の段落分けが文字数に影響しないようにする）。
+    """
+    body = ja_spoken.split(JA_SPOKEN_MARKER, 1)[-1]
+    return len(re.sub(r"\s", "", body))
+
+
 def check_speaker_notes() -> dict[int, dict[str, str]]:
-    """スピーカーノート Markdown の構造・語数・S6 必須発話内容を検査する。"""
+    """スピーカーノート Markdown の3ブロック構造・分量・S6 必須発話内容を検査する。"""
     if not NOTES_MD.is_file():
         check(False, "スピーカーノート Markdown が存在しない")
         return {}
@@ -709,18 +751,39 @@ def check_speaker_notes() -> dict[int, dict[str, str]]:
             section["title"] == expected_title,
             f"{label}: ノートの見出しタイトルが内容契約と完全一致しない",
         )
-        check(bool(section["en"]), f"{label}: EN 発話本文が無い（{EN_MARKER}）")
-        check(bool(section["ja"]), f"{label}: JA 非発話部分が無い（{JA_MARKER}）")
+        check(bool(section["en"]), f"{label}: EN 発話原稿が無い（{EN_MARKER}）")
         check(
-            EN_MARKER not in section["en"] and JA_MARKER not in section["en"],
-            f"{label}: EN 部分に構造マーカーが混入している",
+            bool(section["ja_spoken"].split(JA_SPOKEN_MARKER, 1)[-1].strip()),
+            f"{label}: JA 発話原稿が無い（{JA_SPOKEN_MARKER}）",
         )
+        check(
+            bool(section["ja_notes"].split(JA_NOTES_MARKER, 1)[-1].strip()),
+            f"{label}: JA 非発話の補足が無い（{JA_NOTES_MARKER}）",
+        )
+        for marker in (EN_MARKER, JA_SPOKEN_MARKER, JA_NOTES_MARKER):
+            check(
+                marker not in section["en"],
+                f"{label}: EN 部分に構造マーカー {marker} が混入している",
+            )
+        for marker in (EN_MARKER, JA_NOTES_MARKER):
+            check(
+                marker not in section["ja_spoken"],
+                f"{label}: JA 発話原稿に構造マーカー {marker} が混入している",
+            )
         words = count_en_words(section["en"])
         budget = round(DURATIONS_S[n - 1] / 60 * WPM)
         check(
             abs(words - budget) <= budget * WORD_TOLERANCE,
             f"{label}: EN 語数 {words} が想定 {budget} 語から "
             f"{WORD_TOLERANCE:.0%} 超乖離",
+        )
+        chars = count_ja_chars(section["ja_spoken"])
+        ja_min = round(DURATIONS_S[n - 1] / 60 * JA_CHARS_PER_MIN_MIN)
+        ja_max = round(DURATIONS_S[n - 1] / 60 * JA_CHARS_PER_MIN_MAX)
+        check(
+            ja_min <= chars <= ja_max,
+            f"{label}: JA 発話原稿 {chars} 字が想定範囲 {ja_min}〜{ja_max} 字"
+            f"（{JA_CHARS_PER_MIN_MIN}〜{JA_CHARS_PER_MIN_MAX} 字/分）の外",
         )
 
     en6 = sections.get(6, {}).get("en", "")
@@ -750,26 +813,30 @@ def revisit_photos_are_placeholders() -> bool:
 def check_revisit_update_marker(sections: dict[int, dict[str, str]]) -> None:
     """S9 の再訪ノートの見直し要求が、写真がプレースホルダの間だけ立つことを確認する。
 
-    S9 の英語本文は 8/31 の再訪より前に書いたものであり、まだ起きていない出来事を
-    語らない構成にしてある。写真が実写に差し替わったら本文も見直す必要があるため、
-    プレースホルダ運用中は `REVISIT_UPDATE_MARKER` を **JA（非発話）側**に置くことを
-    必須とする。実写2枚が揃った時点でこの要求は自動的に消える。
+    S9 の英語・日本語の発話原稿はいずれも 8/31 の再訪より前に書いたものであり、まだ
+    起きていない出来事を語らない構成にしてある。写真が実写に差し替わったら両方の原稿を
+    見直す必要があるため、プレースホルダ運用中は `REVISIT_UPDATE_MARKER` を
+    **非発話ブロック**に置くことを必須とする。実写2枚が揃った時点でこの要求は自動的に消える。
 
-    目印は英語の発話本文に入ってはならない（英語は読み上げるため）。この禁止は
-    写真の有無にかかわらず常に検査する。
+    目印は**どのスライドの発話ブロックにも入ってはならない**（英語も日本語の訳も
+    読み上げる対象であるため）。この禁止は写真の有無にかかわらず全12枚に対して常に検査する。
     """
-    en9 = sections.get(9, {}).get("en", "")
-    check(
-        REVISIT_UPDATE_MARKER not in en9,
-        f"S9: '{REVISIT_UPDATE_MARKER}' が EN 発話本文にある（読み上げてしまう）",
-    )
+    for n in sorted(sections):
+        check(
+            REVISIT_UPDATE_MARKER not in sections[n]["en"],
+            f"S{n}: '{REVISIT_UPDATE_MARKER}' が EN 発話原稿にある（読み上げてしまう）",
+        )
+        check(
+            REVISIT_UPDATE_MARKER not in sections[n]["ja_spoken"],
+            f"S{n}: '{REVISIT_UPDATE_MARKER}' が JA 発話原稿にある（読み上げてしまう）",
+        )
     if not revisit_photos_are_placeholders():
         return
-    ja9 = sections.get(9, {}).get("ja", "")
+    ja_notes9 = sections.get(9, {}).get("ja_notes", "")
     check(
-        REVISIT_UPDATE_MARKER in ja9,
-        f"S9: 再訪写真がプレースホルダのままなのに JA 側に "
-        f"'{REVISIT_UPDATE_MARKER}' が無い（再訪後の本文見直しの申し送りが消えている）",
+        REVISIT_UPDATE_MARKER in ja_notes9,
+        f"S9: 再訪写真がプレースホルダのままなのに非発話ブロックに "
+        f"'{REVISIT_UPDATE_MARKER}' が無い（再訪後の原稿見直しの申し送りが消えている）",
     )
 
 
@@ -827,6 +894,15 @@ VERIFICATION_NUMBER_VALUES: tuple[str, ...] = (
 # 名前を要求する）。images/ には存在しないため、SHA256照合の対象からは除外する。
 VERIFICATION_RETIRED_IMAGE_NAMES: tuple[str, ...] = (
     "fig03_keirin_cliff.jpg", "poster_f4_index_panels.png",
+    # 2026-08-24 の調整で S4・S7パネル(b) を色付き原本へ差し替えた結果、どのスライドからも
+    # 参照されなくなり `images/` から削除した2点。削除の経緯を記録に残すため名前で検査する
+    # （`docs/articles/` 側の原本は無変更で存在する）。
+    "fig05_drone_takeoff.jpg", "fig06_aerial_quarries.jpg",
+    # 2026-08-24 の是正で背景地図を航空写真（地理院タイル `seamlessphoto`）から
+    # ラベルなしの淡色地図（CARTO Positron）へ差し替えた結果、参照されなくなり
+    # `images/` から削除したラスタ。差し替えの経緯（S7 の三スケールの物語との衝突と、
+    # ground truth と読まれる懸念）を記録に残すため名前で検査する。
+    "basemap_kitagi_gsi_seamlessphoto.png",
 )
 
 # 8/31 撮影分の空欄テーブルに必須の見出し4列。
