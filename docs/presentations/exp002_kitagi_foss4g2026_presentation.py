@@ -486,7 +486,7 @@ def s03(slide, n: int) -> None:
             "March 2026 — a drone mapping party on the island",
             "Vertical granite walls, cut not weathered",
             "Water in an unusual green; reported depths of a few metres to about twenty",
-            "A stage on the water, built from leftover stone",
+            "A wooden stage on the water, with stone blocks arranged as seats",
             "Five or six sites during the event.",
         ],
         top=GRAPHIC_TOP, height=PHOTO_TEXT_HEIGHT,
