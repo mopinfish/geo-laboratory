@@ -205,8 +205,8 @@
 
 ### Q8-2. Would it work for mining regions outside Japan?
 - **JP:** 日本以外の鉱山地域でも使えますか。
-- **A (EN):** In principle — Sentinel-2 is global and the indices aren't Japan-specific. What is specific here is the granite landscape. In this run, the vegetation mask removed only 9 pixels; its role could be much larger elsewhere — in a wetter, greener setting the NDVI mask would do far more work.
-- **A (JP):** 原理的には可能です。Sentinel-2はグローバルで、指数も日本固有のものではありません。固有なのは花崗岩の景観です。この実行では植生マスクの除外は9ピクセルのみでしたが、他の環境ではその役割はずっと大きくなり得ます。より湿潤で緑の多い環境では、NDVIマスクははるかに大きな役割を果たすはずです。
+- **A (EN):** In principle — Sentinel-2 is global and the indices aren't Japan-specific. What is specific here is the granite landscape. In this run, the vegetation mask removed only nine pixels. Its role could be larger in a wetter, greener setting, but I have not tested that.
+- **A (JP):** 原理的には可能です。Sentinel-2はグローバルで、指数も日本固有のものではありません。固有なのは花崗岩の景観です。この実行では植生マスクの除外は9ピクセルのみでした。より湿潤で緑の多い環境では役割が大きくなる可能性がありますが、未検証です。
 - 根拠: 報告書 5.1（仮説3）、6.3 第5項。国外適用は未検証
 
 ---
