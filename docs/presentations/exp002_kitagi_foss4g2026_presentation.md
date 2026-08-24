@@ -288,7 +288,7 @@
 | `docs/presentations/exp002_kitagi_foss4g2026_presentation.md` | 本書（内容契約・正本） |
 | `docs/presentations/exp002_kitagi_foss4g2026_presentation.py` | python-pptx 生成スクリプト（正本） |
 | `docs/presentations/exp002_kitagi_foss4g2026_presentation.pptx` | 生成物（手編集しない） |
-| `docs/presentations/exp002_kitagi_foss4g2026_presentation_speaker_notes.md` | スピーカーノート（英日併記。**発話対象は英語のみ**、日本語は非発話の訳・補足として構造的に分離。pptxのノートペインへ同内容を書き込む） |
+| `docs/presentations/exp002_kitagi_foss4g2026_presentation_speaker_notes.md` | スピーカーノート。スライド毎に3ブロック構成（`EN (spoken)` / `JA（訳・読み上げ可）` / `JA（補足・読み上げない）`）。**当日の登壇は英語のみ**（採択通知が英語での発表を前提としている）。日本語の訳はリハーサル・自己確認・非常時の備えとして読み上げ可能な散文で用意し、主張境界や伏線などの内部メモは第3ブロックに分離する。pptxのノートペインへ3ブロックを同順で書き込む |
 | `docs/presentations/exp002_kitagi_foss4g2026_presentation_verification.md` | 照合記録（数値・出典・写真の座標と撮影時刻） |
 | `docs/presentations/validate_exp002_kitagi_foss4g2026_presentation.py` | 機械検査（投影文字列・数値・禁止表現・スライド数・EN/JA同期・15pt下限） |
 | `docs/presentations/images/` | スライド用画像 |
