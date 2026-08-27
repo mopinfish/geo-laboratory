@@ -838,10 +838,7 @@ def _strip_section_rule(text: str) -> str:
 def parse_speaker_notes() -> dict[int, dict[str, str]]:
     """スピーカーノート Markdown を内容契約のスライド番号ごとに読み取る。
 
-    `### Slide N — <title>` 見出しで節に分け、3つのマーカーで3ブロックに割る。
-    `**EN (spoken)**` から次のマーカーの直前までが英語の発話原稿、
-    `**JA（訳・読み上げ可）**` から次のマーカーの直前までが日本語の発話原稿、
-    `**JA（補足・読み上げない）**` の行から節末までが非発話の補足である。
+    `### Slide N — <title>` 見出しで節に分け、英語本文・日本語本文・補足の順に割る。
     """
     md = NOTES_MD.read_text(encoding="utf-8")
     parts = re.split(r"(?m)^### Slide (\d+) — (.*)$", md)[1:]
@@ -849,22 +846,15 @@ def parse_speaker_notes() -> dict[int, dict[str, str]]:
     for i in range(0, len(parts), 3):
         number = int(parts[i])
         body = parts[i + 2]
-        if (
-            EN_MARKER not in body
-            or JA_SPOKEN_MARKER not in body
-            or JA_NOTES_MARKER not in body
-        ):
-            raise ValueError(f"ノートの Slide {number} に3ブロックの区切りが無い")
-        after_en = body.split(EN_MARKER, 1)[1]
-        en = after_en.split(JA_SPOKEN_MARKER, 1)[0].strip()
-        after_ja_spoken = after_en.split(JA_SPOKEN_MARKER, 1)[1]
-        ja_spoken = (
-            JA_SPOKEN_MARKER
-            + "\n\n"
-            + after_ja_spoken.split(JA_NOTES_MARKER, 1)[0].strip()
-        )
+        if JA_NOTES_MARKER not in body:
+            raise ValueError(f"ノートの Slide {number} に補足ブロックの区切りが無い")
+        spoken, notes = body.split(JA_NOTES_MARKER, 1)
+        spoken_blocks = [block.strip() for block in spoken.strip().split("\n\n") if block.strip()]
+        if len(spoken_blocks) != 2:
+            raise ValueError(f"ノートの Slide {number} に英日2ブロックが無い")
+        en, ja_spoken = spoken_blocks
         ja_notes = _strip_section_rule(
-            JA_NOTES_MARKER + after_ja_spoken.split(JA_NOTES_MARKER, 1)[1]
+            JA_NOTES_MARKER + notes
         )
         sections[number] = {
             "title": parts[i + 1].strip(),
@@ -878,9 +868,7 @@ def parse_speaker_notes() -> dict[int, dict[str, str]]:
 def build_notes_text(section: dict[str, str]) -> str:
     """ノートペインに書き込む文字列を組み立てる（英語原稿→日本語原稿→非発話の補足）。
 
-    日本語の2ブロックは見出し行（`**JA（訳・読み上げ可）**` /
-    `**JA（補足・読み上げない）**`）を含めたまま入れる。発表者がノートペインだけを
-    見た状態でも「どこまで読み上げてよいか」の境界が分かるようにする。
+    発話本文と補足を、余分な見出しなしで読みやすい順に並べる。
     """
     return f"{section['en']}\n\n{section['ja_spoken']}\n\n{section['ja_notes']}"
 

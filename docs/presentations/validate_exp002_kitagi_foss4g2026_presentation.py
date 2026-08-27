@@ -661,12 +661,8 @@ def parse_notes(md: str) -> dict[int, dict[str, str]]:
     """スピーカーノート Markdown を `### Slide N — <title>` 単位に分解する。
 
     返り値は内容契約のスライド番号をキーとし、`title`（見出しのタイトル文字列）、
-    `en`（英語の発話原稿。`**EN (spoken)**` から**最初の日本語マーカー**の直前まで）、
-    `ja_spoken`（日本語の発話原稿。`**JA（訳・読み上げ可）**` の行から
-    `**JA（補足・読み上げない）**` の直前まで）、`ja_notes`
-    （`**JA（補足・読み上げない）**` の行から節末まで。節区切りの水平線 `---` は除く）を
-    持つ辞書。英語の切り出しを最初の日本語マーカーで止めることで、語数ゲートが
-    日本語ブロック中の ASCII 語（NDWI・OpenStreetMap 等）を数えないようにしている。
+    `en`（英語本文）、`ja_spoken`（日本語本文）、`ja_notes`
+    （非発話の補足。節区切りの水平線 `---` は除く）を持つ辞書。
 
     生成スクリプト側にも同等の分解処理があるが、検査側は独立実装で持つ
     （生成スクリプトの読み取り結果をそのまま信じると、PPTX ノートペインとの
@@ -679,19 +675,15 @@ def parse_notes(md: str) -> dict[int, dict[str, str]]:
         title = parts[i + 1].strip()
         body = parts[i + 2]
         en, ja_spoken, ja_notes = "", "", ""
-        if EN_MARKER in body and JA_SPOKEN_MARKER in body and JA_NOTES_MARKER in body:
-            after_en = body.split(EN_MARKER, 1)[1]
-            en = after_en.split(JA_SPOKEN_MARKER, 1)[0].strip()
-            after_ja_spoken = after_en.split(JA_SPOKEN_MARKER, 1)[1]
-            ja_spoken = (
-                JA_SPOKEN_MARKER
-                + "\n\n"
-                + after_ja_spoken.split(JA_NOTES_MARKER, 1)[0].strip()
-            )
+        if JA_NOTES_MARKER in body:
+            spoken, notes = body.split(JA_NOTES_MARKER, 1)
+            spoken_blocks = [block.strip() for block in spoken.strip().split("\n\n") if block.strip()]
+            if len(spoken_blocks) == 2:
+                en, ja_spoken = spoken_blocks
             ja_notes = re.sub(
                 r"\n+-{3,}\s*$",
                 "",
-                (JA_NOTES_MARKER + after_ja_spoken.split(JA_NOTES_MARKER, 1)[1]).strip(),
+                (JA_NOTES_MARKER + notes).strip(),
             ).strip()
         sections[number] = {
             "title": title,
@@ -751,25 +743,15 @@ def check_speaker_notes() -> dict[int, dict[str, str]]:
             section["title"] == expected_title,
             f"{label}: ノートの見出しタイトルが内容契約と完全一致しない",
         )
-        check(bool(section["en"]), f"{label}: EN 発話原稿が無い（{EN_MARKER}）")
+        check(bool(section["en"]), f"{label}: 英語発話原稿が無い")
         check(
-            bool(section["ja_spoken"].split(JA_SPOKEN_MARKER, 1)[-1].strip()),
-            f"{label}: JA 発話原稿が無い（{JA_SPOKEN_MARKER}）",
+            bool(section["ja_spoken"].strip()),
+            f"{label}: 日本語発話原稿が無い",
         )
         check(
             bool(section["ja_notes"].split(JA_NOTES_MARKER, 1)[-1].strip()),
             f"{label}: JA 非発話の補足が無い（{JA_NOTES_MARKER}）",
         )
-        for marker in (EN_MARKER, JA_SPOKEN_MARKER, JA_NOTES_MARKER):
-            check(
-                marker not in section["en"],
-                f"{label}: EN 部分に構造マーカー {marker} が混入している",
-            )
-        for marker in (EN_MARKER, JA_NOTES_MARKER):
-            check(
-                marker not in section["ja_spoken"],
-                f"{label}: JA 発話原稿に構造マーカー {marker} が混入している",
-            )
         words = count_en_words(section["en"])
         budget = round(DURATIONS_S[n - 1] / 60 * WPM)
         check(
