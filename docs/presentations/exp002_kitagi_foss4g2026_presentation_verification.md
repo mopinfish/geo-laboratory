@@ -6,6 +6,18 @@
 - SHA256 は本書執筆時にディスク上のファイルから直接計算した（`shasum -a 256`／`hashlib.sha256`）。過去のレポート・チャットに記載された値はコピーしていない
 - 権威資料: `docs/reports/exp002_kitagi_quarry_water_detection_report.md`（数値・限界の一次情報）、`docs/posters/exp002_kitagi_foss4g2026_proposal.md`（採択アブストラクトの約束）、`docs/presentations/exp002_kitagi_foss4g2026_presentation.md`（投影文字列の正本）、`docs/results/exp002/exp002_osm_comparison.md`（OSM照合。参考値）、`docs/results/exp002/exp002_kitagi_summer_water_polygons_2025-08-02.geojson`（公開ポリゴン）
 
+## 0. 指定PPTX（最終11枚版）のノート同期記録
+
+指定された外部PPTX `/Users/otsuka/Downloads/foss4g_2026/presentation/kitaghi-island/exp002_kitagi_foss4g2026_presentation.pptx` は、12枚版の生成用正本とは別に運用する最終11枚版である。ノートペインと [最終11枚版スピーカーノート](exp002_kitagi_foss4g2026_presentation_delivery_notes_11slides.md) を照合し、次を確認した（2026-08-29）。
+
+- スライド数11、ノート数11、各スライド英日9組
+- 英語発話語数 1,064語（旧版686語、1.55倍）
+- 145・113・127・100 m²・10 m・各指数閾値の数値と留保を関連資料と照合
+- S8のOSM 7件、S10のスライド番号10を確認
+- サブエージェントによる内容・英語・英日対訳・話の流れのレビューを実施し、S10のプレースホルダー画像差し替え待ちを除いて承認済み
+
+S10のプレースホルダー画像と訪問済み表現は、画像差し替え時に実写・訪問記録へ更新する保留事項である。
+
 ## 1. 数値照合表
 
 「投影」列は当該スライドの投影本文（テキストフレーム）に文字列として現れることを指す。図版内の注記や口頭のみの言及は「発話のみ」と明記する。数値は内容契約（`exp002_kitagi_foss4g2026_presentation.md`）の `Projected body` と生成スクリプト（`exp002_kitagi_foss4g2026_presentation.py`）の投影文字列リテラルを照合して確認した。
